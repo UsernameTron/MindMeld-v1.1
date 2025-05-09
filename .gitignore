@@ -105,3 +105,4 @@ Desktop.ini
 *.md.html
 
 *storybook.log
+node_modules/
