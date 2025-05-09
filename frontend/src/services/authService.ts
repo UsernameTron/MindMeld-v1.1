@@ -1,5 +1,5 @@
 import { apiClient } from './api/apiClient';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 interface LoginCredentials {
   username: string;
@@ -54,7 +54,7 @@ export const authService = {
       const decoded = jwtDecode<TokenPayload>(token);
       const currentTime = Date.now() / 1000;
       return decoded.exp > currentTime;
-    } catch (error) {
+    } catch {
       return false;
     }
   },
