@@ -6,7 +6,7 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "vitest run --coverage",
+    "test": "cd frontend && npm test",
     "test:watch": "vitest watch",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
