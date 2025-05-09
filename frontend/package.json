@@ -9,7 +9,8 @@
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
     "format": "prettier --write 'src/**/*.{ts,tsx}'",
-    "test": "vitest run",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest watch",
     "storybook": "storybook dev -p 6006"
   },
   "dependencies": {

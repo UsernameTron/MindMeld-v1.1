@@ -1,0 +1,36 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main, production]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' ? 'staging' : 'production' }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+      - name: Deploy to environment
+        run: |
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            echo "Deploying to staging environment"
+            # Add staging deployment commands here
+          elif [[ "$GITHUB_REF" == "refs/heads/production" ]]; then
+            echo "Deploying to production environment"
+            # Add production deployment commands here
+          fi
+        env:
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}

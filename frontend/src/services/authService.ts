@@ -1,39 +1,9 @@
-import { apiClient } from './api/apiClient';
-import { jwtDecode } from 'jwt-decode';
-
-interface LoginCredentials {
-  username: string;
-  password: string;
-}
-
-interface AuthResponse {
-  access_token: string;
-  token_type: string;
-}
-
-interface TokenPayload {
-  sub: string;
-  exp: number;
-}
+import { apiClient } from './apiClient';
 
 export const authService = {
-  login: async (credentials: LoginCredentials): Promise<boolean> => {
+  async login(email: string, password: string): Promise<boolean> {
     try {
-      const response = await apiClient.post<AuthResponse>(
-        '/auth/token',
-        new URLSearchParams({
-          username: credentials.username,
-          password: credentials.password,
-        }),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        }
-      );
-
-      const { access_token } = response.data;
-      localStorage.setItem('auth_token', access_token);
+      await apiClient.post('/auth/token', { email, password });
       return true;
     } catch (error) {
       console.error('Login failed', error);
@@ -41,21 +11,39 @@ export const authService = {
     }
   },
 
-  logout: (): void => {
-    localStorage.removeItem('auth_token');
-    window.location.href = '/login';
+  async logout(): Promise<void> {
+    try {
+      await apiClient.post('/auth/logout');
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('Logout failed', error);
+    }
   },
 
-  isAuthenticated: (): boolean => {
-    const token = localStorage.getItem('auth_token');
-    if (!token) return false;
-
+  async refresh(): Promise<boolean> {
     try {
-      const decoded = jwtDecode<TokenPayload>(token);
-      const currentTime = Date.now() / 1000;
-      return decoded.exp > currentTime;
-    } catch {
+      await apiClient.post('/auth/refresh');
+      return true;
+    } catch (error) {
+      console.error('Token refresh failed', error);
       return false;
     }
   },
+
+  async validateSession(): Promise<boolean> {
+    try {
+      await apiClient.get('/auth/validate');
+      return true;
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        const refreshed = await this.refresh();
+        if (!refreshed) {
+          window.location.href = '/login';
+          return false;
+        }
+        return true;
+      }
+      return false;
+    }
+  }
 };

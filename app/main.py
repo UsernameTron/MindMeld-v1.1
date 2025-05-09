@@ -10,7 +10,7 @@ from typing import AsyncIterator
 
 from fastapi import FastAPI, APIRouter
 
-from app.api.routes import analyze, auth, persona, rewrite
+from app.api.routes import analyze, auth, persona, rewrite, data
 from app.api.routes.chat import router as chat_router
 from app.core.auth_middleware import APIKeyMiddleware
 from app.core.errors import register_exception_handlers
@@ -70,6 +70,7 @@ app.include_router(chat_router, prefix="/chat", tags=["Chat-Legacy"])
 app.include_router(persona.router, prefix="/personas")
 app.include_router(rewrite.router, prefix="/rewrite")
 app.include_router(auth.router, prefix="/auth")
+app.include_router(data.data_router, prefix="/data", tags=["Data"])
 
 
 @app.get("/health")

@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { loadOpenAPISpec, OpenAPISpec } from '../utils/openapi';
 
-interface OpenAPIContextType {
+export interface OpenAPIContextType {
   spec: OpenAPISpec | null;
 }
 

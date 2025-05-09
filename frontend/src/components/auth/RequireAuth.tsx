@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../../services/authService';
 
 interface RequireAuthProps {
@@ -6,11 +7,33 @@ interface RequireAuthProps {
 }
 
 export const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
-  if (typeof window !== 'undefined' && !authService.isAuthenticated()) {
-    if (window.location.pathname !== '/login') {
-      window.location.href = '/login';
-    }
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isValidating, setIsValidating] = useState(true);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const validateAuth = async () => {
+      setIsValidating(true);
+      const valid = await authService.validateSession();
+      setIsAuthenticated(valid);
+      
+      if (!valid) {
+        // Redirect to login with return path
+        navigate('/login', { 
+          state: { from: location.pathname }
+        });
+      }
+      
+      setIsValidating(false);
+    };
+    
+    validateAuth();
+  }, [navigate, location]);
+
+  if (isValidating) {
     return null;
   }
+
   return <>{children}</>;
 };

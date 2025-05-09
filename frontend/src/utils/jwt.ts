@@ -1,0 +1,31 @@
+import jwt from 'jsonwebtoken';
+
+// In a production app, this would be in env variables
+const JWT_SECRET = 'mindmeld-secret-key-for-testing';
+const ACCESS_TOKEN_EXPIRY = '1h';  // 1 hour
+const REFRESH_TOKEN_EXPIRY = '7d'; // 7 days
+
+type TokenPayload = {
+  userId: string;
+  email: string;
+};
+
+export const generateAccessToken = (payload: TokenPayload) => {
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: ACCESS_TOKEN_EXPIRY
+  });
+};
+
+export const generateRefreshToken = (payload: TokenPayload) => {
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: REFRESH_TOKEN_EXPIRY
+  });
+};
+
+export const verifyToken = (token: string): TokenPayload | null => {
+  try {
+    return jwt.verify(token, JWT_SECRET) as TokenPayload;
+  } catch (error) {
+    return null;
+  }
+};
