@@ -1,0 +1,49 @@
+name: Feature Request
+about: Suggest a new feature for this project
+labels: [feature, backlog]
+title: "[Feature] "
+body:
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What area does this feature belong to?
+      options:
+        - API
+        - Service
+        - Model
+        - Infrastructure
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Project Phase
+      description: What phase of the project does this feature relate to?
+      options:
+        - Planning
+        - Development
+        - Testing
+        - Deployment
+        - Maintenance
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Please describe the feature in detail.
+    validations:
+      required: true
+  - type: checkboxes
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What must be true for this feature to be considered complete?
+      options:
+        - label: Functionality is implemented as described
+        - label: All tests pass
+        - label: Documentation is updated
+        - label: Code review is complete

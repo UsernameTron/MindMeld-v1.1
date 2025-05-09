@@ -1,0 +1,15 @@
+# NOTE: This is a template and not a real persona. Do not load as a persona definition.
+# To use, copy and fill in the fields below in your own prompt YAML files.
+# If your loader cannot skip this file, move it outside the active directory.
+# This is a template for prompt attribution metadata.
+title: "<Prompt Title>"
+version: "1.0.0"
+author: "<Author Name or Organization>"
+source: "<URL or description of origin>"
+license: "<License type, e.g., MIT, CC-BY-4.0, proprietary>"
+created: "<YYYY-MM-DD>"
+last_modified: "<YYYY-MM-DD>"
+description: |
+  <Short description of the prompt's purpose and intended use>
+# ---
+# Add your prompt content below this header.

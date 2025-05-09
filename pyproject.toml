@@ -1,0 +1,48 @@
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+strict_optional = true
+strict = true
+ignore_missing_imports = true
+
+[tool.bandit]
+exclude_dirs = ["tests", "scripts"]
+skips = ["B101"]
+
+[tool.safety]
+# No config needed; run with `safety check` in CI/Makefile
+
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+select = ["E", "F", "B", "C", "S"]
+# Requires flake8-bandit, flake8-bugbear, flake8-comprehensions, flake8-security
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "asyncio: mark test to be run with pytest-asyncio"
+]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.pydocstyle]
+convention = "google"
+match = "(?!test_).*\\.py"
+match_dir = "[^\\.].*"
+add_ignore = ["D107", "D203", "D213"]
+add_select = ["D214", "D215", "D404", "D405", "D406", "D407", "D408", "D409", "D410", "D411", "D412", "D413", "D414", "D416", "D417"]
