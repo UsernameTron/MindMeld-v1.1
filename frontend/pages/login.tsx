@@ -19,9 +19,9 @@ export default function LoginPage() {
       } else {
         setError('Invalid email or password');
       }
-    } catch (err: any) {
-      console.error('Login error:', err);
-      setError(err.message || 'Login failed');
+    } catch (error: unknown) {
+      console.error('Login error:', error);
+      setError(error instanceof Error ? error.message : 'Login failed');
     }
   };
 

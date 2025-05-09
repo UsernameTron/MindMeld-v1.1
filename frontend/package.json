@@ -9,9 +9,10 @@
     "lint": "eslint 'src/**/*.{ts,tsx}'",
     "lint:fix": "eslint 'src/**/*.{ts,tsx}' --fix",
     "format": "prettier --write 'src/**/*.{ts,tsx}'",
+    "format:check": "prettier --check 'src/**/*.{ts,tsx}'",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch",
-    "storybook": "storybook dev -p 6006"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.2",
@@ -29,16 +30,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.27.1",
-    "@chromatic-com/storybook": "^3.2.6",
     "@eslint/eslintrc": "^3",
-    "@storybook/addon-docs": "^8.6.12",
-    "@storybook/addon-essentials": "^8.6.12",
-    "@storybook/addon-onboarding": "^8.6.12",
-    "@storybook/blocks": "^8.6.12",
-    "@storybook/experimental-addon-test": "^8.6.12",
-    "@storybook/react": "^8.6.12",
-    "@storybook/react-vite": "^8.6.12",
-    "@storybook/test": "^8.6.12",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.3.1",
@@ -63,7 +55,6 @@
     "playwright": "^1.52.0",
     "prettier": "^3.5.3",
     "prop-types": "^15.8.1",
-    "storybook": "^8.6.12",
     "typescript": "^5",
     "vitest": "^3.1.3"
   }

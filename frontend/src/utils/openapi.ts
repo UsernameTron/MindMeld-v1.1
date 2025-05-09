@@ -11,6 +11,10 @@ export interface OpenAPISpec {
     [key: string]: unknown;
   };
   paths: Record<string, unknown>;
+  components?: {
+    schemas?: Record<string, unknown>;
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }
 

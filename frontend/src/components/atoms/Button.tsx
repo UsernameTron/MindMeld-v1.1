@@ -1,5 +1,6 @@
+'use client';
 import React from 'react';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'danger';
@@ -14,7 +15,7 @@ export const Button: React.FC<ButtonProps> = ({
 }) => {
   return (
     <button
-      className={classNames(
+      className={clsx(
         'px-4 py-2 rounded font-semibold focus:outline-none',
         {
           'bg-blue-600 text-white hover:bg-blue-700': variant === 'primary',

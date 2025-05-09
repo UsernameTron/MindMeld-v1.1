@@ -9,8 +9,8 @@ export const apiClient = axios.create({
 
 // Add response interceptor for handling token expiry
 apiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+  response => response,
+  async error => {
     const originalRequest = error.config;
     // Handle 401 responses (unauthorized)
     if (

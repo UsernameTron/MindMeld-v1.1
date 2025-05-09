@@ -14,14 +14,14 @@ describe('OpenAPIContext Mock Tests', () => {
         <APIDisplay />
       </MockOpenAPIProvider>
     );
-    
+
     expect(screen.getByTestId('api-display')).toBeInTheDocument();
     expect(screen.getByText('API Context Consumer')).toBeInTheDocument();
   });
-  
+
   it('can be used with nested components', () => {
     const NestedComponent = () => <div data-testid="nested">Nested Component</div>;
-    
+
     render(
       <MockOpenAPIProvider>
         <div data-testid="parent">
@@ -29,7 +29,7 @@ describe('OpenAPIContext Mock Tests', () => {
         </div>
       </MockOpenAPIProvider>
     );
-    
+
     expect(screen.getByTestId('parent')).toBeInTheDocument();
     expect(screen.getByTestId('nested')).toBeInTheDocument();
   });

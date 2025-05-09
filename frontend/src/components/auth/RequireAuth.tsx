@@ -1,3 +1,4 @@
+'use client';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { authService } from '../../services/authService';
@@ -17,17 +18,17 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
       setIsValidating(true);
       const valid = await authService.validateSession();
       setIsAuthenticated(valid);
-      
+
       if (!valid) {
         // Redirect to login with return path
-        navigate('/login', { 
-          state: { from: location.pathname }
+        navigate('/login', {
+          state: { from: location.pathname },
         });
       }
-      
+
       setIsValidating(false);
     };
-    
+
     validateAuth();
   }, [navigate, location]);
 
@@ -35,5 +36,6 @@ export const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
     return null;
   }
 
-  return <>{children}</>;
+  // Only render children if authenticated
+  return isAuthenticated ? <>{children}</> : null;
 };

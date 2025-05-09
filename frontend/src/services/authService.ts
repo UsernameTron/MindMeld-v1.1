@@ -34,8 +34,9 @@ export const authService = {
     try {
       await apiClient.get('/auth/validate');
       return true;
-    } catch (error: any) {
-      if (error.response?.status === 401) {
+    } catch (error: unknown) {
+      const errorWithResponse = error as { response?: { status?: number } };
+      if (errorWithResponse.response?.status === 401) {
         const refreshed = await this.refresh();
         if (!refreshed) {
           window.location.href = '/login';
@@ -45,5 +46,5 @@ export const authService = {
       }
       return false;
     }
-  }
+  },
 };
