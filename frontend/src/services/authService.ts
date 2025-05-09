@@ -19,7 +19,8 @@ interface TokenPayload {
 export const authService = {
   login: async (credentials: LoginCredentials): Promise<boolean> => {
     try {
-      const response = await apiClient.post<AuthResponse>('/auth/token', 
+      const response = await apiClient.post<AuthResponse>(
+        '/auth/token',
         new URLSearchParams({
           username: credentials.username,
           password: credentials.password,
@@ -30,7 +31,7 @@ export const authService = {
           },
         }
       );
-      
+
       const { access_token } = response.data;
       localStorage.setItem('auth_token', access_token);
       return true;
@@ -39,16 +40,16 @@ export const authService = {
       return false;
     }
   },
-  
+
   logout: (): void => {
     localStorage.removeItem('auth_token');
     window.location.href = '/login';
   },
-  
+
   isAuthenticated: (): boolean => {
     const token = localStorage.getItem('auth_token');
     if (!token) return false;
-    
+
     try {
       const decoded = jwtDecode<TokenPayload>(token);
       const currentTime = Date.now() / 1000;

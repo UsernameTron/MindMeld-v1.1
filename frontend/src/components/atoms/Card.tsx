@@ -1,5 +1,5 @@
 import React from 'react';
-import classNames from 'classnames';
+import clsx from 'clsx';
 
 export interface CardProps {
   className?: string;
@@ -7,7 +7,5 @@ export interface CardProps {
 }
 
 export const Card: React.FC<CardProps> = ({ className, children }) => (
-  <div className={classNames('bg-white rounded shadow p-4', className)}>
-    {children}
-  </div>
+  <div className={clsx('bg-white rounded shadow p-4', className)}>{children}</div>
 );

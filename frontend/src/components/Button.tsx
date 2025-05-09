@@ -50,7 +50,10 @@ export const Button: React.FC<ButtonProps> = ({
       {...rest}
     >
       {loading && (
-        <span className="mr-2 animate-spin h-4 w-4 border-2 border-t-transparent border-white rounded-full" aria-hidden="true" />
+        <span
+          className="mr-2 animate-spin h-4 w-4 border-2 border-t-transparent border-white rounded-full"
+          aria-hidden="true"
+        />
       )}
       <span>{children}</span>
     </button>
