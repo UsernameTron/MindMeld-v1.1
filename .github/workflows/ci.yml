@@ -1,77 +1,209 @@
-name: CI
+name: MindMeld CI Pipeline
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * 1'  # Run weekly on Mondays at 2:00 AM
+
+defaults:
+  run:
+    working-directory: frontend
 
 jobs:
-  lint-format:
-    name: Lint and Format
+  lint-format-type:
+    name: Lint, Format & Type Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+      
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version-file: '.nvmrc'
+          node-version: 20.x
           cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
       - name: Install dependencies
         run: npm ci
-      - name: Lint check
-        run: npm run lint
-      - name: Format check
-        run: npx prettier --check 'src/**/*.{ts,tsx}'
+      
+      - name: Run lint phase
+        working-directory: /
+        run: ./scripts/full-test.sh lint
 
   test:
-    name: Test
+    name: Unit & Component Tests
     runs-on: ubuntu-latest
-    needs: lint-format
+    needs: lint-format-type
+    strategy:
+      fail-fast: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+      
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version-file: '.nvmrc'
+          node-version: 20.x
           cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
       - name: Install dependencies
         run: npm ci
+      
       - name: Run tests with coverage
-        run: npm test
-      - name: Check coverage threshold
-        run: npx vitest run --coverage && grep -q "Statements.*: 8[0-9]\|9[0-9]\|100" coverage/coverage-summary.txt
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          directory: ./coverage
-          flags: unittests
-          fail_ci_if_error: true
+        working-directory: /
+        run: ./scripts/full-test.sh unit
+      
       - name: Upload coverage reports
         uses: actions/upload-artifact@v3
         with:
           name: coverage-report
-          path: coverage/
+          path: frontend/coverage/
+          retention-days: 14
+      
+      - name: Check coverage thresholds
+        run: |
+          COVERAGE_SUMMARY=$(cat coverage/coverage-summary.json)
+          LINE_COVERAGE=$(echo $COVERAGE_SUMMARY | jq '.total.lines.pct')
+          FUNCTION_COVERAGE=$(echo $COVERAGE_SUMMARY | jq '.total.functions.pct')
+          BRANCH_COVERAGE=$(echo $COVERAGE_SUMMARY | jq '.total.branches.pct')
+          
+          if (( $(echo "$LINE_COVERAGE < 80" | bc -l) )) || \
+             (( $(echo "$FUNCTION_COVERAGE < 80" | bc -l) )) || \
+             (( $(echo "$BRANCH_COVERAGE < 80" | bc -l) )); then
+            echo "Coverage thresholds not met:"
+            echo "Line coverage: $LINE_COVERAGE% (required: 80%)"
+            echo "Function coverage: $FUNCTION_COVERAGE% (required: 80%)"
+            echo "Branch coverage: $BRANCH_COVERAGE% (required: 80%)"
+            exit 1
+          fi
+      
+      - name: Generate coverage badge
+        if: github.ref == 'refs/heads/main'
+        run: |
+          npx make-coverage-badge --output-path ./badges/coverage.svg
+          
+      - name: Upload coverage badge
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-badge
+          path: frontend/badges/coverage.svg
 
   build:
-    name: Build
+    name: Production Build
     runs-on: ubuntu-latest
     needs: test
-    env:
-      NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+      
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
-          node-version-file: '.nvmrc'
+          node-version: 20.x
           cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
       - name: Install dependencies
         run: npm ci
-      - name: Build
-        run: npm run build
+      
+      - name: Cache Next.js build
+        uses: actions/cache@v3
+        with:
+          path: |
+            frontend/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('frontend/package-lock.json') }}-${{ hashFiles('frontend/next.config.js') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('frontend/package-lock.json') }}-
+            ${{ runner.os }}-nextjs-
+      
+      - name: Build application
+        working-directory: /
+        run: ./scripts/full-test.sh build
+      
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: build-output
-          path: .next/
+          path: frontend/.next/
+          retention-days: 1
+
+  preview-deploy:
+    name: Preview Deployment
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    environment:
+      name: preview
+      url: ${{ steps.deploy-to-vercel.outputs.url }}
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-output
+          path: frontend/.next/
+      
+      - name: Deploy to Vercel
+        id: deploy-to-vercel
+        uses: amondnet/vercel-action@v20
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./frontend
+          alias-domains: |
+            pr-{{PR_NUMBER}}.mindmeld-preview.vercel.app
+      
+      - name: Run smoke tests against preview
+        run: |
+          # Allow time for deployment to stabilize
+          sleep 20
+          
+          # Run basic smoke tests
+          PREVIEW_URL=${{ steps.deploy-to-vercel.outputs.preview-url }}
+          
+          # Check if preview deployment responds
+          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" $PREVIEW_URL)
+          
+          if [[ $STATUS_CODE -ne 200 ]]; then
+            echo "Preview deployment failed with status code: $STATUS_CODE"
+            exit 1
+          fi
+          
+          # Test critical paths
+          LOGIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $PREVIEW_URL/login)
+          if [[ $LOGIN_STATUS -ne 200 ]]; then
+            echo "Login page check failed with status code: $LOGIN_STATUS"
+            exit 1
+          fi
+          
+          echo "Preview deployment smoke test successful!"
+
+  e2e-tests:
+    name: Playwright E2E Tests
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.x
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - name: Install dependencies
+        run: npm ci
+      - name: Set NODE_ENV for E2E
+        run: echo "NODE_ENV=production" >> $GITHUB_ENV
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+        
+      - name: Run Playwright E2E
+        working-directory: /
+        run: ./scripts/full-test.sh e2e

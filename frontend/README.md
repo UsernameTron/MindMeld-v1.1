@@ -2,6 +2,18 @@
 
 ![E2E Tests](https://github.com/YourOrg/MindMeld/actions/workflows/ci.yml/badge.svg?job=e2e-tests)
 
+## Service Dependency Injection (DI)
+
+All core services (auth, data, code, etc.) now use a DI factory pattern. Instead of importing a singleton, create an instance with the API client:
+
+```ts
+import { createAuthService } from './services/authService';
+import { apiClient } from './services/apiClient';
+const authService = createAuthService(apiClient);
+```
+
+This enables full testability and mock injection. See `DEVELOPER_GUIDE.md` for details and patterns.
+
 <!-- Trivial change for CI/CD Phase 4 test PR -->
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).

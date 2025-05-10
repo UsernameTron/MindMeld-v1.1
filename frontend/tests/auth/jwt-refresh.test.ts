@@ -1,27 +1,36 @@
 import { test, expect, describe, vi, beforeAll, afterAll } from 'vitest';
 import { mockApiClient } from '../mocks/apiClient';
-import { authService } from '../../src/services/authService';
+import { createAuthService } from '../../src/services/authService';
 import jwt from 'jsonwebtoken';
 
-// Patch authService to use mockApiClient for all requests in tests
-import * as authServiceModule from '../../src/services/authService';
-const realApiClient = authServiceModule.authService;
+let authService: ReturnType<typeof createAuthService>;
+let realLocation: Location;
 
 describe('JWT Lifecycle', () => {
   beforeAll(() => {
-    // Attach mockApiClient to globalThis for authService to pick up
-    (globalThis as any).mockApiClient = mockApiClient;
-
-    // Patch global apiClient to use mockApiClient in tests
-    (globalThis as any).apiClient = mockApiClient;
-    // Add a get method to mockApiClient for validateSession
+    // Save the real location so we can restore later
+    realLocation = window.location;
+    // Define a writable mock location
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      writable: true,
+      value: {
+        ...realLocation,
+        href: '',
+        assign: vi.fn(function(url: string) { (window.location as any).href = url; })
+      }
+    });
     mockApiClient.get = vi.fn();
+    authService = createAuthService(mockApiClient);
   });
 
   afterAll(() => {
-    delete (globalThis as any).mockApiClient;
-    delete (globalThis as any).apiClient;
-    // Use optional chaining to avoid TS2790 error
+    // Restore original location
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      writable: true,
+      value: realLocation
+    });
     if ((mockApiClient as any).get) {
       delete (mockApiClient as any).get;
     }
@@ -32,32 +41,38 @@ describe('JWT Lifecycle', () => {
       { sub: 'test-user', exp: Math.floor(Date.now() / 1000) - 60 },
       'test-secret'
     );
-    document.cookie = `auth_token=${expiredToken}; path=/`;
-
+    window.localStorage.setItem('token', expiredToken);
+    
+    mockApiClient.get.mockRejectedValueOnce({ 
+      response: { status: 401 } 
+    });
+    
     mockApiClient.post.mockResolvedValueOnce({
-      data: { token: 'new-valid-token' },
-      headers: {
-        'set-cookie': ['auth_token=new-valid-token; HttpOnly; Secure; Path=/']
-      }
+      data: { access_token: 'new-valid-token' },
     });
 
     const result = await authService.validateSession();
 
+    expect(mockApiClient.get).toHaveBeenCalledWith('/auth/validate');
     expect(mockApiClient.post).toHaveBeenCalledWith('/auth/refresh');
+    expect(window.localStorage.getItem('token')).toBe('new-valid-token');
     expect(result).toBe(true);
   });
 
   test('should redirect on malformed tokens', async () => {
-    document.cookie = 'auth_token=invalid-token; path=/';
-
-    mockApiClient.post.mockRejectedValueOnce({ response: { status: 401 } });
-
-    const mockNavigate = vi.fn();
-    (window as any).useNavigate = mockNavigate;
+    const invalidToken = 'invalid-token';
+    window.localStorage.setItem('token', invalidToken);
+    
+    mockApiClient.get.mockRejectedValueOnce({ 
+      response: { status: 401 } 
+    });
+    
+    mockApiClient.post.mockRejectedValueOnce({ 
+      response: { status: 401 } 
+    });
 
     await authService.validateSession();
 
-    expect(mockNavigate).toHaveBeenCalledWith('/login');
-    delete (window as any).useNavigate;
+    expect(window.location.assign).toHaveBeenCalledWith('/login');
   });
 });

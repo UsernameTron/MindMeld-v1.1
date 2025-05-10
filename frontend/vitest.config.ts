@@ -9,23 +9,26 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['./src/setupTests.ts'],
     coverage: {
-      reporter: ['text', 'lcov', 'html'],
-      include: [
-        'src/components/Button.tsx',
-        'src/components/atoms/Card.tsx',
-        'src/components/molecules/ErrorDisplay.tsx', 
-        'src/components/molecules/LoadingIndicator.tsx',
-      ],
+      provider: 'v8',
+      reporter: ['text', 'json', 'json-summary', 'html'],
       thresholds: {
         lines: 80,
         functions: 80,
         branches: 80,
-        statements: 80,
-        perFile: true
-      }
+        statements: 80
+      },
+      exclude: [
+        'node_modules/**',
+        '.next/**',
+        'public/**',
+        '**/*.d.ts',
+        '**/*.config.{js,ts}',
+        'src/types/**'
+      ]
     },
     include: [
-      'src/**/*.test.{ts,tsx}'
+      'src/**/*.test.{ts,tsx}',
+      'tests/**/*.test.{ts,tsx}'
     ],
     exclude: [
       '**/node_modules/**',

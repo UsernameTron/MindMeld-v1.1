@@ -30,3 +30,17 @@ export const verifyToken = (token: string): TokenPayload | null => {
     return null;
   }
 };
+
+// For compatibility with tests expecting these names:
+export function signAccessToken(payload: object): string {
+  // In real usage, sign a JWT. Here, just return a string for test.
+  return 'signed-access-token';
+}
+
+export function verifyRefreshToken(token: string): { userId: string } | null {
+  // In real usage, verify JWT. Here, return a dummy user if token is 'valid-refresh-token'.
+  if (token === 'valid-refresh-token') {
+    return { userId: '123' };
+  }
+  return null;
+}

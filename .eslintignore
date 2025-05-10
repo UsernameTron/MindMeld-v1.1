@@ -1,0 +1,19 @@
+# ignore Next.js build output
+frontend/.next
+frontend/.next/**/*
+**/frontend/.next/**
+**/.next/**
+
+# ignore coverage reports
+frontend/coverage
+frontend/coverage/**/*
+**/frontend/coverage/**
+**/coverage/**
+
+# ignore node modules
+node_modules/
+**/node_modules/**
+
+# ignore dist directories
+dist/
+**/dist/**

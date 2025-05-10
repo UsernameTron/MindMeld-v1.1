@@ -1,7 +1,10 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { authService } from '../../services/authService';
+import { createAuthService } from '../../services/authService';
+import { apiClient } from '../../services/apiClient';
+
+const authService = createAuthService(apiClient);
 
 interface RequireAuthProps {
   children: React.ReactNode;

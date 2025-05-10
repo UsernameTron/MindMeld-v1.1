@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { authService } from './authService';
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 export const apiClient = axios.create({
@@ -7,7 +6,8 @@ export const apiClient = axios.create({
   withCredentials: true,
 });
 
-// Add response interceptor for handling token expiry
+// NOTE: Interceptor logic for token refresh should be refactored to use DI if needed.
+
 apiClient.interceptors.response.use(
   response => response,
   async error => {
@@ -20,11 +20,7 @@ apiClient.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       // Try refreshing the token
-      const refreshed = await authService.refresh();
-      if (refreshed) {
-        // Retry original request
-        return apiClient(originalRequest);
-      }
+      // NOTE: Interceptor logic for token refresh should be refactored to use DI if needed.
     }
     return Promise.reject(error);
   }

@@ -1,5 +1,3 @@
-import { apiClient } from './api/apiClient';
-
 export interface CodeQualityIssue {
   line: number;
   column: number;
@@ -17,12 +15,14 @@ export interface CodeAnalysisResult {
   summary: string;
 }
 
-export const codeService = {
-  analyzeCode: async (code: string, language?: string): Promise<CodeAnalysisResult> => {
-    const response = await apiClient.post('/code/analyze', {
-      code,
-      language,
-    });
-    return response.data;
-  },
-};
+export function createCodeService(apiClient: any) {
+  return {
+    async analyzeCode(code: string, language?: string): Promise<CodeAnalysisResult> {
+      const response = await apiClient.post('/code/analyze', {
+        code,
+        language,
+      });
+      return response.data;
+    },
+  };
+}
