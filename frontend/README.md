@@ -1,5 +1,7 @@
 # MindMeld Frontend
 
+![E2E Tests](https://github.com/YourOrg/MindMeld/actions/workflows/ci.yml/badge.svg?job=e2e-tests)
+
 <!-- Trivial change for CI/CD Phase 4 test PR -->
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
