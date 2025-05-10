@@ -16,8 +16,8 @@ describe('dataService (DI)', () => {
   it('fetchData returns value from API', async () => {
     mockApiClient.get.mockResolvedValueOnce({ data: { value: 'hello' } });
     const result = await dataService.fetchData();
-    expect(mockApiClient.get).toHaveBeenCalledWith('/data');
-    expect(result).toBe('hello');
+    expect(mockApiClient.get).toHaveBeenCalledWith('/api/data');
+    expect(result).toEqual({ value: 'hello' });
   });
 
   it('fetchData throws on error', async () => {

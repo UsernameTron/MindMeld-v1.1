@@ -11,16 +11,24 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    console.log('[Login] Attempting login with:', email);
     
     try {
+      console.log('[Login] Calling authService.login...');
       const success = await authService.login(email, password);
+      console.log('[Login] Login result:', success);
+      
       if (success) {
-        router.push('/dashboard');
+        console.log('[Login] Login successful, redirecting to dashboard');
+        // Use window.location.href instead of router.push for a hard navigation
+        // This ensures a full page reload with new cookies applied
+        window.location.href = '/dashboard';
       } else {
+        console.log('[Login] Login unsuccessful');
         setError('Invalid email or password');
       }
     } catch (error: unknown) {
-      console.error('Login error:', error);
+      console.error('[Login] Login error:', error);
       setError(error instanceof Error ? error.message : 'Login failed');
     }
   };
