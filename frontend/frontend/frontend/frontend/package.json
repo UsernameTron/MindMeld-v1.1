@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "class-variance-authority": "^0.7.1"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.1",
+    "@lhci/cli": "^0.14.0",
+    "rollup-plugin-filesize": "^10.0.0",
+    "webpack-bundle-analyzer": "^4.10.2"
+  }
+}

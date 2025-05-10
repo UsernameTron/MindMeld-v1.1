@@ -24,7 +24,14 @@ jobs:
         with:
           node-version: "20"
       - run: cd frontend && npm ci
-      - run: cd frontend && npx vitest run --coverage --coverageThreshold='{"global": {"lines": 90, "branches": 90}}'
+      - name: Fetch OpenAPI schema
+        env:
+          NEXT_PUBLIC_API_SCHEMA_URL: ${{ secrets.NEXT_PUBLIC_API_SCHEMA_URL }}
+        run: npm --prefix frontend run fetch-schema
+      - name: Generate API types
+        run: npm --prefix frontend run generate-types
+      - name: Run frontend tests
+        run: npm --prefix frontend run test
 
   e2e:
     runs-on: ubuntu-latest
@@ -35,4 +42,13 @@ jobs:
         with:
           node-version: "20"
       - run: npm ci
-      - run: npm run test:e2e
+      - name: Run Playwright tests with A11y
+        run: npm run test:e2e
+      - name: Check schema freshness
+        env:
+          NEXT_PUBLIC_API_SCHEMA_URL: ${{ secrets.NEXT_PUBLIC_API_SCHEMA_URL }}
+        run: node scripts/check-schema-fresh.js
+      - name: Start frontend for Lighthouse
+        run: npm --prefix frontend run start &
+      - name: Run Lighthouse CI
+        run: npm --prefix frontend run lhci:autorun

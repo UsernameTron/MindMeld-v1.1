@@ -1,6 +1,8 @@
 // moved from e2e/
 import { test as base, expect } from '@playwright/test';
 import { mockApiResponses } from './setup/mocks';
+// @ts-expect-error: No types for @axe-core/playwright
+import { injectAxe, checkA11y } from '@axe-core/playwright';
 
 // Define a test fixture that applies mock responses
 const test = base.extend({
@@ -28,4 +30,10 @@ test('Authentication Flow - login → dashboard → token refresh → protected 
     await page.goto('/dashboard');
     await page.waitForURL('/login');
     await expect(page).toHaveURL('/login');
+});
+
+test('homepage is accessible', async ({ page }) => {
+  await page.goto('/');
+  await injectAxe(page);
+  await checkA11y(page);
 });

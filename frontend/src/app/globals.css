@@ -5,11 +5,53 @@
   --foreground: #171717;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Remove @theme at-rule and use direct hex values for CSS variables */
+:root {
+  /* Brand colors */
+  --color-primary-50: #f0f9ff;
+  --color-primary-100: #e0f2fe;
+  --color-primary-200: #bae6fd;
+  --color-primary-300: #7dd3fc;
+  --color-primary-400: #38bdf8;
+  --color-primary-500: #0ea5e9;
+  --color-primary-600: #0284c7;
+  --color-primary-700: #0369a1;
+  --color-primary-800: #075985;
+  --color-primary-900: #0c4a6e;
+  /* Category colors */
+  --color-analyze-light: #d8f3f6;
+  --color-analyze-default: #00b8d4;
+  --color-analyze-dark: #006064;
+  --color-chat-light: #e8f5e9;
+  --color-chat-default: #43a047;
+  --color-chat-dark: #1b5e20;
+  --color-rewrite-light: #e1f0f9;
+  --color-rewrite-default: #039be5;
+  --color-rewrite-dark: #01579b;
+  --color-persona-light: #f5e8f9;
+  --color-persona-default: #8e24aa;
+  --color-persona-dark: #4a148c;
+  /* Status colors */
+  --color-success-light: #e6f7ec;
+  --color-success-default: #12b76a;
+  --color-success-dark: #027a48;
+  --color-warning-light: #fef4e6;
+  --color-warning-default: #f79009;
+  --color-warning-dark: #b54708;
+  --color-error-light: #fee4e2;
+  --color-error-default: #f04438;
+  --color-error-dark: #b42318;
+  /* Neutral colors */
+  --color-neutral-50: #f8fafc;
+  --color-neutral-100: #f1f5f9;
+  --color-neutral-200: #e2e8f0;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #64748b;
+  --color-neutral-600: #475569;
+  --color-neutral-700: #334155;
+  --color-neutral-800: #1e293b;
+  --color-neutral-900: #0f172a;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,4 +65,19 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  .dark {
+    /* Dark mode overrides */
+    --color-bg-primary: #0f172a;
+    --color-bg-secondary: #1e293b;
+    --color-text-primary: #f8fafc;
+    --color-text-secondary: #e2e8f0;
+    --color-border: #334155;
+  }
 }

@@ -44,3 +44,13 @@ clean:
 
 generate_dot_env:
 	cp .env.example .env
+
+# --- Frontend (MindMeld) ---
+fetch-schema:
+	cd frontend && npx ts-node --esm src/api/schema/fetch-schema.ts
+
+generate-types:
+	cd frontend && npm run generate-types
+
+storybook:
+	cd frontend && npm run storybook

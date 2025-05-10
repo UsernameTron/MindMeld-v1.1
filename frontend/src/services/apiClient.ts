@@ -1,10 +1,19 @@
 import axios from 'axios';
+import type { components } from '@/api/schema';
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL!;
 export const apiClient = axios.create({
   baseURL,
   withCredentials: true,
 });
+
+export type LoginRequest = components['schemas']['LoginRequest'];
+export type LoginResponse = components['schemas']['LoginResponse'];
+
+export async function loginUser(credentials: LoginRequest): Promise<LoginResponse> {
+  const res = await apiClient.post<LoginResponse>('/login', credentials);
+  return res.data;
+}
 
 // NOTE: Interceptor logic for token refresh should be refactored to use DI if needed.
 
