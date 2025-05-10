@@ -1,0 +1,63 @@
+{
+  "title": "Claude Project Orchestration Prompt",
+  "description": "A specialized prompt template for designing an Anthropic Claude `project()` workflow that coordinates with an OpenAI GPT-4.1 coding agent. This template helps outline a persistent, multi-step plan where Claude ingests large design contexts, breaks down tasks, and produces structured instructions for a coding model. It's used to architect complex multi-agent interactions, ensuring memory persistence, strict formatting, and iterative refinement in a development pipeline.",
+  "domain_tags": [
+    "multi-agent orchestration",
+    "software engineering",
+    "prompt engineering"
+  ],
+  "reasoning_modes": [
+    "Multi-step Planning (Claude uses a persistent `project()` loop to plan multiple interactions)",
+    "Memory Management (strategies for context window and long-term memory usage)",
+    "Chain-of-Thought and Self-ask (Claude breaks tasks into substeps and plans each step before executing)",
+    "Tool Communication (formatting outputs so GPT-4.1 can consume them exactly, akin to a tool API)",
+    "Adversarial Reflection (Claude anticipates and checks for potential failures or needed retries in the workflow)"
+  ],
+  "input_schema": {
+    "system_context": "String or list. Comprehensive background information and design files relevant to the project (e.g., architecture documents, codebase descriptions, style guides). This is pre-loaded into Claude's context or accessible memory.",
+    "key_questions": "List of strings. Specific questions or aspects the orchestration should address (e.g., memory structure, input schema design, task decomposition logic, output schema). These guide Claude's solution outline.",
+    "deliverables": "List of strings. The expected outputs from Claude’s planning (e.g., a function signature and pseudocode, a set of recommendations for memory and task handling, an output format specification, an example run demonstration).",
+    "constraints": "List of strings. Any specific requirements or rules for the orchestration approach (e.g., \"outputs must be immediately usable by the coding agent without modification\", \"Claude should not summarize or assume facts not in context\", context window limits, etc.)."
+  },
+  "failure_modes": [
+    "Claude might produce a design that exceeds context window limitations, causing later parts of the workflow to lose important information (poor memory management).",
+    "The proposed output format may be too loosely defined, leading to GPT-4.1 misinterpreting the instructions or failing to execute them exactly.",
+    "If the task loop logic is flawed, Claude could get stuck in a loop or not properly handle partial/incomplete outputs from GPT-4.1 (lack of retry or chaining mechanism).",
+    "Missing guardrails: Claude’s plan does not account for policy/safety, such as handling of sensitive data in the design files or ensuring no disallowed content is output during coding instructions.",
+    "Ignoring known best practices or tools, leading to reinventing solutions (e.g., not using an existing `apply_patch` format and instead creating an inferior custom method)."
+  ],
+  "enhancement_tips": [
+    "Incorporate known successful patterns from similar multi-agent setups (e.g., the 'planner-executor' model, or open-source agent frameworks) to ground the design in proven techniques.",
+    "Use explicit markers or schemas for memory content: for example, tag each piece of context (frontend, backend, requirements) and have Claude reference these tags when needed, to avoid context window overflow and maintain relevance.",
+    "Define a clear input and output schema for the `project()` function. For instance, consider using a JSON structure for Claude's output that GPT-4.1 can parse reliably, or a strict Markdown template with delineated sections (so nothing is left to chance in formatting).",
+    "Plan for error handling: Claude’s workflow should include steps for what to do if GPT-4.1 returns an error or an unexpected result (maybe a retry with adjusted prompt or a clarification step).",
+    "Leverage Anthropic-specific features like the `project()` persistent state: for example, maintain a summary of progress after each Claude turn to feed into the next, ensuring continuity across steps even if the context window is limited."
+  ],
+  "output_format": "The output from using this orchestration prompt will typically be a detailed design document or plan, not just a simple answer. It should likely be structured with headings or numbered sections corresponding to each key question or aspect. For example, it may include:\n- **Memory & Context Handling:** Description of how persistent memory is structured (perhaps with a diagram or list of memory slots and when they're updated).\n- **Input Schema Definition:** A proposed schema (possibly in JSON or pseudocode) for how tasks and data should be input into the `project()`.\n- **Internal Task Loop Logic:** A step-by-step algorithm of Claude’s workflow (could be presented in pseudo-code or bullet points, e.g., plan → prompt GPT → receive code → validate → next step).\n- **Output Schema:** Specification of the format in which Claude will output instructions to GPT-4.1 (e.g., a standardized Markdown or JSON block that the code agent will consume).\n- **Example Scenario:** (if required) A walk-through of an example run, showing how Claude would handle a sample task from start to finish.\nThe format should be narrative with technical details, potentially mixing bullet points, pseudo-code, and explanatory text. Strict adherence to any requested format (like a function skeleton) is crucial.",
+  "example": {
+    "input": {
+      "system_context": "Frontend: React/TypeScript app with design system; Backend: FastAPI service with JWT auth and Redis caching; Shared: CLI tools for deployment, apply_patch format for code changes.",
+      "key_questions": [
+        "How should persistent memory and context be managed through multiple steps?",
+        "What input parameters and structure should the `project()` function have?",
+        "How to break down large coding tasks for GPT-4.1 (internal loop logic)?",
+        "What format should Claude output instructions in so GPT-4.1 can act on them directly?"
+      ],
+      "deliverables": [
+        "A proposed `project()` function signature and outline of its internal workflow",
+        "Recommendations on memory management and context injection strategy",
+        "An output format specification for Claude’s instructions to GPT-4.1"
+      ],
+      "constraints": [
+        "Claude's outputs must be directly usable by a GPT-4.1 coding agent with no manual editing",
+        "No summarizing beyond provided context (i.e., do not omit critical details from design files)",
+        "Stay within Claude's context window (~100k tokens) by efficient summarization or referencing"
+      ]
+    },
+    "output": "**1. Memory & Context Window Strategy:** Claude will maintain a structured memory of the project context. All provided design documents (frontend, backend, shared tools) are ingested and stored in a `project_memory` object with keys for each category. At each step, relevant portions are retrieved based on the task at hand. For example, if a frontend component is being implemented, Claude fetches relevant React design guidelines from memory. This prevents re-parsing large files and keeps context window usage efficient.\n\n**2. Input Schema (`project()` Signature):** Claude proposes the `project` function take parameters like `def project(task_description: str, agent_response: Optional[str] = None) -> str:` where `task_description` is the current objective or sub-task (e.g., 'implement frontend login form'), and `agent_response` is an optional input carrying GPT-4.1's last code output (allowing Claude to review or chain tasks). Additional context like the persistent memory or a reference to it is managed internally by Claude’s system (not passed every time due to persistence in `project()`). \n\n**3. Task Loop Logic:** Claude's internal algorithm for `project()` is broken down as:\n   a. **Plan Step:** Analyze `task_description` against `project_memory`. If it's the first call (no `agent_response` yet), break the task into sub-tasks or identify needed context (e.g., determine that implementing the login form requires backend API endpoints and frontend form code). Formulate a plan, possibly in a short list of steps.\n   b. **Instruction Step:** Draft a prompt for GPT-4.1 with clear instructions for the next actionable sub-task (for instance, \"Create a React component for the login form with XYZ props...\"). Include any necessary context snippet (like an API endpoint signature from the backend spec) directly in this prompt. Ensure formatting is such that GPT-4.1 will output code in the expected patch format.\n   c. **Review Step:** When GPT-4.1 returns code (passed in `agent_response` on the next call), Claude reviews it. Check against requirements: does the code align with the intended design and use correct patterns? If not, Claude prepares a follow-up instruction (or sets a flag for revision).\n   d. **Iterate or Finish:** If the task is not complete, Claude formulates the next sub-task and repeats the cycle. If the code is satisfactory or the final sub-task is done, Claude proceeds to finalize.\n\n**4. Output Format Specification:** Claude will output instructions to GPT-4.1 in a structured Markdown format. For example:\n```\n[INSTRUCTION]\nImplement the following feature...\n<details of feature and context>\n[EXPECTED OUTPUT]\n# Code (language: Python)\n```\nThis structure delineates the instruction clearly and even indicates the format of GPT-4.1's response (like a code block). Alternatively, Claude could output a JSON with fields like `{ \"instruction\": \"...\", \"expected_output\": \"code\" }` to enforce strictness. The key is that the format must be exact and consistent so the code agent knows how to parse it. Claude’s plan opts for the Markdown approach with clear tags, as it's human-readable and already well-handled by GPT models.\n\n**(Optional) Example Runthrough:** *Claude receives the task \"Implement the user login feature\".* It first loads relevant context (frontend form design, backend auth API spec) from memory. Then it plans: sub-task 1: \"Have GPT-4.1 create the database migration for user accounts\"; sub-task 2: \"Have GPT-4.1 implement the backend login API\"; sub-task 3: \"Have GPT-4.1 implement the frontend form\". It begins with sub-task 1, instructing GPT-4.1 accordingly. After GPT-4.1 provides the migration script, Claude verifies it (ensuring it matches the expected schema). Satisfied, it moves to sub-task 2... and so on. Throughout, Claude uses the persistent memory to inject any required details (like the exact field names from the design docs). In the end, Claude outputs a final instruction prompting GPT-4.1 to tie everything together or signals completion of the project.*"
+  },
+  "related_templates": [
+    "Agent Orchestration Prompt",
+    "Advanced Reasoning Prompt"
+  ]
+}

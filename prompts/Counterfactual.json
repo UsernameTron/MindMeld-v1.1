@@ -1,0 +1,57 @@
+{
+  "title": "Counterfactual Analysis Prompt",
+  "description": "A structured prompt template for exploring counterfactual scenarios by altering a key event or condition and analyzing the causal effects in detail. It guides the AI through defining the factual baseline, making a specific minimal change, and reasoning through the consequences while enforcing domain constraints and plausibility.",
+  "domain_tags": [
+    "scenario analysis",
+    "counterfactual reasoning",
+    "multidomain"
+  ],
+  "reasoning_modes": [
+    "Chain-of-Thought (stepwise causal reasoning)",
+    "Tree-of-Thought (branching outcomes)",
+    "Bayesian Update (probabilistic refinement, optional)",
+    "Feedback Loop Modeling (recursive impact analysis)"
+  ],
+  "input_schema": {
+    "actual_baseline": "String. The actual event or current state that really occurred (one concise sentence).",
+    "counterfactual_change": "String. The precise alteration to reality to explore (a minimal rewrite of the baseline).",
+    "scope_window": "String. Time frame or logical span for examining effects (e.g., 'T0 to T0+5 years' or 'entire project lifecycle').",
+    "domain_constraints": "String or list. Key physical, legal, or logical constraints that remain in force in the counterfactual scenario (e.g., laws of physics, specific policies, budget limits).",
+    "data_sources": "Optional. List of strings or descriptions. Relevant datasets, documents, or expert inputs available to inform the analysis (for grounding with evidence)."
+  },
+  "failure_modes": [
+    "Implausible outcomes that violate stated domain constraints (e.g., physics-defying effects or policy breaches ignored).",
+    "Omission of significant downstream or second-order effects triggered by the counterfactual change.",
+    "Overly generic analysis that fails to use the specifics of the scenario or provided data sources.",
+    "Unsupported assertions about outcomes (especially if data sources were provided but not properly cited).",
+    "Inconsistent comparison where Actual vs. Counterfactual metrics are not aligned or the difference (Δ) is unexplained."
+  ],
+  "enhancement_tips": [
+    "Use explicit constraint filters to discard outcome branches that break fundamental rules or given constraints, ensuring realism.",
+    "Integrate optional advanced reasoning (like Bayesian updates or sensitivity analysis) if probabilistic data or historical analogies are available, to refine the outcome estimates.",
+    "Map out the causal chain thoroughly: identify immediate effects of the change, then recursively follow how those effects lead to further consequences (consider feedback loops and delays).",
+    "Include multiple metrics or perspectives for comparison (economic, social, environmental, etc.) to provide a well-rounded outcome analysis, if applicable.",
+    "Perform a self-check: verify each causal step is justified and identify any vague leaps in logic; if found, either clarify or acknowledge them as uncertainties."
+  ],
+  "output_format": "Flexible. Options include a narrative prose walkthrough of the scenario, a decision_tree (ASCII or diagram) illustrating branching outcomes, a matrix comparing key metrics (Actual vs Counterfactual with deltas and confidence), or a timeline of events. The output should conclude with: (1) a list of assumptions and any citations used, (2) at least three caveats addressing the plausibility and uncertainties of the scenario, and (3) suggestions for further research or analysis.",
+  "example": {
+    "input": {
+      "actual_baseline": "The city implemented a new traffic policy in 2020 that reduced congestion by 30%.",
+      "counterfactual_change": "What if the city had not implemented the new traffic policy?",
+      "scope_window": "2020 to 2025 (five years after the policy decision)",
+      "domain_constraints": [
+        "No other extraordinary events (e.g., natural disasters) affect traffic in that period.",
+        "City population and car ownership trends follow observed patterns."
+      ],
+      "data_sources": [
+        "City traffic reports 2015-2025",
+        "Research studies on similar traffic policies in other cities"
+      ]
+    },
+    "output": "Narrative: **Baseline:** The city’s traffic policy, introduced in 2020, successfully cut congestion by about 30% in the following years by optimizing signal timings and promoting public transit. **Counterfactual Scenario:** If the city **had not implemented** the policy, congestion would have likely continued to worsen. **Chain-of-Thought Analysis:** Immediately from 2020 onward, traffic volumes during peak hours would remain high without signal optimization. Minor accidents and delays might grow by a small percentage each year due to increasing congestion. **Tree-of-Thought:** Several plausible branches emerge: (a) drivers adapt by finding alternate routes (spreading congestion to side streets), (b) more people turn to public transit out of frustration (if available), or (c) business hours shift city-wide to off-peak times to cope. **Constraint Filters:** We discard any branch assuming infinite road capacity or teleportation (physical impossibilities). **Outcome Comparison:** *Average Commute Time* – **Actual:** 40 minutes post-policy, **Counterfactual:** 55 minutes by 2025 (Δ +15m); *Carbon Emissions* – **Actual:** 5% reduction, **Counterfactual:** likely a 5% increase (Δ +10% relative). We remain moderately confident, as these estimates rely on linear traffic growth models. **Assumptions & Citations:** Assumes no other traffic interventions【source: CityTrafficReport2021】, and similar patterns as seen in other cities without such policies【source: Smith2020Study】. **Caveats:** (1) **Behavioral adaptation** – commuters might change habits in unpredictable ways. (2) **Economic factors** – e.g., fuel prices could independently reduce traffic. (3) **Model uncertainty** – the exact congestion increase could vary. **Next-Step Research:** Examine real cases of cities that failed to implement planned traffic policies to validate these projections."
+  },
+  "related_templates": [
+    "Advanced Reasoning Prompt",
+    "Deep Research Prompt"
+  ]
+}

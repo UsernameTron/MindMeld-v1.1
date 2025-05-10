@@ -1,0 +1,62 @@
+{
+  "title": "Advanced Reasoning Prompt",
+  "description": "A general-purpose, production-grade prompt template focusing on complex reasoning tasks. It is designed to maximize the strategic thinking and problem-solving ability of GPT-4-class models by combining multiple reasoning techniques. The prompt explicitly structures the task with clear objectives, constraints, and allows the model to use various reasoning modes (e.g., hypothesis decomposition, code-based verification) to ensure thorough and correct solutions.",
+  "domain_tags": [
+    "complex problem solving",
+    "strategic planning",
+    "multimodal reasoning"
+  ],
+  "reasoning_modes": [
+    "Chain-of-Thought (linear stepwise reasoning)",
+    "Tree-of-Thought (branch into parallel hypotheses or approaches)",
+    "Self-Consistency Ensembling (generate multiple solutions and converge on a consensus)",
+    "Hypothesis-Driven Decomposition (break the problem into sub-problems based on hypotheses)",
+    "Program-aided Reasoning (inline code execution for verification or calculation)",
+    "Retrieval-Augmented Verification (search for external info to verify claims/solutions)",
+    "Adversarial Red-Team Debate (simulate opposing viewpoints or a critic to challenge the reasoning)",
+    "Reflection & Critique Loop (iteratively self-evaluate and refine the answer)",
+    "Dynamic Memory Summaries (maintain and refer to a summary of context and intermediate results)",
+    "Constraint-Based Logic (ensure solutions adhere strictly to provided constraints)"
+  ],
+  "input_schema": {
+    "task_description": "String. The user's task or question described in detail (what needs to be accomplished or answered).",
+    "context": "String or list. Any supporting background information, documentation, or data relevant to the task (could be provided as text or references to files).",
+    "constraints": "String or list. Specific requirements or rules the solution must follow (e.g., format requirements, style guides, keyword usage, or token/time limits such as 'must run within 30 seconds or < 8k tokens').",
+    "allowed_tools": "List of strings. External tools the AI can use (e.g., ['python', 'web', 'file_search']), if any, including their I/O specifications if relevant."
+  },
+  "failure_modes": [
+    "Solution drafts that violate given constraints (format, content policy, etc.) or ignore important aspects of the problem.",
+    "Shallow reasoning: the model sticks to a single approach and misses better solutions or fails to consider alternative perspectives.",
+    "Lack of verification: not using available tools (like code execution or web search) when the problem could benefit from it, leading to unchecked errors.",
+    "Mode collapse: the prompt attempts too many reasoning modes at once without coordination, resulting in confusion or inconsistency in the solution.",
+    "Security/policy breaches: e.g., inadvertently outputting disallowed content or private data from context due to insufficient guardrails."
+  ],
+  "enhancement_tips": [
+    "Clearly define success metrics and failure conditions for the task (e.g., 'Success = achieves X accuracy; Failure = produces any unsafe content'), and include them in the Objective to guide the reasoning.",
+    "Mix and match reasoning modes thoughtfully: for example, use Chain-of-Thought for initial planning, then a Hypothesis-Driven approach to structure subproblems, and finally a Self-Consistency check to validate the final answers.",
+    "Leverage the Program-aided Reasoning mode for parts of the task that are checkable by code (calculations, data parsing, simulation) to catch mistakes early.",
+    "If the model has access to retrieval tools, prompt it to verify critical claims or gather needed data (Retrieval-Augmented Verification) instead of relying purely on its internal knowledge.",
+    "Utilize the Reflection & Critique loop by having the model review its solution against the success criteria and known pitfalls—this can be done just before finalizing the answer to catch any issues (like an internal checklist)."
+  ],
+  "output_format": "Typically markdown or JSON depending on the use-case, structured to meet the task requirements. For example, if the task is to output a plan or analysis, a markdown format with sections and bullet points might be used. If the task expects a JSON output or code, the template will specify `output_format: json` or `output_format: code`. The final answer should include, when appropriate, a summary of the reasoning or a confidence indicator (e.g., 'Confidence: High' or 'Confidence: Low' with justification), especially if multiple reasoning passes were used.",
+  "example": {
+    "input": {
+      "task_description": "Find the optimal schedule for a university that minimizes class conflicts for students and room usage conflicts for professors.",
+      "context": "Data: lists of courses, timeslots, student enrollment numbers per course, and professor availabilities.",
+      "constraints": [
+        "Each professor can only teach one class at a time.",
+        "Each classroom can only host one class per timeslot.",
+        "There are a fixed number of rooms and timeslots (e.g., 30 rooms, 8 timeslots per week day).",
+        "The solution must be computed within a 5 minute runtime (simulate this as a complexity constraint)."
+      ],
+      "allowed_tools": [
+        "python"
+      ]
+    },
+    "output": "*(The assistant internally breaks down the problem: identifies it as a scheduling optimization, possibly NP-hard, decides to use a constraint-based logic with a bit of Python to verify a small scenario.)* **Plan:** 1. Use constraint-based reasoning to set up the problem variables (rooms, times, classes, professors). 2. Hypothesis: a greedy algorithm might allocate most filled classes first; verify this. 3. If greedy fails, consider backtracking or ILP (integer linear programming) approach. **Execution:** The assistant writes a short Python script to model the scheduling as an ILP and finds a solution for the given data. **Verification:** The script confirms no conflicts and all constraints are satisfied on a smaller test subset. **Result Format:** The final schedule is output as a JSON array of assignments, one per class, e.g., `{ \"course\": \"CS101\", \"room\": \"RoomA\", \"time\": \"Mon 9am\", \"professor\": \"Dr. Smith\" }`, etc., covering all classes. **Confidence:** The solution meets all given constraints on the tested data and uses an optimal solver, so confidence is high. Potential improvements include accounting for student course preferences or future changes in course demand."
+  },
+  "related_templates": [
+    "Deep Research Prompt",
+    "Agent Orchestration Prompt"
+  ]
+}

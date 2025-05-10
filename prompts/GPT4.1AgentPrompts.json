@@ -1,0 +1,42 @@
+{
+  "title": "GPT-4.1 Agent Execution Template (Instruction-First)",
+  "description": "Minimal, execution-driven input schema for GPT-4.1 agents. Agent should act immediately based on instructions with strict adherence to logic phases and tools. Designed for precision workflows: PLAN → EXECUTE → VERIFY → EMIT.",
+  "input_schema": {
+    "task": "string — The instruction to execute. No explanation required. (e.g., 'Convert this YAML to JSON', 'Extract key insights from this PDF').",
+    "mode": "string — (Optional) Direct strategy override (e.g., 'mode:code', 'mode:research', 'mode:fasttrack').",
+    "context_refs": [
+      "string — File IDs, dataset paths, or reference URLs (e.g., 'file-XYZ123', 'https://api.docs.com')."
+    ],
+    "tools_enabled": [
+      "string — Approved tools for this run (e.g., 'python', 'web', 'file_search')."
+    ],
+    "disallowed_scopes": [
+      "string — Explicit forbidden domains, actions, or content types (e.g., 'no outbound API calls', 'exclude PII')."
+    ],
+    "directives": [
+      "string — Execution-specific constraints (e.g., 'Output as JSON', 'Use only 2 steps', 'No critique pass')."
+    ]
+  },
+  "execution_phases": [
+    "PLAN — Parse task and list necessary steps",
+    "EXECUTE — Perform each step using tools and logic",
+    "VERIFY — Ensure output meets constraints",
+    "EMIT — Output only the final product in required format"
+  ],
+  "output_format": {
+    "format": "strict markdown or raw code/json",
+    "includes": [
+      "Execution output only",
+      "`confidence:` field (low | medium | high)",
+      "No commentary unless required by task"
+    ]
+  },
+  "example": {
+    "task": "Summarize this uploaded Markdown file in 100 words max.",
+    "mode": "mode:fasttrack",
+    "context_refs": ["file-3wa6aoWgyDUwmCJd48UnTc"],
+    "tools_enabled": ["file_search"],
+    "disallowed_scopes": [],
+    "directives": ["Limit output to summary only", "Use formal tone"]
+  }
+}

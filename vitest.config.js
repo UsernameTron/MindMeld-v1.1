@@ -11,7 +11,14 @@ const dirname =
 // More info at: https://storybook.js.org/docs/writing-tests/test-addon
 export default defineConfig({
   test: {
-    workspace: [
+    projects: [
+      // Node.js backend/unit tests
+      {
+        name: 'node',
+        include: ['tests/**/*.test.{js,ts,jsx,tsx}'],
+        environment: 'node',
+      },
+      // Storybook/browser tests
       {
         extends: true,
         plugins: [
@@ -22,11 +29,11 @@ export default defineConfig({
         test: {
           name: 'storybook',
           browser: {
-        enabled: true,
-        headless: true,
-        name: 'chromium',
-        provider: 'playwright'
-      },
+            enabled: true,
+            headless: true,
+            name: 'chromium',
+            provider: 'playwright'
+          },
           setupFiles: ['.storybook/vitest.setup.js'],
         },
       },

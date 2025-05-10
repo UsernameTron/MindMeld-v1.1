@@ -1,0 +1,66 @@
+{
+  "title": "Deep Research Prompt",
+  "description": "A robust prompt template designed for rigorous, evidence-based research queries. It ensures the AI performs retrieval of credible sources, cross-verifies information, and produces well-cited answers. The template emphasizes structured investigation with tools, fact-checking, and high-quality references to support every claim.",
+  "domain_tags": [
+    "research",
+    "evidence gathering",
+    "fact-checking",
+    "retrieval"
+  ],
+  "reasoning_modes": [
+    "Retrieval-Augmented Grounding (search and use source content)",
+    "Chain-of-Thought with source anchors (stepwise reasoning tied to references)",
+    "Tree-of-Thought (comparing multiple lines of evidence or hypotheses)",
+    "Evidence Scoring & Ranking (evaluate source credibility and relevance)",
+    "Self-Critique / Fact-Check Loop (review and challenge the answer against sources)",
+    "Statistical Validation (use Python tool to test numeric or logical claims)",
+    "Adversarial Red-Teaming (simulate a skeptic to find flaws)",
+    "Dynamic Note-Taker Memory (maintain a running summary of findings per source)"
+  ],
+  "input_schema": {
+    "research_question": "String. The research question or problem statement to investigate (clearly worded).",
+    "domain": "String. The broad domain and specific sub-domains relevant to the question (helps focus the search, e.g., 'medicine - epidemiology').",
+    "evidence_hierarchy": "List of strings. Preferred types of evidence in order (e.g., ['systematic review', 'randomized trial', 'expert opinion']) to prioritize higher-quality sources.",
+    "disallowed_sources": "List of strings. Sources or domains to avoid (e.g., 'personal blogs', 'non-peer-reviewed articles') if any.",
+    "tools_enabled": "List of strings. Tools the AI is allowed to use for this research (options: 'web', 'file_search', 'python')."
+  },
+  "failure_modes": [
+    "Providing answers without sufficient supporting evidence or citations for claims.",
+    "Using low-credibility or disallowed sources when higher-quality information is available.",
+    "Ignoring the specified evidence hierarchy (e.g., citing an op-ed when a systematic review exists).",
+    "Hallucinating sources or fabricating data that was not actually retrieved.",
+    "Violating content guidelines (e.g. revealing PII from sources or including disallowed content) during research."
+  ],
+  "enhancement_tips": [
+    "Explicitly set a recency cutoff or time horizon in the constraints (e.g., focus on studies from the last 5 years) to ensure up-to-date information when relevant.",
+    "Define a clear citation format (APA, MLA, etc.) and enforce consistency so that the output is ready for publication or scrutiny.",
+    "If the query involves quantitative data, use the Python tool to run quick calculations or statistical checks on retrieved data for validation.",
+    "Incorporate an evidence scoring step: have the AI rate confidence or relevance of each source and prefer higher-scoring evidence in the synthesis.",
+    "Apply an adversarial fact-check pass where the AI attempts to refute its own answer using the available sources, to catch unsupported claims before finalizing the response."
+  ],
+  "output_format": "Markdown with properly formatted citations (e.g., APA style with source URLs and dates). The answer should be structured, often with sections like Introduction, Findings (with bullet points or sub-sections per evidence point), and a Conclusion. A bibliography or list of sources should be included at the end. The final output should also contain a confidence score or statement about the strength of evidence, and flag any areas of uncertainty.",
+  "example": {
+    "input": {
+      "research_question": "What are the long-term health impacts of e-cigarette use in young adults?",
+      "domain": "medicine - public health",
+      "evidence_hierarchy": [
+        "systematic review",
+        "longitudinal cohort study",
+        "randomized controlled trial"
+      ],
+      "disallowed_sources": [
+        "opinions on forums",
+        "non-scientific magazines"
+      ],
+      "tools_enabled": [
+        "web",
+        "python"
+      ]
+    },
+    "output": "*(The assistant first performs searches using the 'web' tool and retrieves several recent high-quality studies and a Cochrane review. It then uses chain-of-thought reasoning referencing those sources.)* **Answer:** Long-term e-cigarette use among young adults has been associated with several adverse health outcomes. Evidence suggests increased risks of respiratory issues, including a decline in lung function and higher incidence of chronic bronchitis symptoms【1】. Some longitudinal studies indicate potential cardiovascular risks, such as higher blood pressure and arterial stiffness in consistent e-cigarette users over several years【2】. There is also emerging evidence of an increased likelihood of transitioning to traditional cigarette smoking, as noted in a 5-year cohort study【3】. However, data on certain outcomes like cancer risk are still inconclusive given e-cigarettes’ relatively recent rise in popularity【4】. The evidence is mixed regarding whether e-cigarettes are less harmful than traditional cigarettes in the long run; while they eliminate tar, they still deliver nicotine and other chemicals whose long-term effects are not fully understood【1】【5】. **Confidence:** Given the current body of evidence (including systematic reviews and multiple cohort studies), confidence in these findings is moderate. More long-term studies are needed for high-confidence conclusions, especially regarding outcomes like cancer that manifest over decades. **Sources:** [1] Smith et al. (2023) – Systematic review of respiratory outcomes in e-cigarette users; [2] Lee & Gupta (2022) – Longitudinal study on cardiovascular health in vaping vs non-vaping young adults; [3] Patel et al. (2021) – Cohort study on gateway effect of e-cigarettes; [4] Government Health Agency Report (2024) on e-cigarette usage statistics; [5] Johnson (2020) – RCT comparing short-term effects of e-cigs vs cigarettes."
+  },
+  "related_templates": [
+    "Advanced Reasoning Prompt",
+    "Agent Orchestration Prompt"
+  ]
+}
