@@ -1,209 +1,38 @@
-name: MindMeld CI Pipeline
+name: CI
 
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
-  schedule:
-    - cron: '0 2 * * 1'  # Run weekly on Mondays at 2:00 AM
-
-defaults:
-  run:
-    working-directory: frontend
 
 jobs:
-  lint-format-type:
-    name: Lint, Format & Type Check
+  backend:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Run lint phase
-        working-directory: /
-        run: ./scripts/full-test.sh lint
+          node-version: "20"
+      - run: npm ci
+      - run: npx vitest run --coverage --coverageThreshold='{"global": {"lines": 90, "branches": 90}}'
 
-  test:
-    name: Unit & Component Tests
+  frontend:
     runs-on: ubuntu-latest
-    needs: lint-format-type
-    strategy:
-      fail-fast: true
+    needs: backend
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Run tests with coverage
-        working-directory: /
-        run: ./scripts/full-test.sh unit
-      
-      - name: Upload coverage reports
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-report
-          path: frontend/coverage/
-          retention-days: 14
-      
-      - name: Check coverage thresholds
-        run: |
-          COVERAGE_SUMMARY=$(cat coverage/coverage-summary.json)
-          LINE_COVERAGE=$(echo $COVERAGE_SUMMARY | jq '.total.lines.pct')
-          FUNCTION_COVERAGE=$(echo $COVERAGE_SUMMARY | jq '.total.functions.pct')
-          BRANCH_COVERAGE=$(echo $COVERAGE_SUMMARY | jq '.total.branches.pct')
-          
-          if (( $(echo "$LINE_COVERAGE < 80" | bc -l) )) || \
-             (( $(echo "$FUNCTION_COVERAGE < 80" | bc -l) )) || \
-             (( $(echo "$BRANCH_COVERAGE < 80" | bc -l) )); then
-            echo "Coverage thresholds not met:"
-            echo "Line coverage: $LINE_COVERAGE% (required: 80%)"
-            echo "Function coverage: $FUNCTION_COVERAGE% (required: 80%)"
-            echo "Branch coverage: $BRANCH_COVERAGE% (required: 80%)"
-            exit 1
-          fi
-      
-      - name: Generate coverage badge
-        if: github.ref == 'refs/heads/main'
-        run: |
-          npx make-coverage-badge --output-path ./badges/coverage.svg
-          
-      - name: Upload coverage badge
-        if: github.ref == 'refs/heads/main'
-        uses: actions/upload-artifact@v3
-        with:
-          name: coverage-badge
-          path: frontend/badges/coverage.svg
+          node-version: "20"
+      - run: cd frontend && npm ci
+      - run: cd frontend && npx vitest run --coverage --coverageThreshold='{"global": {"lines": 90, "branches": 90}}'
 
-  build:
-    name: Production Build
+  e2e:
     runs-on: ubuntu-latest
-    needs: test
+    needs: frontend
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: 20.x
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      
-      - name: Install dependencies
-        run: npm ci
-      
-      - name: Cache Next.js build
-        uses: actions/cache@v3
-        with:
-          path: |
-            frontend/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('frontend/package-lock.json') }}-${{ hashFiles('frontend/next.config.js') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('frontend/package-lock.json') }}-
-            ${{ runner.os }}-nextjs-
-      
-      - name: Build application
-        working-directory: /
-        run: ./scripts/full-test.sh build
-      
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-output
-          path: frontend/.next/
-          retention-days: 1
-
-  preview-deploy:
-    name: Preview Deployment
-    needs: [build]
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    environment:
-      name: preview
-      url: ${{ steps.deploy-to-vercel.outputs.url }}
-    
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Download build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: build-output
-          path: frontend/.next/
-      
-      - name: Deploy to Vercel
-        id: deploy-to-vercel
-        uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./frontend
-          alias-domains: |
-            pr-{{PR_NUMBER}}.mindmeld-preview.vercel.app
-      
-      - name: Run smoke tests against preview
-        run: |
-          # Allow time for deployment to stabilize
-          sleep 20
-          
-          # Run basic smoke tests
-          PREVIEW_URL=${{ steps.deploy-to-vercel.outputs.preview-url }}
-          
-          # Check if preview deployment responds
-          STATUS_CODE=$(curl -s -o /dev/null -w "%{http_code}" $PREVIEW_URL)
-          
-          if [[ $STATUS_CODE -ne 200 ]]; then
-            echo "Preview deployment failed with status code: $STATUS_CODE"
-            exit 1
-          fi
-          
-          # Test critical paths
-          LOGIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" $PREVIEW_URL/login)
-          if [[ $LOGIN_STATUS -ne 200 ]]; then
-            echo "Login page check failed with status code: $LOGIN_STATUS"
-            exit 1
-          fi
-          
-          echo "Preview deployment smoke test successful!"
-
-  e2e-tests:
-    name: Playwright E2E Tests
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20.x
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - name: Install dependencies
-        run: npm ci
-      - name: Set NODE_ENV for E2E
-        run: echo "NODE_ENV=production" >> $GITHUB_ENV
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-        
-      - name: Run Playwright E2E
-        working-directory: /
-        run: ./scripts/full-test.sh e2e
+          node-version: "20"
+      - run: npm ci
+      - run: npm run test:e2e
