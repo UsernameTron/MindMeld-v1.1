@@ -13,7 +13,8 @@ interface MockListboxRootProps {
 }
 
 interface MockListboxSubComponentProps {
-  className?: string;
+  // Only allow string for className, but cast to any in the mock to allow function
+  className?: any;
 }
 
 interface MockListboxButtonProps extends MockListboxSubComponentProps {
@@ -137,7 +138,13 @@ vi.mock('@headlessui/react', async () => {
         ? (children as (bag: { selected: boolean; active: boolean; disabled: boolean }) => ReactNode)({ selected, active: false, disabled: !!effectiveDisabled })
         : children;
 
-      return <li ref={ref} {...props} onClick={handleClick} role="option" aria-selected={selected} aria-disabled={effectiveDisabled} tabIndex={-1}>{optionRenderOutput}</li>;
+      let className = props.className;
+      if (typeof className === 'function') {
+        className = className({ active: false, selected, disabled: !!effectiveDisabled });
+      }
+      // Remove className from props to avoid React warning
+      const { className: _ignoredClassName, ...restProps } = props;
+      return <li ref={ref} {...restProps} className={className} onClick={handleClick} role="option" aria-selected={selected} aria-disabled={effectiveDisabled ? "true" : undefined} tabIndex={-1}>{optionRenderOutput}</li>;
     }
   );
   MockListboxOption.displayName = 'Listbox.Option';
@@ -223,7 +230,7 @@ describe('Select', () => {
     const button = screen.getByRole('button');
     fireEvent.click(button); 
 
-    const optionThree = screen.getByText('Three'); 
+    const optionThree = screen.getByRole('option', { name: 'Three' });
     expect(optionThree).toHaveAttribute('aria-disabled', 'true');
     fireEvent.click(optionThree);
 

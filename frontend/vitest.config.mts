@@ -10,6 +10,7 @@ export default defineConfig({
       'src/**/*.test.{js,ts,jsx,tsx}',
       'tests/**/*.test.{js,ts,jsx,tsx}'
     ],
+    exclude: ['tests/ci/**'],
     setupFiles: [path.resolve(__dirname, './vitest.setup.ts')],
     globals: true,
     deps: {

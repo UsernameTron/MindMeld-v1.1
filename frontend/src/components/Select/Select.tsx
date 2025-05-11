@@ -165,6 +165,7 @@ export const Select: React.FC<SelectProps> = ({
                     <div className="px-3 py-1 text-xs font-semibold text-gray-500 bg-gray-50">{group}</div>
                     {grouped.groups[group].map(option => (
                       <Listbox.Option
+                        as="li"
                         key={option.value}
                         value={option.value}
                         disabled={option.disabled}
@@ -176,6 +177,7 @@ export const Select: React.FC<SelectProps> = ({
                             disabled && 'opacity-50 cursor-not-allowed'
                           )
                         }
+                        aria-disabled={option.disabled ? 'true' : undefined}
                       >
                         {({ selected }) => (
                           <>
@@ -195,6 +197,7 @@ export const Select: React.FC<SelectProps> = ({
                 ))}
                 {filteredOptions.filter(opt => !opt.group).map(option => (
                   <Listbox.Option
+                    as="li"
                     key={option.value}
                     value={option.value}
                     disabled={option.disabled}
@@ -206,6 +209,7 @@ export const Select: React.FC<SelectProps> = ({
                         disabled && 'opacity-50 cursor-not-allowed'
                       )
                     }
+                    aria-disabled={option.disabled ? 'true' : undefined}
                   >
                     {({ selected }) => (
                       <>
