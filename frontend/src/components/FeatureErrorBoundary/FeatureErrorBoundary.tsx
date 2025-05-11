@@ -25,7 +25,6 @@ export class FeatureErrorBoundary extends React.Component<FeatureErrorBoundaryPr
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     if (process.env.NODE_ENV !== 'production') {
-      // eslint-disable-next-line no-console
       console.error('FeatureErrorBoundary caught an error:', error, info);
     }
     this.props.onError?.(error, info);

@@ -45,6 +45,38 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 
 See CHANGELOG.md for more details.
 
+## Path Alias Usage
+
+This project uses TypeScript path aliases for cleaner and more maintainable imports. The following aliases are configured in `frontend/tsconfig.json` and supported in `frontend/vitest.config.mts`:
+
+- `@/` → `src/`
+- `@components/` → `src/components/`
+- `@styles/` → `src/design/tokens/`
+
+**Example usage:**
+```ts
+import { baseTokens } from '@styles/base';
+import Button from '@components/ui/Button';
+```
+
+> **Note:** When adding new modules or refactoring imports, prefer using these aliases instead of long relative paths.
+
+For test and Storybook configuration, ensure aliases are also reflected in the respective config files.
+
+## Test File Locations and Running Tests
+
+- All test files should be co-located with their components (e.g., `src/components/ComponentName/ComponentName.test.tsx`).
+- Standard test file naming: `ComponentName.test.tsx`.
+- To run all tests, from the `frontend` directory, use:
+  ```sh
+  npx vitest run
+  ```
+- To run a specific test file:
+  ```sh
+  npx vitest run src/components/LoadingIndicator/LoadingIndicator.test.tsx
+  ```
+- The test runner is configured to include all test files in the `frontend` directory.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

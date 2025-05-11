@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import refreshHandler from '../../auth/refresh';
-import { signAccessToken, verifyRefreshToken } from '../../../../utils/jwt';
+import refreshHandler from '../../auth/refresh.js';
+import { signAccessToken, verifyRefreshToken } from '../../../../utils/jwt.js';
 
 // Mock JWT utilities
 vi.mock('../../../../utils/jwt', () => ({
@@ -13,7 +13,7 @@ function createMockReqRes({ method = 'POST', cookies = {}, body = {} } = {}) {
   const req: any = { method, cookies, body };
   let statusCode = 200;
   let jsonData: any = undefined;
-  let headers: Record<string, string> = {};
+  const headers: Record<string, string> = {};
   
   const res: any = {
     status(code: number) {
