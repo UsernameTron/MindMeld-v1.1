@@ -1,9 +1,9 @@
 'use client';
 import React, { Suspense, useState, useCallback } from 'react';
-import { cn } from '../../utils/cn.ts';
-import { LoadingIndicator } from '../LoadingIndicator/LoadingIndicator.tsx';
-import { FeatureErrorBoundary } from '../FeatureErrorBoundary/FeatureErrorBoundary.tsx';
-import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay.tsx';
+import { cn } from '../../utils/cn';
+import { LoadingIndicator } from '../LoadingIndicator/LoadingIndicator';
+import { FeatureErrorBoundary } from '../FeatureErrorBoundary/FeatureErrorBoundary';
+import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay';
 
 const MonacoEditor = React.lazy(() => import('@monaco-editor/react').then(mod => ({ default: (mod.default as unknown as React.ComponentType<any>) })));
 

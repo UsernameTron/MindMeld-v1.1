@@ -16,7 +16,7 @@ export interface SelectOption {
  * Props for the Select component.
  * @template T extends string | number
  */
-export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange'> {
+export interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'onChange' | 'size'> {
   /** Array of options to display */
   options: SelectOption[];
   /** Selected value */

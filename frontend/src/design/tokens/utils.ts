@@ -1,4 +1,4 @@
-import { lightTheme, darkTheme } from './theme';
+import { lightTheme, darkTheme } from './theme.js';
 
 export type ThemeMode = 'light' | 'dark';
 

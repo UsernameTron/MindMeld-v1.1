@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from '@/shims/navigation';
 
 export default function HomePage() {
   const router = useRouter();

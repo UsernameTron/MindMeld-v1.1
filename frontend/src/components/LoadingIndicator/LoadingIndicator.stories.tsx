@@ -12,21 +12,13 @@ export default meta;
 type Story = StoryObj<LoadingIndicatorProps>;
 
 export const Spinner: Story = {
-  args: { variant: 'spinner', label: 'Loading...', size: 'md' },
+  args: { variant: 'spinner', ariaLabel: 'Loading...', size: 'md' },
 };
 
 export const Dots: Story = {
-  args: { variant: 'dots', label: 'Loading...', size: 'md' },
+  args: { variant: 'pulse', ariaLabel: 'Loading...', size: 'md' },
 };
 
 export const Bar: Story = {
-  args: { variant: 'bar', label: 'Loading...', size: 'md' },
-};
-
-export const Skeleton: Story = {
-  args: { variant: 'skeleton', label: 'Loading...', size: 'md' },
-};
-
-export const FullPage: Story = {
-  args: { variant: 'spinner', fullPage: true, backdrop: true, label: 'Loading full page...', size: 'lg' },
+  args: { variant: 'bar', ariaLabel: 'Loading...', size: 'md' },
 };

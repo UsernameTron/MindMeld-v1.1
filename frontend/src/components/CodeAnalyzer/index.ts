@@ -1,4 +1,4 @@
 // ...existing code...
-export { default as CodeAnalyzer } from './CodeAnalyzer.tsx';
-export * from './CodeAnalyzer.tsx';
+export { default as CodeAnalyzer } from './CodeAnalyzer';
+export * from './CodeAnalyzer';
 // ...existing code...

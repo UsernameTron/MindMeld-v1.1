@@ -1,0 +1,149 @@
+{
+  "review_metadata": {
+    "review_id": "string",
+    "date": "YYYY-MM-DD",
+    "previous_review": "YYYY-MM-DD",
+    "reviewer": "string",
+    "codebase_version": "string",
+    "next_scheduled_review": "YYYY-MM-DD"
+  },
+  "review_lifecycle": {
+    "change_log": [
+      {
+        "date": "YYYY-MM-DD",
+        "change": "string"
+      }
+    ],
+    "next_scheduled_review": "YYYY-MM-DD",
+    "reviewers": ["string"],
+    "stakeholders": ["string"],
+    "signoff": ["string"]
+  },
+  "architecture_map": {
+    "frontend": {
+      "design_system": "string",
+      "api_integration": "string",
+      "context_patterns": "string",
+      "devops_ci": "string",
+      "ssr_client_boundary": "string",
+      "security_posture": "string",
+      "performance_metrics": {
+        "bundle_size": "string",
+        "test_coverage": "string",
+        "build_failure_rate": "string"
+      },
+      "complexity_index": "integer"
+    },
+    "backend": {
+      "routing_services": "string",
+      "middleware_di": "string",
+      "model_validation": "string",
+      "performance_scaling": "string",
+      "security_compliance": "string",
+      "deployment_observability": "string",
+      "auth_lifecycle": "string",
+      "complexity_index": "integer"
+    },
+    "integration": {
+      "openapi_typing": "string",
+      "contract_stability": "string",
+      "dependency_health": "string",
+      "latency_coupling": "string",
+      "historical_context": "string",
+      "test_coverage": "string",
+      "complexity_index": "integer"
+    }
+  },
+  "systemic_misalignments": [
+    {
+      "area": "string",
+      "issue": "string",
+      "impact": "string"
+    }
+  ],
+  "granular_findings": [
+    {
+      "category": "UI | API | Service | Auth | SSR | Performance | Security | DevOps",
+      "file_path": "string",
+      "line_number": "integer",
+      "first_identified": "YYYY-MM-DD",
+      "summary": "string",
+      "owner": "string",
+      "status_history": [
+        {
+          "date": "YYYY-MM-DD",
+          "status": "Identified | In Progress | Mitigated | Closed"
+        }
+      ]
+    }
+  ],
+  "action_plan": {
+    "foundational": [
+      {
+        "task": "Implement CI lint/type/test pipeline",
+        "addresses_risks": ["Self‐Regulation", "Declining Quality"],
+        "dependencies": ["None"],
+        "effort": "High",
+        "owner": "DevOps Team",
+        "target": "CI pipeline live",
+        "target_completion": "YYYY-MM-DD"
+      },
+      {
+        "task": "Schedule recurring Tech-Debt Sprint",
+        "addresses_risks": ["Continuing Growth", "Declining Quality"],
+        "dependencies": ["None"],
+        "effort": "Medium",
+        "owner": "Engineering Lead",
+        "target": "Debt-sprint cadence established",
+        "target_completion": "YYYY-MM-DD"
+      },
+      {
+        "task": "Update onboarding docs with current design axioms and patterns",
+        "addresses_risks": ["Conservation of Familiarity"],
+        "dependencies": ["None"],
+        "effort": "Low",
+        "owner": "Documentation Team",
+        "target": "Onboarding docs updated",
+        "target_completion": "YYYY-MM-DD"
+      }
+    ],
+    "multipliers": [
+      {
+        "task": "Implement automated dependency and security-health checks",
+        "addresses_risks": ["Self-Regulation", "Quality Erosion"],
+        "dependencies": ["CI pipeline"],
+        "effort": "Medium",
+        "owner": "DevOps Team",
+        "target": "Alerts on dependency/security issues",
+        "target_completion": "YYYY-MM-DD"
+      }
+    ],
+    "structural": [
+      {
+        "task": "Tie docs build to component pattern changes in CI",
+        "addresses_risks": ["Conservation of Familiarity"],
+        "dependencies": ["CI pipeline"],
+        "effort": "Medium",
+        "owner": "DevOps Team",
+        "target": "Docs auto-build configured",
+        "target_completion": "YYYY-MM-DD"
+      }
+    ]
+  },
+  "knowledge_continuity": {
+    "unexpected_challenges": "string",
+    "architectural_decisions_rejected": "string",
+    "future_proofing_considerations": "string"
+  },
+  "summary": {
+    "health": "string",
+    "trajectory": "string",
+    "top_risks": ["string"],
+    "top_leverage_points": ["string"],
+    "readiness": {
+      "production_stability": "Ready | Partial | Blocked",
+      "feature_scaling": "Ready | Partial | Blocked",
+      "team_onboarding": "Ready | Partial | Blocked"
+    }
+  }
+}

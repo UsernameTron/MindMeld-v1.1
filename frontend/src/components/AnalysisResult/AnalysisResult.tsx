@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { cn } from '../../utils/cn.ts';
-import { LoadingIndicator } from '../LoadingIndicator/LoadingIndicator.tsx';
-import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay.tsx';
-import AnalysisFeedbackItem from './AnalysisFeedbackItem.tsx';
+import { cn } from '../../utils/cn';
+import { LoadingIndicator } from '../LoadingIndicator/LoadingIndicator';
+import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay';
+import AnalysisFeedbackItem from './AnalysisFeedbackItem';
 
 export type FeedbackSeverity = 'info' | 'warning' | 'error';
 export type FeedbackCategory = 'style' | 'bug' | 'performance' | 'security' | 'best-practice' | 'other';

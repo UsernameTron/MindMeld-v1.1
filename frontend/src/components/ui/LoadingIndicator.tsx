@@ -1,6 +1,6 @@
 import React from 'react';
 import type { FC, SVGProps } from 'react';
-import { baseTokens } from '../../design/tokens/base.ts';
+import { baseTokens } from '../../design/tokens/base';
 
 /**
  * Feature category color variants for LoadingIndicator.

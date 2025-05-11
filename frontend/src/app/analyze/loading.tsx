@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoadingIndicator } from '@/components/LoadingIndicator/LoadingIndicator.tsx';
+import { LoadingIndicator } from '@/components/LoadingIndicator/LoadingIndicator';
 
 export default function AnalyzeLoading() {
   return (

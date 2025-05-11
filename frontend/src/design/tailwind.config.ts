@@ -1,4 +1,4 @@
-import { baseTokens } from './tokens';
+import { baseTokens } from './tokens/index.js';
 
 export const tailwindTheme = {
   extend: {

@@ -1,2 +1,2 @@
-export { LoadingIndicator } from './LoadingIndicator.tsx';
-export type { LoadingIndicatorProps, LoadingIndicatorVariant } from './LoadingIndicator.tsx';
+export { LoadingIndicator } from './LoadingIndicator';
+export type { LoadingIndicatorProps, LoadingIndicatorVariant } from './LoadingIndicator';

@@ -1,5 +1,5 @@
 import React from 'react';
-import CodeEditor from './CodeEditor.tsx';
+import CodeEditor from './CodeEditor';
 
 export default {
   title: 'Components/CodeEditor',
@@ -7,5 +7,5 @@ export default {
 };
 
 export const Default = () => (
-  <CodeEditor value={`function hello() {\n  console.log('Hello, world!');\n}`} language="javascript" />
+  <CodeEditor initialValue={`function hello() {\n  console.log('Hello, world!');\n}`} language="javascript" />
 );

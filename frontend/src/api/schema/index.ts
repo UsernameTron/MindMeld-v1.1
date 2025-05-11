@@ -1,1 +1,1 @@
-export * from './generated/api-types';
+export * from './generated/api-types.js';

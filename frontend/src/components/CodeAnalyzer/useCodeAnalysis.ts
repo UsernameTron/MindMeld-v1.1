@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
-import type { SupportedLanguage } from '../CodeEditor/CodeEditor.tsx';
-import type { AnalysisFeedback } from '../AnalysisResult/AnalysisResult.tsx';
+import type { SupportedLanguage } from '../CodeEditor/CodeEditor';
+import type { AnalysisFeedback } from '../AnalysisResult/AnalysisResult';
 
-export type { SupportedLanguage } from '../CodeEditor/CodeEditor.tsx';
+export type { SupportedLanguage } from '../CodeEditor/CodeEditor';
 
 export interface UseCodeAnalysis {
   code: string;

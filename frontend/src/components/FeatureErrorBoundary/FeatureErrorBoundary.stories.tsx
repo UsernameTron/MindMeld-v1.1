@@ -2,7 +2,7 @@ import React from 'react';
 import { FeatureErrorBoundary, FeatureErrorBoundaryProps } from './FeatureErrorBoundary';
 import type { Meta, StoryObj } from '@storybook/react';
 
-const meta: Meta<FeatureErrorBoundaryProps> = {
+const meta = {
   title: 'Components/FeatureErrorBoundary',
   component: FeatureErrorBoundary,
   tags: ['autodocs'],

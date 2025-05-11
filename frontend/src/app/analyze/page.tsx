@@ -1,6 +1,6 @@
-import CodeAnalyzer from '../../components/CodeAnalyzer/CodeAnalyzer.tsx';
+import CodeAnalyzer from '@/components/CodeAnalyzer/CodeAnalyzer';
 import { Metadata } from 'next';
-import Loading from './loading.tsx';
+import Loading from './loading';
 
 export const metadata: Metadata = {
   title: 'Code Analyzer | MindMeld',

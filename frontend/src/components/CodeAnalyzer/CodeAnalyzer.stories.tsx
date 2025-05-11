@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import CodeAnalyzer from './CodeAnalyzer.tsx';
+import CodeAnalyzer from './CodeAnalyzer';
 
 const meta: Meta<typeof CodeAnalyzer> = {
   title: 'Components/CodeAnalyzer',

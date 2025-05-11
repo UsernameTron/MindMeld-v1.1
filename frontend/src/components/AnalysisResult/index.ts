@@ -1,4 +1,4 @@
 // ...existing code...
-export { default as AnalysisResult } from './AnalysisResult.tsx';
-export * from './AnalysisResult.tsx';
+export { default as AnalysisResult } from './AnalysisResult';
+export * from './AnalysisResult';
 // ...existing code...

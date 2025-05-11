@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import AnalysisResult from './AnalysisResult.tsx';
+import AnalysisResult from './AnalysisResult';
 
 const mockFeedback = [
   {

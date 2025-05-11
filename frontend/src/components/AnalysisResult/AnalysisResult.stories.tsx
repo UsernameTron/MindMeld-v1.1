@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import AnalysisResult from './AnalysisResult.tsx';
+import AnalysisResult from './AnalysisResult';
 
 const mockFeedback = [
   {

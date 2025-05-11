@@ -1,11 +1,11 @@
 import React from 'react';
-import { cn } from '../../utils/cn.ts';
-import CodeEditor from '../CodeEditor/CodeEditor.tsx';
-import AnalysisResult from '../AnalysisResult/AnalysisResult.tsx';
-import { Button } from '../Button.tsx';
-import { FeatureErrorBoundary } from '../FeatureErrorBoundary/FeatureErrorBoundary.tsx';
-import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay.tsx';
-import { useCodeAnalysis } from './useCodeAnalysis.ts';
+import { cn } from '@/utils/cn';
+import CodeEditor from '@/components/CodeEditor/CodeEditor';
+import AnalysisResult from '@/components/AnalysisResult/AnalysisResult';
+import { Button } from '@/components/Button';
+import { FeatureErrorBoundary } from '@/components/FeatureErrorBoundary/FeatureErrorBoundary';
+import { ErrorDisplay } from '@/components/ErrorDisplay/ErrorDisplay';
+import { useCodeAnalysis } from './useCodeAnalysis';
 
 const LANGUAGES = [
   { label: 'JavaScript', value: 'javascript' },
@@ -21,7 +21,7 @@ const LAYOUTS = [
   { label: 'Stacked', value: 'stack' },
 ];
 
-import type { SupportedLanguage } from '../CodeEditor/CodeEditor.tsx';
+import type { SupportedLanguage } from '../CodeEditor/CodeEditor';
 
 export interface CodeAnalyzerProps {
   initialCode?: string;

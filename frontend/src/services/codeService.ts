@@ -1,5 +1,5 @@
-import type { SupportedLanguage } from '../components/CodeEditor/CodeEditor.tsx';
-import type { AnalysisFeedback } from '../components/AnalysisResult/AnalysisResult.tsx';
+import type { SupportedLanguage } from '../components/CodeEditor/CodeEditor';
+import type { AnalysisFeedback } from '../components/AnalysisResult/AnalysisResult';
 
 export interface CodeQualityIssue {
   line: number;

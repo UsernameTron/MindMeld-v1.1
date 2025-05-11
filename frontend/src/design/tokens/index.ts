@@ -1,3 +1,3 @@
-export * from './base';
-export * from './theme';
-export * from './utils';
+export * from './base.js';
+export * from './theme.js';
+export * from './utils.js';

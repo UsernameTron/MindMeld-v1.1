@@ -1,9 +1,9 @@
 'use client';
 import React, { useState } from 'react';
-import { cn } from '../../utils/cn.ts';
-import { Button } from '../Button.tsx';
+import { cn } from '../../utils/cn';
+import { Button } from '../Button';
 
-import type { AnalysisFeedback } from './AnalysisResult.tsx';
+import type { AnalysisFeedback } from './AnalysisResult';
 
 const severityStyles: Record<string, string> = {
   error: 'border-red-400 bg-red-50 text-red-700',

@@ -1,1 +1,1 @@
-export { FeatureErrorBoundary } from './FeatureErrorBoundary';
+export { FeatureErrorBoundary } from './FeatureErrorBoundary.js';

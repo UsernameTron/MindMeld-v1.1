@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
-import { fetchData } from '../src/services/dataService';
-import { authService } from '@/services/authService';
+import { useRouter } from '@/shims/router';
+import { fetchData } from '../src/services/dataService.js';
+// Use the factory pattern instead of direct import
+import { createAuthService } from '@/services/authService.js';
+import { apiClient } from '@/services/api/apiClient.js';
 
 export default function DashboardPage() {
   const router = useRouter();
   const [data, setData] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [sessionValid, setSessionValid] = useState(true);
+  // Create authService instance
+  const authService = createAuthService(apiClient);
 
   const loadData = async () => {
     setLoading(true);

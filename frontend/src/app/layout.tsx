@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { Inter } from '@/shims/font';
 import './globals.css';
-import { ReactQueryProvider } from '../lib/reactQueryProvider.tsx';
-import { OpenAPIProvider } from '../context/OpenAPIContext.tsx';
-import OpenAPIDebug from '../components/dev/OpenAPIDebug.tsx';
+import { ReactQueryProvider } from '@/lib/reactQueryProvider';
+import { OpenAPIProvider } from '@/context/OpenAPIContext';
+import OpenAPIDebug from '@/components/dev/OpenAPIDebug';
 
 const inter = Inter({ subsets: ['latin'] });
 

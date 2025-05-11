@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
-import { authService } from '@/services/authService';
+import { useRouter } from '@/shims/router';
+// Use the factory pattern instead of direct import
+import { createAuthService } from '@/services/authService.js';
+import { apiClient } from '@/services/api/apiClient.js';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  // Create authService instance
+  const authService = createAuthService(apiClient);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

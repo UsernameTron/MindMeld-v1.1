@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { LoadingIndicator, LoadingIndicatorVariant } from './LoadingIndicator.tsx';
+import { LoadingIndicator, LoadingIndicatorVariant } from './LoadingIndicator';
 
 describe('LoadingIndicator', () => {
   it('renders without crashing', () => {

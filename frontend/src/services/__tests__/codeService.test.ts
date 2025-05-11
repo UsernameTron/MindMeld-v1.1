@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createCodeService } from '../codeService.ts';
+import { createCodeService } from '../codeService';
 
 const mockApiClient = {
   post: vi.fn(),

@@ -1,8 +1,9 @@
 import React from 'react';
 import { Select, SelectProps } from './Select';
 import type { Meta, StoryObj } from '@storybook/react';
+import type { SelectOption } from './Select';
 
-const options = [
+const options: SelectOption[] = [
   { value: '1', label: 'Option 1', category: 'analyze' },
   { value: '2', label: 'Option 2', category: 'chat', disabled: true },
   { value: '3', label: 'Option 3', category: 'rewrite' },
@@ -44,7 +45,7 @@ export const Disabled: Story = {
 
 export const CustomOption: Story = {
   args: {
-    options: options.map(opt => ({ ...opt, icon: <span className="inline-block w-3 h-3 bg-blue-400 rounded-full mr-2" /> })),
+    options: options.map(opt => ({ ...opt, icon: <span className="inline-block w-3 h-3 bg-blue-400 rounded-full mr-2" /> } as SelectOption)),
     renderOption: (option, selected) => (
       <span className="flex items-center">
         {option.icon}
