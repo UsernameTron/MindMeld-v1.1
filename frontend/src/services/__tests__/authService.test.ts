@@ -48,7 +48,7 @@ describe('Auth Service', () => {
 
       await authService.login('test@example.com', 'password');
 
-      expect(apiClient.post).toHaveBeenCalledWith('/auth/token', {
+      expect(apiClient.post).toHaveBeenCalledWith('/api/auth/token', {
         username: 'test@example.com',
         password: 'password',
       });

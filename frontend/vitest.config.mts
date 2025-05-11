@@ -13,12 +13,14 @@ export default defineConfig({
     setupFiles: [path.resolve(__dirname, './vitest.setup.ts')],
     globals: true,
     deps: {
-      inline: [/@testing-library\/react/, /@testing-library\/jest-dom/]
+      inline: [/@testing-library\/react/, /@testing-library\/jest-dom/, /@headlessui\/react/]
     },
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, './src'),
+      'react': path.resolve(__dirname, './node_modules/react'),
+      'react-dom': path.resolve(__dirname, './node_modules/react-dom')
     }
   }
 });

@@ -41,3 +41,12 @@ describe('Phase 4 CI/CD Configuration', () => {
     expect(preview.if).toMatch(/github\.event_name == 'pull_request'/)
   })
 })
+
+# ...existing code...
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      # ...existing code...
+# ...existing code...
