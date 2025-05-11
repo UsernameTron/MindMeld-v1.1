@@ -38,6 +38,13 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## React/Vitest Aliasing & Select Accessibility
+
+- **React/Vitest:** The project now enforces a single React instance for both runtime and Vitest. The `vitest.config.mts` file aliases `react` and `react-dom` to the root `node_modules` to prevent invalid hook call errors. If you see hook errors in tests, check this aliasing.
+- **Select Accessibility:** The Select component now sets `aria-disabled="true"` on disabled options for improved accessibility and test reliability.
+
+See CHANGELOG.md for more details.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
