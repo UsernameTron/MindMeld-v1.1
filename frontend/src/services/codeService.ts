@@ -1,3 +1,6 @@
+import type { SupportedLanguage } from '../components/CodeEditor/CodeEditor.tsx';
+import type { AnalysisFeedback } from '../components/AnalysisResult/AnalysisResult.tsx';
+
 export interface CodeQualityIssue {
   line: number;
   column: number;
@@ -16,7 +19,10 @@ export interface CodeAnalysisResult {
 }
 
 export function createCodeService(apiClient: any) {
-  return {
+  const CACHE_TTL = 30 * 1000; // 30 seconds
+  const cache = new Map<string, { result: AnalysisFeedback[]; timestamp: number }>();
+
+  const codeService = {
     async analyzeCode(code: string, language?: string): Promise<CodeAnalysisResult> {
       const response = await apiClient.post('/code/analyze', {
         code,
@@ -25,4 +31,9 @@ export function createCodeService(apiClient: any) {
       return response.data;
     },
   };
+
+  // Expose cache for test clearing
+  (codeService as any).__cache = cache;
+
+  return codeService;
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createCodeService } from '../codeService';
+import { createCodeService } from '../codeService.ts';
 
 const mockApiClient = {
   post: vi.fn(),
@@ -11,6 +11,9 @@ describe('codeService (DI)', () => {
   beforeEach(() => {
     mockApiClient.post.mockReset();
     codeService = createCodeService(mockApiClient);
+    // Clear cache
+    // @ts-ignore
+    if (codeService.__cache) codeService.__cache.clear();
   });
 
   it('analyzeCode returns analysis result', async () => {

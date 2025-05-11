@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { LoadingIndicator, LoadingIndicatorVariant } from '../../../src/components/ui/LoadingIndicator.tsx';
+import { LoadingIndicator, LoadingIndicatorVariant } from '../../../../src/components/ui/LoadingIndicator.tsx';
 
 describe('LoadingIndicator', () => {
   it('renders with default props', () => {
