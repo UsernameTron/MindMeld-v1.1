@@ -1,11 +1,18 @@
 'use client';
-import React, { Suspense, useState, useCallback } from 'react';
+import React, { Suspense, useState, useCallback, useEffect, useRef } from 'react';
+import { debounce } from 'lodash';
 import { cn } from '../../utils/cn';
 import { LoadingIndicator } from '../LoadingIndicator/LoadingIndicator';
 import { FeatureErrorBoundary } from '../FeatureErrorBoundary/FeatureErrorBoundary';
 import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay';
 
 const MonacoEditor = React.lazy(() => import('@monaco-editor/react').then(mod => ({ default: (mod.default as unknown as React.ComponentType<any>) })));
+
+declare global {
+  interface Window {
+    monaco?: typeof import('monaco-editor');
+  }
+}
 
 export type SupportedLanguage = 'javascript' | 'typescript' | 'python' | 'java' | 'go' | 'csharp';
 
@@ -35,13 +42,35 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   className,
 }) => {
   const [editorValue, setEditorValue] = useState<string>(initialValue);
+  const editorRef = useRef<any>(null);
+
+  // Debounce the onChange handler to prevent too many analysis requests
+  const debouncedOnChange = useCallback(
+    debounce((value) => {
+      onChange?.(value);
+    }, 500),
+    [onChange]
+  );
 
   const handleEditorChange = useCallback((value: string | undefined) => {
     setEditorValue(value || '');
-    if (onChange) {
-      onChange(value);
+    debouncedOnChange(value);
+  }, [debouncedOnChange]);
+
+  // Dynamic language detection and Monaco language update
+  useEffect(() => {
+    if (editorRef.current && window.monaco) {
+      const detectLanguage = (code: string) => {
+        if (code.includes('import React')) return 'typescript';
+        if (code.includes('def ') && code.includes(':')) return 'python';
+        return language || 'javascript';
+      };
+      const detectedLang = detectLanguage(editorValue);
+      if (detectedLang !== language) {
+        window.monaco.editor.setModelLanguage(editorRef.current.getModel(), detectedLang);
+      }
     }
-  }, [onChange]);
+  }, [editorValue, language]);
 
   return (
     <FeatureErrorBoundary
@@ -78,7 +107,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
               'semanticHighlighting.enabled': true,
               'accessibilitySupport': 'on',
             }}
-            onMount={onMount}
+            onMount={(editor: any) => {
+              editorRef.current = editor;
+              onMount?.(editor);
+            }}
           />
         </Suspense>
         {error && (

@@ -44,10 +44,16 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({
       </div>
     );
   }
+  const error = emptyMessage.toLowerCase().includes('error');
   if (!feedback || feedback.length === 0) {
+    // Show error if emptyMessage is an error string
+    const isError = emptyMessage && /failed|error/i.test(emptyMessage);
     return (
       <div className={cn('text-center text-slate-500 py-8', className)} data-testid="analysis-empty">
-        <ErrorDisplay severity="info" title="No Results" message={emptyMessage} />
+        <ErrorDisplay severity={isError ? 'error' : 'info'} title={isError ? 'Error' : 'No Results'} message={emptyMessage} />
+        {isError && (
+          <div data-testid="analysis-error">{emptyMessage}</div>
+        )}
       </div>
     );
   }

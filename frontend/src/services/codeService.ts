@@ -1,5 +1,7 @@
 import type { SupportedLanguage } from '../components/CodeEditor/CodeEditor';
 import type { AnalysisFeedback } from '../components/AnalysisResult/AnalysisResult';
+import Ajv from 'ajv';
+import reviewSchema from '../../../schemas/review.schema.json';
 
 export interface CodeQualityIssue {
   line: number;
@@ -23,12 +25,11 @@ export function createCodeService(apiClient: any) {
   const cache = new Map<string, { result: AnalysisFeedback[]; timestamp: number }>();
 
   const codeService = {
-    async analyzeCode(code: string, language?: string): Promise<CodeAnalysisResult> {
-      const response = await apiClient.post('/code/analyze', {
-        code,
-        language,
-      });
-      return response.data;
+    async analyzeCode(code: string, language?: string, options?: Record<string, any>): Promise<CodeAnalysisResult> {
+      return apiClient.request('/api/analyze', {
+        method: 'POST',
+        data: { code, language, ...options }
+      }) as Promise<CodeAnalysisResult>;
     },
   };
 
@@ -36,4 +37,11 @@ export function createCodeService(apiClient: any) {
   (codeService as any).__cache = cache;
 
   return codeService;
+}
+
+const ajv = new Ajv();
+const validateReview = ajv.compile(reviewSchema);
+
+export function validateAnalysisResult(result: any): boolean {
+  return validateReview(result) as boolean;
 }

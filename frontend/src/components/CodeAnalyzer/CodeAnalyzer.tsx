@@ -1,126 +1,91 @@
-import React from 'react';
-import { cn } from '@/utils/cn';
-import CodeEditor from '@/components/CodeEditor/CodeEditor';
-import AnalysisResult from '@/components/AnalysisResult/AnalysisResult';
-import { Button } from '@/components/Button';
-import { FeatureErrorBoundary } from '@/components/FeatureErrorBoundary/FeatureErrorBoundary';
-import { ErrorDisplay } from '@/components/ErrorDisplay/ErrorDisplay';
-import { useCodeAnalysis } from './useCodeAnalysis';
-
-const LANGUAGES = [
-  { label: 'JavaScript', value: 'javascript' },
-  { label: 'TypeScript', value: 'typescript' },
-  { label: 'Python', value: 'python' },
-  { label: 'Java', value: 'java' },
-  { label: 'Go', value: 'go' },
-  { label: 'C#', value: 'csharp' },
-];
-
-const LAYOUTS = [
-  { label: 'Side by Side', value: 'side' },
-  { label: 'Stacked', value: 'stack' },
-];
-
-import type { SupportedLanguage } from '../CodeEditor/CodeEditor';
+import React, { useState, useCallback } from 'react';
+import CodeEditor from '../CodeEditor/CodeEditor';
+import AnalysisResult from '../AnalysisResult/AnalysisResult';
+import { Button } from '../Button';
+import { createCodeService } from '../../services/codeService';
+import { apiClient } from '../../services/apiClient';
+import type { CodeAnalysisResult } from '../../services/codeService';
 
 export interface CodeAnalyzerProps {
   initialCode?: string;
-  initialLanguage?: SupportedLanguage;
-  initialLayout?: 'side' | 'stack';
-  className?: string;
+  initialLanguage?: string;
+  category?: 'analyze' | 'chat' | 'rewrite' | 'persona';
+  codeService?: ReturnType<typeof createCodeService>; // <-- add this
 }
 
-const CodeAnalyzer: React.FC<CodeAnalyzerProps> = ({
-  initialCode = '',
+const defaultCodeService = createCodeService(apiClient);
+
+export const CodeAnalyzer: React.FC<CodeAnalyzerProps> = ({
+  initialCode = '// Enter your code here',
   initialLanguage = 'javascript',
-  initialLayout = 'side',
-  className,
+  category = 'analyze',
+  codeService = defaultCodeService, // <-- use injected or default
 }) => {
-  const [layout, setLayout] = React.useState<'side' | 'stack'>(initialLayout);
-  const {
-    code,
-    setCode,
-    language,
-    setLanguage,
-    feedback,
-    error,
-    isAnalyzing,
-    analyzeCode,
-    applyFeedbackSuggestion,
-  } = useCodeAnalysis(initialCode, initialLanguage);
+  const [code, setCode] = useState(initialCode);
+  const [language, setLanguage] = useState(initialLanguage);
+  const [analysis, setAnalysis] = useState<CodeAnalysisResult | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleAnalyze = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await codeService.analyzeCode(code, language);
+      setAnalysis(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Analysis failed');
+      setAnalysis(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [code, language, codeService]);
 
   return (
-    <FeatureErrorBoundary
-      category="analyze"
-      fallback={<ErrorDisplay severity="error" message="Failed to load analyzer" title="Analyzer Error" />}
-    >
-      <div className={cn('w-full max-w-5xl mx-auto p-4', className)} data-testid="code-analyzer-root">
-        <div className="flex flex-col md:flex-row md:items-end gap-4 mb-4">
-          <div className="flex gap-2 items-center">
-            <label htmlFor="language-select" className="font-medium text-sm">Language:</label>
-            <select
-              id="language-select"
-              data-testid="language-select"
-              className="border rounded px-2 py-1 text-sm"
-              value={language}
-              onChange={e => setLanguage(e.target.value as any)}
-            >
-              {LANGUAGES.map(l => (
-                <option key={l.value} value={l.value}>{l.label}</option>
-              ))}
-            </select>
-          </div>
-          <div className="flex gap-2 items-center">
-            <label htmlFor="layout-select" className="font-medium text-sm">Layout:</label>
-            <select
-              id="layout-select"
-              data-testid="layout-select"
-              className="border rounded px-2 py-1 text-sm"
-              value={layout}
-              onChange={e => setLayout(e.target.value as 'side' | 'stack')}
-            >
-              {LAYOUTS.map(l => (
-                <option key={l.value} value={l.value}>{l.label}</option>
-              ))}
-            </select>
-          </div>
-          <Button
-            onClick={analyzeCode}
-            loading={isAnalyzing}
-            data-testid="analyze-btn"
-            className="ml-auto"
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="flex flex-col" data-testid="code-editor-panel">
+        <div className="mb-2 flex justify-between items-center">
+          <select
+            data-testid="language-select"
+            value={language}
+            onChange={(e) => setLanguage(e.target.value)}
+            className="px-2 py-1 rounded border text-sm"
           >
-            Analyze
+            <option value="javascript">JavaScript</option>
+            <option value="typescript">TypeScript</option>
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+          </select>
+          <Button 
+            data-testid="analyze-btn"
+            onClick={handleAnalyze} 
+            loading={loading}
+          >
+            Analyze Code
           </Button>
         </div>
-        {error && (
-          <ErrorDisplay severity="error" message={error} title="Analysis Error" className="mb-4" />
-        )}
-        <div className={cn(
-          layout === 'side' ? 'flex flex-col md:flex-row gap-6' : 'flex flex-col gap-6',
-          'w-full'
-        )}>
-          <div className={cn('flex-1 min-w-[300px]')}
-            data-testid="code-editor-panel">
-            <CodeEditor
-              initialValue={code}
-              language={language}
-              onChange={value => setCode(value || '')}
-              height={layout === 'side' ? '500px' : '300px'}
-              className="rounded border"
-            />
-          </div>
-          <div className={cn('flex-1 min-w-[300px]')}
-            data-testid="analysis-result-panel">
-            <AnalysisResult
-              feedback={feedback}
-              loading={isAnalyzing}
-              onApplySuggestion={applyFeedbackSuggestion}
-            />
-          </div>
-        </div>
+        <CodeEditor
+          initialValue={code}
+          onChange={(value: string | undefined) => setCode(value || '')}
+          language={language as any}
+          height="500px"
+        />
       </div>
-    </FeatureErrorBoundary>
+      <div data-testid="analysis-result-panel">
+        <AnalysisResult 
+          feedback={analysis ? analysis.issues.map((issue, idx) => ({
+            id: String(idx + 1),
+            message: issue.message,
+            severity: issue.severity as any,
+            category: 'style', // Default or map as needed
+            line: issue.line,
+            suggestion: issue.suggestion,
+          })) : []}
+          loading={loading}
+          emptyMessage={error || 'No analysis results'}
+        />
+      </div>
+    </div>
   );
 };
 
