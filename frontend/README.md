@@ -77,6 +77,22 @@ For test and Storybook configuration, ensure aliases are also reflected in the r
   ```
 - The test runner is configured to include all test files in the `frontend` directory.
 
+## Navigation Shims & Testing Pattern
+
+This project uses a navigation shim layer to standardize Next.js navigation usage and enable robust testing. Instead of importing navigation functions directly from Next.js, always use the shim:
+
+```ts
+import { useRouter } from '@/shims/navigation';
+```
+
+- The shim automatically provides the real Next.js router in production and a mock router in test environments.
+- For details and usage examples, see [`docs/navigation-shims.md`](./docs/navigation-shims.md).
+
+This ensures:
+- Consistent navigation API across the codebase
+- Easy mocking and assertion of navigation in tests
+- Centralized control for future navigation changes
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
