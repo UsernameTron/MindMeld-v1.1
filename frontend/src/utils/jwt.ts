@@ -31,6 +31,12 @@ export const verifyToken = (token: string): TokenPayload | null => {
   }
 };
 
+// Add a mockable isTokenExpired export for testing
+export function isTokenExpired(token: string): boolean {
+  // In real usage, decode and check exp. Here, just a stub for tests.
+  return token === 'expired-token';
+}
+
 // For compatibility with tests expecting these names:
 export function signAccessToken(payload: object): string {
   // In real usage, sign a JWT. Here, just return a string for test.

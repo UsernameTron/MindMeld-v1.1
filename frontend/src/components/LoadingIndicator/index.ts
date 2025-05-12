@@ -1,2 +1,2 @@
-export { LoadingIndicator } from './LoadingIndicator';
+export * from './LoadingIndicator';
 export type { LoadingIndicatorProps, LoadingIndicatorVariant } from './LoadingIndicator';

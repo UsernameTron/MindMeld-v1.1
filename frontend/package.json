@@ -19,7 +19,8 @@
     "generate-types": "ts-node src/api/schema/generate-types.ts",
     "storybook": "start-storybook -p 6006",
     "analyze-bundle": "vite build",
-    "lhci:autorun": "lhci autorun"
+    "lhci:autorun": "lhci autorun",
+    "test:e2e": "playwright test --config=playwright.config.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.2",
@@ -38,6 +39,7 @@
   "devDependencies": {
     "@babel/core": "^7.27.1",
     "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.52.0",
     "@tailwindcss/postcss": "^4.1.6",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.3.1",
@@ -62,6 +64,7 @@
     "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
     "lint-staged": "^15.5.2",
+    "msw": "^2.8.2",
     "openapi-typescript": "^7.7.1",
     "prettier": "^3.5.3",
     "prop-types": "^15.8.1",

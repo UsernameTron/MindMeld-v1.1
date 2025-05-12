@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useRouter } from '@/shims/router';
+import { useRouter } from '../src/shims/router';
 import { fetchData } from '../src/services/dataService.js';
 // Use the factory pattern instead of direct import
 import { createAuthService } from '@/services/authService.js';
@@ -11,7 +11,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(false);
   const [sessionValid, setSessionValid] = useState(true);
   // Create authService instance
-  const authService = createAuthService(apiClient);
+  const authService = createAuthService();
 
   const loadData = async () => {
     setLoading(true);

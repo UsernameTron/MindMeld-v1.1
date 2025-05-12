@@ -45,6 +45,21 @@ Object.defineProperty(window, 'localStorage', {
   value: new LocalStorageMock(),
 });
 
+// Mock document.cookie
+let cookieStore = '';
+Object.defineProperty(document, 'cookie', {
+  get: () => cookieStore,
+  set: (val) => { cookieStore = val; },
+  configurable: true,
+});
+
+// Reset all mocks before each test
+beforeEach(() => {
+  vi.clearAllMocks();
+  window.localStorage.clear();
+  cookieStore = '';
+});
+
 // Mock window.location
 const locationMock = {
   assign: vi.fn(),

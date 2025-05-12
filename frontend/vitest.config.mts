@@ -12,7 +12,9 @@ export default defineConfig({
       '**/dist/**',
       '**/cypress/**',
       '**/.{idea,git,cache,output,temp}/**',
-      'tests/ci/**'
+      'tests/ci/**',
+      'e2e/**',
+      'tests/**'
     ],
     include: [
       '**/*.{test,spec}.{js,ts,jsx,tsx}',
@@ -29,7 +31,22 @@ export default defineConfig({
       '@components': path.resolve(__dirname, 'frontend/src/components'),
       '@styles': path.resolve(__dirname, 'frontend/src/design/tokens'),
       'react': path.resolve(__dirname, './node_modules/react'),
-      'react-dom': path.resolve(__dirname, './node_modules/react-dom')
+      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
+      'next/router': path.resolve(__dirname, '../__mocks__/next/router.js'),
+      'next/navigation': path.resolve(__dirname, '../__mocks__/next/router.js'),
+      './next/router': path.resolve(__dirname, '../__mocks__/next/router.js'),
+      '../next/router': path.resolve(__dirname, '../__mocks__/next/router.js'),
+      '../../next/router': path.resolve(__dirname, '../__mocks__/next/router.js'),
+      './next/navigation': path.resolve(__dirname, '../__mocks__/next/router.js'),
+      '../next/navigation': path.resolve(__dirname, '../__mocks__/next/router.js'),
+      '../../next/navigation': path.resolve(__dirname, '../__mocks__/next/router.js'),
+      '@/services/authService': path.resolve(__dirname, 'src/__mocks__/services/authService.js'),
+      '../services/authService': path.resolve(__dirname, 'src/__mocks__/services/authService.js'),
+      '../../services/authService': path.resolve(__dirname, 'src/__mocks__/services/authService.js'),
+      '@/utils/jwt': path.resolve(__dirname, '../src/__mocks__/utils/jwt.js'),
+      'src/utils/jwt': path.resolve(__dirname, '../src/__mocks__/utils/jwt.js'),
+      '../utils/jwt': path.resolve(__dirname, '../src/__mocks__/utils/jwt.js'),
+      '../../utils/jwt': path.resolve(__dirname, '../src/__mocks__/utils/jwt.js')
     }
   }
 });

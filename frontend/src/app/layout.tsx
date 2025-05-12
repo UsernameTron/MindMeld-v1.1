@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter } from '@/shims/font';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { ReactQueryProvider } from '@/lib/reactQueryProvider';
 import { OpenAPIProvider } from '@/context/OpenAPIContext';

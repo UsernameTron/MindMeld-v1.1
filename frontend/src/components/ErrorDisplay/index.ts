@@ -1,1 +1,1 @@
-export { ErrorDisplay } from './ErrorDisplay.js';
+export * from './ErrorDisplay';

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { useRouter } from '@/shims/router';
+import { useRouter } from '../src/shims/router';
 // Use the factory pattern instead of direct import
-import { createAuthService } from '@/services/authService.js';
-import { apiClient } from '@/services/api/apiClient.js';
+import { createAuthService } from '../src/services/authService';
+import { apiClient } from '@/services/api/apiClient';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -10,7 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   // Create authService instance
-  const authService = createAuthService(apiClient);
+  const authService = createAuthService();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,10 +19,10 @@ export default function LoginPage() {
     
     try {
       console.log('[Login] Calling authService.login...');
-      const success = await authService.login(email, password);
-      console.log('[Login] Login result:', success);
+      const result = await authService.login(email, password);
+      console.log('[Login] Login result:', result);
       
-      if (success) {
+      if (result) {
         console.log('[Login] Login successful, redirecting to dashboard');
         // Use window.location.href instead of router.push for a hard navigation
         // This ensures a full page reload with new cookies applied
