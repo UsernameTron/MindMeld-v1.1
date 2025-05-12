@@ -6,8 +6,8 @@ import { vi } from 'vitest';
 describe('ErrorDisplay', () => {
   it('renders with title and message', () => {
     render(<ErrorDisplay title="Test Error" message="Something went wrong" />);
-    expect(screen.getByText('Test Error')).toBeInTheDocument();
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+    expect(screen.getByText('Test Error')).toBeTruthy();
+    expect(screen.getByText('Something went wrong')).toBeTruthy();
   });
 
   it('calls onDismiss when close button is clicked', () => {

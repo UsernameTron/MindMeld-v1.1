@@ -1,75 +1,57 @@
+import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'axios';
+
 // Mock authentication service for frontend-only testing
 export function createAuthService() {
-  const saveTokens = (token: string, refreshToken: string) => {
-    localStorage.setItem('token', token);
-    if (refreshToken) {
-      localStorage.setItem('refreshToken', refreshToken);
+  // Remove all localStorage usage
+  // Tokens are now managed by HttpOnly cookies (server-side)
+
+  const apiClient: AxiosInstance = axios.create({
+    baseURL: '/api',
+    withCredentials: true, // Always send cookies
+  });
+
+  // 401 → refresh → retry interceptor
+  apiClient.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError) => {
+      const originalRequest = error.config as (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
+      if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          await apiClient.post('/auth/refresh');
+          return apiClient(originalRequest);
+        } catch (refreshError) {
+          // Optionally: redirect to login
+          return Promise.reject(refreshError);
+        }
+      }
+      return Promise.reject(error);
     }
-  };
-
-  const clearTokens = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-  };
-
-  const getToken = () => localStorage.getItem('token');
+  );
 
   return {
-    /**
-     * Mock implementation for authentication
-     * In production, this would call the real API
-     */
     async login(username: string, password: string) {
-      console.log('[AuthService] Using mock login implementation');
-      if (username === 'testuser@example.com' && password === 'password123') {
-        const mockToken =
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlRlc3QgVXNlciIsImlhdCI6MTUxNjIzOTAyMn0';
-        const mockRefreshToken = 'mock-refresh-token-12345';
-        saveTokens(mockToken, mockRefreshToken);
-        return {
-          token: mockToken,
-          refreshToken: mockRefreshToken,
-          user: {
-            id: '123',
-            email: username,
-            name: 'Test User',
-            passwordChangeRequired: false,
-            isVerified: true,
-            lastLogin: new Date().toISOString(),
-            role: 'user',
-          },
-        };
-      }
-      console.error('[AuthService] Login failed - Invalid credentials');
-      throw new Error('Invalid username or password');
+      // Example: call real API, rely on HttpOnly cookie
+      const res = await apiClient.post('/auth/login', { username, password });
+      return res.data;
     },
-
     async validateSession() {
-      console.log('[AuthService] Using mock validateSession');
-      const token = getToken();
-      return !!token;
+      // Example: call real API
+      const res = await apiClient.get('/auth/session');
+      return res.data.valid;
     },
-
     async refresh() {
-      console.log('[AuthService] Using mock refresh');
-      const mockToken =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlRlc3QgVXNlciIsImlhdCI6MTUxNjIzOTAyMn0.refreshed';
-      localStorage.setItem('token', mockToken);
+      await apiClient.post('/auth/refresh');
       return true;
     },
-
     async logout() {
-      console.log('[AuthService] Using mock logout');
-      clearTokens();
+      await apiClient.post('/auth/logout');
     },
-
-    saveTokens,
-    clearTokens,
-    getToken,
-
     isAuthenticated() {
-      return !!getToken();
+      // Optionally: check session
+      return true; // Or implement a real check
     },
+    apiClient, // Export for testability
   };
 }
 

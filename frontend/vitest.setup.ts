@@ -1,5 +1,19 @@
-import '@testing-library/jest-dom';
+import { expect } from 'vitest';
+import * as matchers from '@testing-library/jest-dom/matchers';
+
+expect.extend(matchers);
+
 import { vi } from 'vitest';
+import './src/test-setup';
+
+// Centralize Next.js router/navigation mocks
+vi.mock('next/router', () => import('./src/__mocks__/next/router.js'));
+vi.mock('next/navigation', () => import('./src/__mocks__/next/navigation.js'));
+
+// Mock auth and code services
+vi.mock('@/services/authService', () => import('./src/__mocks__/services/authService.js'));
+vi.mock('@/services/codeService', () => import('./src/__mocks__/services/codeService.js'));
+vi.mock('@/services/api/apiClient', () => import('./src/__mocks__/services/api/apiClient.js'));
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -18,11 +32,7 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock localStorage
 class LocalStorageMock {
-  store: Record<string, string>;
-  
-  constructor() {
-    this.store = {};
-  }
+  store: Record<string, string> = {};
 
   clear() {
     this.store = {};

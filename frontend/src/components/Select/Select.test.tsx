@@ -188,40 +188,40 @@ describe('Select', () => {
   it('renders and opens/closes via mouse', () => {
     render(<Select options={options} placeholder="Test Placeholder" />);
     const button = screen.getByRole('button');
-    expect(screen.getByText('Test Placeholder')).toBeInTheDocument();
+    expect(screen.getByText('Test Placeholder')).toBeTruthy();
 
     fireEvent.click(button);
-    expect(screen.getByRole('listbox')).toBeInTheDocument();
-    expect(screen.getByText('One')).toBeInTheDocument();
-    expect(screen.getByText('Two')).toBeInTheDocument();
+    expect(screen.getByRole('listbox')).toBeTruthy();
+    expect(screen.getByText('One')).toBeTruthy();
+    expect(screen.getByText('Two')).toBeTruthy();
     
     fireEvent.click(button); 
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
-    expect(screen.queryByText('One')).not.toBeInTheDocument();
+    expect(screen.queryByRole('listbox')).toBeFalsy();
+    expect(screen.queryByText('One')).toBeFalsy();
   });
 
   it('selects an item and fires onChange', () => {
     const handleChange = vi.fn();
     render(<Select options={options} onChange={handleChange} />); 
     const button = screen.getByRole('button');
-    expect(screen.getByText('Select...')).toBeInTheDocument();
+    expect(screen.getByText('Select...')).toBeTruthy();
     fireEvent.click(button); 
 
     const optionTwo = screen.getByText('Two');
     fireEvent.click(optionTwo);
 
     expect(handleChange).toHaveBeenCalledWith('2');
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument(); 
-    expect(screen.getByText('Two')).toBeInTheDocument(); 
-    expect(screen.queryByText('Select...')).not.toBeInTheDocument();
+    expect(screen.queryByRole('listbox')).toBeFalsy(); 
+    expect(screen.getByText('Two')).toBeTruthy(); 
+    expect(screen.queryByText('Select...')).toBeFalsy();
   });
 
   it('disabled state prevents interaction', () => {
     render(<Select options={options} disabled />);
     const button = screen.getByRole('button');
-    expect(button).toBeDisabled();
+    expect(button.hasAttribute('disabled')).toBe(true);
     fireEvent.click(button);
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('listbox')).toBeFalsy();
   });
 
   it('does not select a disabled option', () => {
@@ -231,13 +231,13 @@ describe('Select', () => {
     fireEvent.click(button); 
 
     const optionThree = screen.getByRole('option', { name: 'Three' });
-    expect(optionThree).toHaveAttribute('aria-disabled', 'true');
+    expect(optionThree?.getAttribute("aria-disabled")).toBe("true");
     fireEvent.click(optionThree);
 
     expect(handleChange).not.toHaveBeenCalled();
-    expect(screen.getByRole('listbox')).toBeInTheDocument(); 
-    expect(screen.getByText('One')).toBeInTheDocument(); 
-    expect(screen.getByText('Select...')).toBeInTheDocument(); 
+    expect(screen.getByRole('listbox')).toBeTruthy(); 
+    expect(screen.getByText('One')).toBeTruthy(); 
+    expect(screen.getByText('Select...')).toBeTruthy(); 
   });
 
   it('opens with Enter key on button (mocked by click) and selects with Enter on option (mocked by click)', () => {
@@ -247,24 +247,24 @@ describe('Select', () => {
     button.focus();
 
     fireEvent.click(button);
-    expect(screen.getByRole('listbox')).toBeInTheDocument();
-    expect(screen.getByText('One')).toBeInTheDocument();
+    expect(screen.getByRole('listbox')).toBeTruthy();
+    expect(screen.getByText('One')).toBeTruthy();
 
     const optionOne = screen.getByText('One');
     fireEvent.click(optionOne);
 
     expect(handleChange).toHaveBeenCalledWith('1');
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument(); 
-    expect(screen.getByText('One')).toBeInTheDocument(); 
+    expect(screen.queryByRole('listbox')).toBeFalsy(); 
+    expect(screen.getByText('One')).toBeTruthy(); 
   });
 
   it('closes with Escape key (mocked by button click)', () => {
     render(<Select options={options} />);
     const button = screen.getByRole('button');
     fireEvent.click(button); 
-    expect(screen.getByRole('listbox')).toBeInTheDocument();
+    expect(screen.getByRole('listbox')).toBeTruthy();
 
     fireEvent.click(button); 
-    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('listbox')).toBeFalsy();
   });
 });

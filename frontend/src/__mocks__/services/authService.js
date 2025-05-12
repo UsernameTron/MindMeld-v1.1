@@ -5,20 +5,44 @@ console.debug('[MOCK] frontend/src/__mocks__/services/authService.js loaded');
 // Default JWT token for testing
 const TEST_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IlRlc3QgVXNlciIsImlhdCI6MTUxNjIzOTAyMn0';
 
+// Create API client mock
+export const apiClient = {
+  get: vi.fn().mockImplementation(url => {
+    if (url === '/auth/session') return Promise.resolve({ data: { valid: true } });
+    return Promise.resolve({ data: {} });
+  }),
+  post: vi.fn().mockImplementation(url => {
+    if (url === '/auth/login') {
+      return Promise.resolve({ 
+        data: { 
+          token: TEST_TOKEN,
+          user: { 
+            id: '123', 
+            email: 'testuser@example.com', 
+            name: 'Test User',
+            role: 'user'
+          }
+        } 
+      });
+    }
+    return Promise.resolve({ data: {} });
+  }),
+  put: vi.fn().mockResolvedValue({ data: {} }),
+  delete: vi.fn().mockResolvedValue({ data: {} }),
+};
+
+// Create the authService mock that matches the implementation
 export const authService = {
-  login: vi.fn().mockImplementation(async (email, password) => {
-    console.log('[AuthService Mock] Login called with:', email);
+  login: vi.fn().mockImplementation(async (username, password) => {
+    console.log('[AuthService Mock] Login called with:', username);
     
     // Successful login case
-    if (email === 'testuser@example.com' && password === 'password123') {
-      const token = TEST_TOKEN;
-      localStorage.setItem('token', token);
-      
+    if (username === 'testuser@example.com' && password === 'password123') {
       return {
-        token,
+        token: TEST_TOKEN,
         user: { 
           id: '123', 
-          email, 
+          email: username, 
           name: 'Test User',
           role: 'user'
         }
@@ -31,15 +55,13 @@ export const authService = {
   
   logout: vi.fn().mockResolvedValue(undefined),
   
-  refreshToken: vi.fn().mockImplementation(async () => {
-    const newToken = 'new-valid-token';
-    localStorage.setItem('token', newToken);
-    return newToken;
-  }),
+  refresh: vi.fn().mockResolvedValue(true),
+  
+  validateSession: vi.fn().mockResolvedValue(true),
   
   isAuthenticated: vi.fn().mockReturnValue(true),
   
-  validateSession: vi.fn().mockResolvedValue(true)
+  apiClient,
 };
 
 // Patch login mock to always have .mockResolvedValueOnce and .mockRejectedValueOnce
@@ -52,20 +74,7 @@ Object.assign(authService.login, {
   }
 });
 
-// Add missing methods and nested mocks for full test compatibility
-// Add apiClient mock if referenced in tests
-export const apiClient = {
-  get: vi.fn().mockImplementation(url => {
-    if (url === '/auth/validate') return Promise.resolve({ data: { valid: true } });
-    return Promise.resolve({ data: {} });
-  }),
-  post: vi.fn().mockResolvedValue({ data: {} }),
-  put: vi.fn(),
-  delete: vi.fn(),
-};
-
-authService.apiClient = apiClient;
-
+// Add additional helpers for testing
 authService.getUser = vi.fn().mockResolvedValue({
   id: '123',
   email: 'testuser@example.com',
@@ -82,26 +91,48 @@ export function resetAuthServiceMocks() {
   });
   
   // Reset api client mocks
-  if (authService.apiClient) {
-    Object.values(authService.apiClient).forEach(mock => {
-      if (typeof mock === 'function' && mock.mockReset) mock.mockReset();
-    });
-  }
+  Object.values(apiClient).forEach(mock => {
+    if (typeof mock === 'function' && mock.mockReset) mock.mockReset();
+  });
   
   // Reset default implementations
-  authService.login.mockImplementation(async (email, password) => {
-    if (email === 'testuser@example.com' && password === 'password123') {
-      const token = TEST_TOKEN;
-      localStorage.setItem('token', token);
-      return { token, user: { id: '123', email, name: 'Test User' } };
+  authService.login.mockImplementation(async (username, password) => {
+    if (username === 'testuser@example.com' && password === 'password123') {
+      return { 
+        token: TEST_TOKEN, 
+        user: { id: '123', email: username, name: 'Test User', role: 'user' } 
+      };
     }
     throw new Error('Invalid username or password');
   });
   
   authService.isAuthenticated.mockReturnValue(true);
   authService.validateSession.mockResolvedValue(true);
+  
+  // Reset apiClient default implementations
+  apiClient.get.mockImplementation(url => {
+    if (url === '/auth/session') return Promise.resolve({ data: { valid: true } });
+    return Promise.resolve({ data: {} });
+  });
+  
+  apiClient.post.mockImplementation(url => {
+    if (url === '/auth/login') {
+      return Promise.resolve({ 
+        data: { 
+          token: TEST_TOKEN,
+          user: { id: '123', email: 'testuser@example.com', name: 'Test User', role: 'user' }
+        } 
+      });
+    }
+    return Promise.resolve({ data: {} });
+  });
 }
 
 console.debug('[MOCK] frontend/src/__mocks__/services/authService.js exports:', {authService});
-export { authService };
+
+// Export a createAuthService function to match the real implementation
+export function createAuthService() {
+  return authService;
+}
+
 export default authService;

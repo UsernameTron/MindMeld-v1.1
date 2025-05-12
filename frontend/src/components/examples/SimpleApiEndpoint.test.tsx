@@ -50,20 +50,20 @@ describe('API Component with MockOpenAPIContext', () => {
   it('renders loading state when spec is null', () => {
     render(<ApiEndpointList spec={null} />);
 
-    expect(screen.getByTestId('loading')).toBeInTheDocument();
-    expect(screen.getByText('Loading API specification...')).toBeInTheDocument();
+    expect(screen.getByTestId('loading')).toBeTruthy();
+    expect(screen.getByText('Loading API specification...')).toBeTruthy();
   });
 
   it('renders list of API endpoints from mock spec', () => {
     render(<ApiEndpointList spec={mockOpenAPISpec} />);
 
-    expect(screen.getByTestId('endpoint-list')).toBeInTheDocument();
-    expect(screen.getByText('API Endpoints')).toBeInTheDocument();
+    expect(screen.getByTestId('endpoint-list')).toBeTruthy();
+    expect(screen.getByText('API Endpoints')).toBeTruthy();
 
     // Check that our mock endpoint is listed
     const endpoints = screen.getAllByTestId('endpoint');
     expect(endpoints).toHaveLength(1);
-    expect(endpoints[0]).toHaveTextContent('/api/items');
+    expect(endpoints[0]?.textContent?.includes("/api/items")).toBe(true);
   });
 
   it('works with custom spec data', () => {
@@ -84,8 +84,8 @@ describe('API Component with MockOpenAPIContext', () => {
 
     const endpoints = screen.getAllByTestId('endpoint');
     expect(endpoints).toHaveLength(3);
-    expect(endpoints[0]).toHaveTextContent('/users');
-    expect(endpoints[1]).toHaveTextContent('/posts');
-    expect(endpoints[2]).toHaveTextContent('/comments');
+    expect(endpoints[0]?.textContent?.includes("/users")).toBe(true);
+    expect(endpoints[1]?.textContent?.includes("/posts")).toBe(true);
+    expect(endpoints[2]?.textContent?.includes("/comments")).toBe(true);
   });
 });

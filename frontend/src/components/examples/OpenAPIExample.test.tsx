@@ -15,8 +15,8 @@ describe('OpenAPIContext Mock Tests', () => {
       </MockOpenAPIProvider>
     );
 
-    expect(screen.getByTestId('api-display')).toBeInTheDocument();
-    expect(screen.getByText('API Context Consumer')).toBeInTheDocument();
+    expect(screen.getByTestId('api-display')).toBeTruthy();
+    expect(screen.getByText('API Context Consumer')).toBeTruthy();
   });
 
   it('can be used with nested components', () => {
@@ -30,7 +30,7 @@ describe('OpenAPIContext Mock Tests', () => {
       </MockOpenAPIProvider>
     );
 
-    expect(screen.getByTestId('parent')).toBeInTheDocument();
-    expect(screen.getByTestId('nested')).toBeInTheDocument();
+    expect(screen.getByTestId('parent')).toBeTruthy();
+    expect(screen.getByTestId('nested')).toBeTruthy();
   });
 });

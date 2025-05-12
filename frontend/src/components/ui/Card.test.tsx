@@ -25,7 +25,7 @@ describe('Card', () => {
 
   it('applies variant classes', () => {
     const { container } = render(<Card variant="outlined">Content</Card>);
-    expect(container.firstChild).toHaveClass('border-2');
+    expect((container.firstChild as HTMLElement)?.classList.contains("border-2")).toBe(true);
   });
 
   it('renders without header/footer', () => {

@@ -38,30 +38,30 @@ describe('AnalysisResult', () => {
 
   it('shows loading state', () => {
     render(<AnalysisResult feedback={[]} loading />);
-    expect(screen.getByTestId('analysis-loading')).toBeInTheDocument();
+    expect(screen.getByTestId('analysis-loading')).toBeTruthy();
   });
 
   it('shows empty state', () => {
     render(<AnalysisResult feedback={[]} />);
-    expect(screen.getByTestId('analysis-empty')).toBeInTheDocument();
+    expect(screen.getByTestId('analysis-empty')).toBeTruthy();
   });
 
   it('renders feedback items sorted by severity and line', () => {
     render(<AnalysisResult feedback={mockFeedback} />);
     const items = screen.getAllByTestId(/feedback-item-/);
     expect(items.length).toBe(3);
-    expect(items[0]).toHaveTextContent('Possible null reference'); // error first
-    expect(items[1]).toHaveTextContent('Unused variable'); // warning next
-    expect(items[2]).toHaveTextContent('Consider using const'); // info last
+    expect(items[0]?.textContent?.includes("Possible null reference")).toBe(true); // error first
+    expect(items[1]?.textContent?.includes("Unused variable")).toBe(true); // warning next
+    expect(items[2]?.textContent?.includes("Consider using const")).toBe(true); // info last
   });
 
   it('expands and collapses details', () => {
     render(<AnalysisResult feedback={mockFeedback} />);
     const expandBtn = screen.getByTestId('expand-details-1');
     fireEvent.click(expandBtn);
-    expect(screen.getByTestId('details-1')).toBeInTheDocument();
+    expect(screen.getByTestId('details-1')).toBeTruthy();
     fireEvent.click(expandBtn);
-    expect(screen.queryByTestId('details-1')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('details-1')).toBeFalsy();
   });
 
   it('calls onApplySuggestion when Apply is clicked', () => {

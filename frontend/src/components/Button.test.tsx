@@ -8,8 +8,8 @@ describe('Button component', () => {
   it('renders with correct label and variant', () => {
     render(<Button variant="primary">Click Me</Button>);
     const btn = screen.getByRole('button', { name: /click me/i });
-    expect(btn).toBeInTheDocument();
-    expect(btn).toHaveClass('bg-blue-600');
+    expect(btn).toBeTruthy();
+    expect(btn?.classList.contains("bg-blue-600")).toBe(true);
   });
 
   it('calls onClick when clicked', () => {
@@ -22,7 +22,7 @@ describe('Button component', () => {
   it('displays loading state correctly', () => {
     render(<Button loading>Loading</Button>);
     const btn = screen.getByRole('button');
-    expect(btn).toHaveAttribute('aria-busy', 'true');
+    expect(btn?.getAttribute("aria-busy")).toBe("true");
     expect(btn).toBeDisabled();
   });
 });

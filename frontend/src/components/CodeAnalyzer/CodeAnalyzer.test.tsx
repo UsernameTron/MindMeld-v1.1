@@ -56,9 +56,9 @@ describe('CodeAnalyzer', () => {
 
   it('renders with code editor and analysis panels', () => {
     render(<CodeAnalyzer codeService={mockCodeService} />);
-    expect(screen.getByTestId('code-editor-panel')).toBeInTheDocument();
-    expect(screen.getByTestId('analysis-result-panel')).toBeInTheDocument();
-    expect(screen.getByTestId('analyze-btn')).toBeInTheDocument();
+    expect(screen.getByTestId('code-editor-panel')).toBeTruthy();
+    expect(screen.getByTestId('analysis-result-panel')).toBeTruthy();
+    expect(screen.getByTestId('analyze-btn')).toBeTruthy();
   });
 
   it('calls codeService when Analyze button is clicked', async () => {
@@ -88,7 +88,7 @@ describe('CodeAnalyzer', () => {
     render(<CodeAnalyzer codeService={mockCodeService} />);
     fireEvent.click(screen.getByTestId('analyze-btn'));
 
-    expect(screen.getByTestId('analyze-btn')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByTestId('analyze-btn')?.getAttribute("aria-busy")).toBe("true");
 
     await waitFor(() => {
       expect(screen.getByTestId('analyze-btn')).not.toHaveAttribute('aria-busy', 'true');

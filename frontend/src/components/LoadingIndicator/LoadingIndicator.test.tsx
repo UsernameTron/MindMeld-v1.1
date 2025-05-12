@@ -15,7 +15,7 @@ describe('LoadingIndicator', () => {
     const srText = screen.getByText('Loading');
     expect(srText).toBeInTheDocument();
     // Should be visually hidden
-    expect(srText).toHaveClass('sr-only');
+    expect(srText?.classList.contains("sr-only")).toBe(true);
   });
 
   it('uses custom ariaLabel when provided', () => {
@@ -27,25 +27,25 @@ describe('LoadingIndicator', () => {
   it('applies size classes correctly', () => {
     const { rerender } = render(<LoadingIndicator size="sm" />);
     let loadingElement = screen.getByRole('status');
-    expect(loadingElement).toHaveClass('w-4');
+    expect(loadingElement?.classList.contains("w-4")).toBe(true);
 
     rerender(<LoadingIndicator size="md" />);
     loadingElement = screen.getByRole('status');
-    expect(loadingElement).toHaveClass('w-6');
+    expect(loadingElement?.classList.contains("w-6")).toBe(true);
 
     rerender(<LoadingIndicator size="lg" />);
     loadingElement = screen.getByRole('status');
-    expect(loadingElement).toHaveClass('w-8');
+    expect(loadingElement?.classList.contains("w-8")).toBe(true);
   });
 
   it('applies feature category colors correctly', () => {
     const { rerender } = render(<LoadingIndicator category="analyze" />);
     let loadingElement = screen.getByRole('status');
-    expect(loadingElement).toHaveClass('text-analyze');
+    expect(loadingElement?.classList.contains("text-analyze")).toBe(true);
 
     rerender(<LoadingIndicator category="chat" />);
     loadingElement = screen.getByRole('status');
-    expect(loadingElement).toHaveClass('text-chat');
+    expect(loadingElement?.classList.contains("text-chat")).toBe(true);
   });
 
   it('renders spinner variant by default', () => {
@@ -59,13 +59,13 @@ describe('LoadingIndicator', () => {
   it('renders pulse variant correctly', () => {
     render(<LoadingIndicator variant={LoadingIndicatorVariant.PULSE} />);
     const loadingElement = screen.getByRole('status');
-    expect(loadingElement).toHaveClass('animate-pulse');
+    expect(loadingElement?.classList.contains("animate-pulse")).toBe(true);
   });
 
   it('renders bar variant correctly', () => {
     render(<LoadingIndicator variant={LoadingIndicatorVariant.BAR} />);
     const loadingElement = screen.getByRole('status');
-    expect(loadingElement).toHaveClass('flex');
+    expect(loadingElement?.classList.contains("flex")).toBe(true);
     // Should have multiple child elements for the bars
     const childElements = loadingElement.querySelectorAll('div');
     expect(childElements.length).toBeGreaterThan(1);
@@ -74,7 +74,7 @@ describe('LoadingIndicator', () => {
   it('accepts and applies additional className', () => {
     render(<LoadingIndicator className="custom-class" />);
     const wrapper = screen.getByRole('status').parentElement;
-    expect(wrapper).toHaveClass('custom-class');
+    expect(wrapper?.classList.contains("custom-class")).toBe(true);
   });
 
   // TODO: Add tests for new variants, fullPage/backdrop, labelPosition, speed, etc. when implemented

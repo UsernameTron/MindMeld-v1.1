@@ -18,11 +18,11 @@ describe('Card', () => {
     );
     
     const card = screen.getByTestId('card');
-    expect(card).toBeInTheDocument();
-    expect(card).toHaveClass('rounded-lg border shadow-sm');
-    expect(card).toHaveClass('bg-white border-neutral-200');
-    expect(card).toHaveClass('p-4');
-    expect(card).toHaveClass('transition-all duration-200 hover:shadow-md');
+    expect(card).toBeTruthy();
+    expect(card?.classList.contains("rounded-lg border shadow-sm")).toBe(true);
+    expect(card?.classList.contains("bg-white border-neutral-200")).toBe(true);
+    expect(card?.classList.contains("p-4")).toBe(true);
+    expect(card?.classList.contains("transition-all duration-200 hover:shadow-md")).toBe(true);
   });
   
   it('applies category styling correctly', () => {
@@ -33,7 +33,7 @@ describe('Card', () => {
     );
     
     const card = screen.getByTestId('card');
-    expect(card).toHaveClass('border-analyze-default');
+    expect(card?.classList.contains("border-analyze-default")).toBe(true);
   });
   
   it('renders card header with border when specified', () => {
@@ -47,8 +47,8 @@ describe('Card', () => {
     );
     
     const header = screen.getByTestId('header');
-    expect(header).toHaveClass('border-b');
-    expect(header).toHaveClass('pb-3');
+    expect(header?.classList.contains("border-b")).toBe(true);
+    expect(header?.classList.contains("pb-3")).toBe(true);
   });
   
   it('renders card footer with border when specified', () => {
@@ -62,9 +62,9 @@ describe('Card', () => {
     );
     
     const footer = screen.getByTestId('footer');
-    expect(footer).toHaveClass('border-t');
-    expect(footer).toHaveClass('pt-3');
-    expect(footer).toHaveClass('mt-3');
+    expect(footer?.classList.contains("border-t")).toBe(true);
+    expect(footer?.classList.contains("pt-3")).toBe(true);
+    expect(footer?.classList.contains("mt-3")).toBe(true);
   });
   
   it('applies different sizes correctly', () => {
@@ -75,7 +75,7 @@ describe('Card', () => {
     );
     
     let card = screen.getByTestId('card');
-    expect(card).toHaveClass('p-3');
+    expect(card?.classList.contains("p-3")).toBe(true);
     
     rerender(
       <Card data-testid="card" size="lg">
@@ -84,7 +84,7 @@ describe('Card', () => {
     );
     
     card = screen.getByTestId('card');
-    expect(card).toHaveClass('p-6');
+    expect(card?.classList.contains("p-6")).toBe(true);
   });
   
   it('renders card title with correct styling', () => {
@@ -97,9 +97,9 @@ describe('Card', () => {
     );
     
     const title = screen.getByTestId('title');
-    expect(title).toHaveClass('font-semibold');
-    expect(title).toHaveClass('leading-none');
-    expect(title).toHaveClass('tracking-tight');
+    expect(title?.classList.contains("font-semibold")).toBe(true);
+    expect(title?.classList.contains("leading-none")).toBe(true);
+    expect(title?.classList.contains("tracking-tight")).toBe(true);
     expect(title.tagName).toBe('H3');
   });
   
@@ -113,7 +113,7 @@ describe('Card', () => {
     );
     
     const description = screen.getByTestId('description');
-    expect(description).toHaveClass('text-sm');
-    expect(description).toHaveClass('text-neutral-500');
+    expect(description?.classList.contains("text-sm")).toBe(true);
+    expect(description?.classList.contains("text-neutral-500")).toBe(true);
   });
 });

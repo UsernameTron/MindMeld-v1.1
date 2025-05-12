@@ -5,6 +5,6 @@ import CodeEditor from './CodeEditor';
 describe('CodeEditor', () => {
   it('renders without crashing', () => {
     render(<CodeEditor initialValue="console.log('Hello, world!');" />);
-    expect(screen.getByRole('application')).toBeInTheDocument();
+    expect(screen.getByRole('application')).toBeTruthy();
   });
 });

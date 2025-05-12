@@ -14,13 +14,13 @@ describe('Select Component', () => {
     render(<Select options={mockOptions} value="option1" onChange={() => {}} />);
 
     const selectElement = screen.getByRole('combobox');
-    expect(selectElement).toBeInTheDocument();
-    expect(selectElement).toHaveValue('option1');
+    expect(selectElement).toBeTruthy();
+    expect(selectElement?.value).toBe("option1");
 
     const options = screen.getAllByRole('option');
     expect(options).toHaveLength(3);
-    expect(options[0]).toHaveValue('option1');
-    expect(options[0]).toHaveTextContent('Option 1');
+    expect(options[0]?.value).toBe("option1");
+    expect(options[0]?.textContent?.includes("Option 1")).toBe(true);
   });
 
   it('calls onChange when value changes', () => {
@@ -38,8 +38,8 @@ describe('Select Component', () => {
   it('renders with a label', () => {
     render(<Select options={mockOptions} value="option1" onChange={() => {}} label="Test Label" />);
 
-    expect(screen.getByText('Test Label')).toBeInTheDocument();
-    expect(screen.getByLabelText('Test Label')).toBeInTheDocument();
+    expect(screen.getByText('Test Label')).toBeTruthy();
+    expect(screen.getByLabelText('Test Label')).toBeTruthy();
   });
 
   it('displays error message when provided', () => {
@@ -52,9 +52,9 @@ describe('Select Component', () => {
       />
     );
 
-    expect(screen.getByText('This field is required')).toBeInTheDocument();
+    expect(screen.getByText('This field is required')).toBeTruthy();
     const selectElement = screen.getByRole('combobox');
-    expect(selectElement.className).toContain('border-red-300');
+    expect(selectElement.className).toContain("border-red-300");
   });
 
   it('disables the select when disabled prop is true', () => {
@@ -62,7 +62,7 @@ describe('Select Component', () => {
 
     const selectElement = screen.getByRole('combobox');
     expect(selectElement).toBeDisabled();
-    expect(selectElement.className).toContain('cursor-not-allowed');
+    expect(selectElement.className).toContain("cursor-not-allowed");
   });
 
   it('applies custom className to select element', () => {
@@ -71,6 +71,6 @@ describe('Select Component', () => {
     );
 
     const selectElement = screen.getByRole('combobox');
-    expect(selectElement.className).toContain('custom-class');
+    expect(selectElement.className).toContain("custom-class");
   });
 });
