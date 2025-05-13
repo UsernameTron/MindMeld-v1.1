@@ -4,6 +4,7 @@ import { fetchData } from '../src/services/dataService.js';
 // Use the factory pattern instead of direct import
 import { createAuthService } from '@/services/authService.js';
 import { apiClient } from '@/services/api/apiClient.js';
+import { SpeakerWaveIcon } from '@heroicons/react/24/outline';
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -77,6 +78,19 @@ export default function DashboardPage() {
         className="mt-4 p-4 border rounded bg-gray-50"
       >
         {data ?? 'No data yet.'}
+      </div>
+      
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* TTS Feature Card */}
+        <div className="rounded-lg border shadow-sm bg-white p-6 flex flex-col items-start hover:shadow-md transition-all duration-200">
+          <div className="flex items-center mb-4">
+            <SpeakerWaveIcon className="h-6 w-6 text-blue-600 mr-2" />
+            <span className="text-lg font-semibold">Text to Speech</span>
+          </div>
+          <p className="mb-4 text-gray-700">Convert text to natural-sounding speech using advanced AI models.</p>
+          <a href="/tts" className="mt-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Go to TTS</a>
+        </div>
+        {/* ...other feature cards can go here... */}
       </div>
       
       <button

@@ -8,8 +8,9 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
     "type-check": "tsc --noEmit",
-    "test": "vitest run --config=vitest.config.mts",
-    "test:watch": "vitest watch --config=vitest.config.mts",
+    "test": "vitest --config vitest.config.mts run",
+    "test:watch": "vitest --config vitest.config.mts",
+    "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
     "test:ci-config": "vitest run frontend/tests/ci/ciConfig.test.ts",
     "build": "next build",
@@ -20,7 +21,8 @@
     "storybook": "start-storybook -p 6006",
     "analyze-bundle": "vite build",
     "lhci:autorun": "lhci autorun",
-    "test:e2e": "playwright test --config=playwright.config.ts"
+    "test:e2e": "playwright test",
+    "test:tts": "vitest --config vitest.config.mts run src/services/__tests__/ttsService.test.ts src/components/TextToSpeech/TextToSpeech.test.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.2",

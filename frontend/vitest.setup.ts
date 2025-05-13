@@ -1,5 +1,6 @@
 import { expect } from 'vitest';
 import * as matchers from '@testing-library/jest-dom/matchers';
+import '@testing-library/jest-dom';
 
 expect.extend(matchers);
 
@@ -30,30 +31,26 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// Mock localStorage
-class LocalStorageMock {
-  store: Record<string, string> = {};
-
-  clear() {
-    this.store = {};
+// Mock HTMLMediaElement
+Object.defineProperty(window, 'HTMLMediaElement', {
+  writable: true,
+  value: class MockHTMLMediaElement {
+    constructor() {}
+    play = vi.fn().mockImplementation(() => Promise.resolve());
+    pause = vi.fn();
+    canPlayType = vi.fn();
+    load = vi.fn();
   }
-
-  getItem(key: string) {
-    return this.store[key] || null;
-  }
-
-  setItem(key: string, value: string) {
-    this.store[key] = String(value);
-  }
-
-  removeItem(key: string) {
-    delete this.store[key];
-  }
-}
-
-Object.defineProperty(window, 'localStorage', {
-  value: new LocalStorageMock(),
 });
+
+// Mock localStorage
+const localStorageMock = {
+  getItem: vi.fn(),
+  setItem: vi.fn(),
+  removeItem: vi.fn(),
+  clear: vi.fn(),
+};
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
 
 // Mock document.cookie
 let cookieStore = '';
@@ -65,7 +62,7 @@ Object.defineProperty(document, 'cookie', {
 
 // Reset all mocks before each test
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
   window.localStorage.clear();
   cookieStore = '';
 });
@@ -85,3 +82,6 @@ Object.defineProperty(window, 'location', {
   value: locationMock,
   writable: true,
 });
+
+// Mock global fetch
+global.fetch = vi.fn();

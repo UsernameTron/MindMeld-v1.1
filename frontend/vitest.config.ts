@@ -4,7 +4,7 @@ import path from 'path';
 export default defineConfig({
   test: {
     environment: 'jsdom',
-    setupFiles: ['vitest.setup.ts'],
+    setupFiles: ['./vitest.setup.ts'],
     globals: true,
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -22,4 +22,14 @@ export default defineConfig({
       reporter: ['text', 'html'],
     },
   },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@services': path.resolve(__dirname, './src/services'),
+      '@utils': path.resolve(__dirname, './src/utils'),
+      '@context': path.resolve(__dirname, './src/context'),
+      '@shims': path.resolve(__dirname, './src/shims')
+    }
+  }
 });

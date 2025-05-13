@@ -5,6 +5,20 @@ import { useRouter as nextUseRouter } from "next/navigation";
 import { useRouter as testUseRouter } from "../__tests__/test-utils/RouterWrapper";
 
 // Export the correct implementation based on environment
-export const useRouter = typeof process !== "undefined" && process.env.NODE_ENV === "test" 
-  ? testUseRouter 
-  : nextUseRouter;
+export const useRouter = () => ({
+  push: vi.fn(),
+  replace: vi.fn(),
+  back: vi.fn(),
+  prefetch: vi.fn(),
+  pathname: '/',
+  query: {},
+  asPath: '/',
+  events: {
+    on: vi.fn(),
+    off: vi.fn(),
+    emit: vi.fn()
+  }
+});
+
+export const usePathname = () => '/';
+export const useSearchParams = () => new URLSearchParams();
