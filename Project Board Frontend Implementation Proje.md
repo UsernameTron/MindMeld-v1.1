@@ -7,7 +7,11 @@
 
 ## 📋 Backlog
 
-- [ ] **P2-1:** Set up OpenAI TTS integration
+- [x] **P2-1:** Set up OpenAI TTS integration
+  - **Assignee:** Frontend Engineer 2
+  - **Priority:** High
+  - **Estimate:** 2 days
+  - **Completed:** 2025-05-13
 - [ ] **P2-2:** Implement Web Sentiment Analyzer
 - [ ] **P2-3:** Develop SoberUp validation module
 - [ ] **P3-1:** Set up LibreChat integration
@@ -347,4 +351,4 @@
 ### Phase 4
 - DocumentProcessor → MarkItDown
 - CodeExtractor → CodeAnalyzer
-```
+````
