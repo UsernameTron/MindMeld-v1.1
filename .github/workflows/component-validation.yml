@@ -37,3 +37,23 @@ jobs:
             npm test -- --testPathPattern=$DIR
           done
         working-directory: ./frontend
+
+  tech-debt-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Run technical debt analysis
+        run: |
+          node ./scripts/analyze-tech-debt.js > tech-debt-report.md
+          
+      - name: Upload tech debt report
+        uses: actions/upload-artifact@v3
+        with:
+          name: tech-debt-report
+          path: tech-debt-report.md

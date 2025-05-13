@@ -86,4 +86,8 @@ Object.defineProperty(window, 'location', {
 // Mock global fetch
 global.fetch = vi.fn();
 
+import indexedDBMock from './src/services/tts/__mocks__/indexedDBMock';
+
+globalThis.indexedDB = indexedDBMock;
+
 // Remove or comment out this file if not needed, or ensure only one setup file is referenced in vitest.config.mts

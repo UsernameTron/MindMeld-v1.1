@@ -23,7 +23,7 @@ export default defineConfig({
       '**/*.{test,spec}.{js,ts,jsx,tsx}',
       'frontend/**/*.{test,spec}.{js,ts,jsx,tsx}'
     ],
-    setupFiles: [path.resolve(__dirname, './vitest.setup.js')],
+    setupFiles: [path.resolve(__dirname, './vitest.setup.ts')],
     deps: {
       inline: [/@testing-library\/react/, /@testing-library\/jest-dom/, /@headlessui\/react/]
     },

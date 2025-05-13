@@ -12,6 +12,8 @@ COMPONENT_PATHS=(
   "./frontend/src/components/ui/atoms/$COMPONENT"
   "./frontend/src/components/ui/molecules/$COMPONENT"
   "./frontend/src/components/ui/organisms/$COMPONENT"
+  "./frontend/src/components/ui/molecules/$COMPONENT"
+  "./frontend/src/components/ui/organisms/$COMPONENT"
 )
 
 # Check if component exists

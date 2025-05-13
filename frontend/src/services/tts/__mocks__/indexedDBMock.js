@@ -73,13 +73,34 @@ const _dbs = {};
 const indexedDBMock = {
   open(name, version) {
     const req = new IDBRequest();
+    req.onblocked = null;
+    req.onupgradeneeded = null;
     setTimeout(() => {
       if (!_dbs[name]) _dbs[name] = {};
       req.result = new IDBDatabase(_dbs[name]);
       req.onsuccess && req.onsuccess({ target: req });
     }, 0);
     return req;
+  },
+  deleteDatabase(name) {
+    const req = new IDBRequest();
+    req.onblocked = null;
+    req.onupgradeneeded = null;
+    setTimeout(() => {
+      delete _dbs[name];
+      req.onsuccess && req.onsuccess({ target: req });
+    }, 0);
+    return req;
+  },
+  cmp(first, second) {
+    // Basic comparison for keys (numbers, strings)
+    if (first === second) return 0;
+    return first > second ? 1 : -1;
+  },
+  databases() {
+    // Return a promise resolving to an array of database info objects
+    return Promise.resolve(Object.keys(_dbs).map(name => ({ name })));
   }
 };
 
-module.exports = indexedDBMock;
+export default indexedDBMock;
