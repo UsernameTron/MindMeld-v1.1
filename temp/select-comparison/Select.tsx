@@ -30,10 +30,6 @@ export interface SelectProps {
   label?: string;
   className?: string;
   renderOption?: (option: SelectOption, selected: boolean) => React.ReactNode;
-  /** Visual variant (primary, secondary, danger) */
-  variant?: 'primary' | 'secondary' | 'danger';
-  /** Optional id for the select */
-  id?: string;
 }
 
 const sizeMap = {
@@ -47,12 +43,6 @@ const categoryMap = {
   chat: 'border-green-500 focus:ring-green-500',
   rewrite: 'border-yellow-500 focus:ring-yellow-500',
   persona: 'border-purple-500 focus:ring-purple-500',
-};
-
-const variantMap: Record<string, string> = {
-  primary: 'bg-white border-blue-600 focus:ring-blue-600',
-  secondary: 'bg-gray-100 border-gray-300 focus:ring-gray-400',
-  danger: 'bg-white border-red-600 focus:ring-red-600',
 };
 
 export const Select: React.FC<SelectProps> = ({
@@ -73,8 +63,6 @@ export const Select: React.FC<SelectProps> = ({
   label,
   className,
   renderOption,
-  variant = 'primary',
-  id,
 }) => {
   // Group options if any have a group
   const grouped = useMemo(() => {
@@ -110,15 +98,11 @@ export const Select: React.FC<SelectProps> = ({
     );
   }, [options, query, searchable]);
 
-  const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
-
   // Render
   return (
     <div className={clsx('w-full', className)}>
       {label && (
-        <label htmlFor={selectId} className="block text-sm font-medium mb-1">
-          {label}{required && <span className="text-red-500">*</span>}
-        </label>
+        <label className="block text-sm font-medium mb-1">{label}{required && <span className="text-red-500">*</span>}</label>
       )}
       <Listbox
         value={selectedValue}
@@ -129,15 +113,10 @@ export const Select: React.FC<SelectProps> = ({
         {({ open }) => (
           <div className="relative">
             <Listbox.Button
-              id={selectId}
-              aria-label={label}
-              aria-invalid={!!error}
-              aria-errormessage={error ? `${selectId}-error` : undefined}
               className={clsx(
                 'relative w-full cursor-pointer rounded-md border bg-white pr-10 text-left shadow-sm focus:outline-none focus:ring-2',
                 sizeMap[size],
                 category && categoryMap[category],
-                variantMap[variant],
                 error && 'border-red-500 focus:ring-red-500',
                 disabled && 'bg-gray-100 text-gray-400 cursor-not-allowed',
                 'transition-colors duration-150'
@@ -251,11 +230,6 @@ export const Select: React.FC<SelectProps> = ({
                 )}
               </Listbox.Options>
             </Transition>
-            {error && (
-              <p id={`${selectId}-error`} className="mt-1 text-sm text-red-600">
-                {errorMessage || 'Invalid selection'}
-              </p>
-            )}
           </div>
         )}
       </Listbox>
