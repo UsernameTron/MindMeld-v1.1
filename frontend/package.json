@@ -8,7 +8,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css}\"",
     "type-check": "tsc --noEmit",
-    "test": "vitest --config vitest.config.mts run",
+    "test": "vitest",
     "test:watch": "vitest --config vitest.config.mts",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
@@ -80,5 +80,9 @@
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
+  },
+  "coverage": {
+    "provider": "v8",
+    "include": ["src/services/tts/**/*.{ts,js}"]
   }
 }

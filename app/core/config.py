@@ -1,10 +1,9 @@
 """Application configuration and environment settings."""
 
 from typing import Optional
-
-from pydantic import Field
 from pydantic_settings import BaseSettings
-
+from pydantic import Field
+from functools import lru_cache
 
 class Settings(BaseSettings):
     """
@@ -23,7 +22,13 @@ class Settings(BaseSettings):
         JWT_ACCESS_TOKEN_EXPIRE_MINUTES (int): JWT access token expiry in minutes.
         HUGGINGFACE_KEY (Optional[str]): Hugging Face API key.
         AUTH_ENABLED (bool): Feature flag to enable/disable authentication.
+        AUDIO_STORAGE_PATH (str): Path to store audio files.
+        API_BASE_URL (str): Base URL for the API.
     """
+
+    # Application
+    app_name: str = "MindMeld API"
+    debug: bool = Field(False, env="DEBUG")
 
     # Logging
     LOG_LEVEL: str = "INFO"
@@ -31,7 +36,7 @@ class Settings(BaseSettings):
     DEFAULT_MODEL_NAME: str = "distilbert-base-uncased-finetuned-sst-2-english"
     INFERENCE_DEVICE: str = "cpu"  # or "mps" for Apple Silicon GPU
     # OpenAI settings
-    OPENAI_API_KEY: str
+    openai_api_key: str = Field("", env="OPENAI_API_KEY")
     OPENAI_MODEL: str = "gpt-4"
     # Redis settings
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -46,7 +51,12 @@ class Settings(BaseSettings):
     # Feature flags
     AUTH_ENABLED: bool = Field(
         True, description="Set to False to disable authentication"
-    )  # set to False to disable authentication
+    )
+
+    # Audio storage settings
+    audio_storage_path: str = Field("./storage/audio", env="AUDIO_STORAGE_PATH")
+    # API settings
+    api_base_url: str = Field("http://localhost:8000", env="API_BASE_URL")
 
     class Config:
         """
@@ -60,10 +70,13 @@ class Settings(BaseSettings):
 
         env_file = ".env"
         env_file_encoding = "utf-8"
-        case_sensitive = True
+        case_sensitive = False
 
+@lru_cache()
+def get_settings() -> Settings:
+    return Settings()
 
-settings = Settings()
+settings = get_settings()
 
 # Redis connection (async)
 import redis.asyncio as redis_async

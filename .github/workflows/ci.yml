@@ -13,7 +13,12 @@ jobs:
         with:
           node-version: "20"
       - run: npm ci
-      - run: npx vitest run --coverage --coverageThreshold='{"global": {"lines": 90, "branches": 90}}'
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm test
+      - run: |
+          npx vitest run --coverage --coverageReporters=text --coverageReporters=lcov \
+            --coverageThreshold='{"global": {"lines": 90, "branches": 90}}'
 
   frontend:
     runs-on: ubuntu-latest
@@ -24,12 +29,19 @@ jobs:
         with:
           node-version: "20"
       - run: cd frontend && npm ci
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm test
       - name: Fetch OpenAPI schema
         env:
           NEXT_PUBLIC_API_SCHEMA_URL: ${{ secrets.NEXT_PUBLIC_API_SCHEMA_URL }}
         run: npm --prefix frontend run fetch-schema
       - name: Generate API types
         run: npm --prefix frontend run generate-types
+      - name: Check OpenAPI type drift
+        run: |
+          npx openapi-typescript frontend/public/api/openapi.yaml --output types/openapi.d.ts
+          git diff --exit-code types/openapi.d.ts
       - name: Run frontend tests
         run: npm --prefix frontend run test
 
@@ -42,6 +54,9 @@ jobs:
         with:
           node-version: "20"
       - run: npm ci
+      - run: npm run lint
+      - run: npm run type-check
+      - run: npm test
       - name: Run Playwright tests with A11y
         run: npm run test:e2e
       - name: Check schema freshness

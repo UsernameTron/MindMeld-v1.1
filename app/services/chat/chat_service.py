@@ -46,9 +46,9 @@ class ChatService:
             ConfigurationError: If OpenAI API key is missing
         """
         # Validate configuration first
-        if not settings.OPENAI_API_KEY:
+        if not settings.openai_api_key:
             raise ConfigurationError("OpenAI API key not found in environment")
-        self.api_key = settings.OPENAI_API_KEY
+        self.api_key = settings.openai_api_key
         self.default_model = settings.OPENAI_MODEL
         self.client = AsyncOpenAI(api_key=self.api_key)
 

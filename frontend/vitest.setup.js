@@ -16,6 +16,44 @@ vi.mock('next/navigation', () => ({
   default: routerMock,
 }));
 
+// Polyfill browser APIs for Vitest
+const indexedDBMock = require('./src/services/tts/__mocks__/indexedDBMock');
+global.indexedDB = indexedDBMock;
+global.IDBKeyRange = {
+  only: v => v,
+  bound: (l, u) => [l, u],
+  lowerBound: l => l,
+  upperBound: u => u
+};
+global.URL = {
+  createObjectURL: vi.fn(() => 'blob:mock-url')
+};
+
+class AudioMock {
+  constructor() {
+    this.src = '';
+    this._listeners = {};
+    this.paused = true;
+  }
+  play() {
+    this.paused = false;
+    if (this._listeners['play']) this._listeners['play'].forEach(fn => fn());
+    return Promise.resolve();
+  }
+  pause() {
+    this.paused = true;
+    if (this._listeners['pause']) this._listeners['pause'].forEach(fn => fn());
+  }
+  addEventListener(event, fn) {
+    if (!this._listeners[event]) this._listeners[event] = [];
+    this._listeners[event].push(fn);
+  }
+  removeEventListener(event, fn) {
+    if (this._listeners[event]) this._listeners[event] = this._listeners[event].filter(f => f !== fn);
+  }
+}
+global.Audio = AudioMock;
+
 beforeEach(() => {
   vi.clearAllMocks();
   localStorage.clear();

@@ -49,3 +49,8 @@ class StandardResponse(BaseModel, Generic[T]):
             "example": {"version": "1.0", "details": {"source": "model"}}
         },
     )
+
+
+class ErrorResponse(BaseModel):
+    """Standard error response model for API errors."""
+    detail: str = Field(..., description="Error message")

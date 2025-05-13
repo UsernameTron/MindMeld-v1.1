@@ -85,3 +85,5 @@ Object.defineProperty(window, 'location', {
 
 // Mock global fetch
 global.fetch = vi.fn();
+
+// Remove or comment out this file if not needed, or ensure only one setup file is referenced in vitest.config.mts

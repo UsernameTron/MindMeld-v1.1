@@ -106,3 +106,5 @@ Desktop.ini
 
 *storybook.log
 node_modules/
+
+**/.claude/settings.local.json
