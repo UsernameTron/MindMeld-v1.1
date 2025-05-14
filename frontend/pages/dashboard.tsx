@@ -16,13 +16,15 @@ export default function DashboardPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('Dashboard: Loading projects data');
     const loadProjects = async () => {
       try {
         const projects = await projectService.getRecentProjects();
+        console.log('Dashboard: Loaded projects:', projects);
         setRecentProjects(projects);
       } catch (err) {
+        console.error('Dashboard: Failed to load projects:', err);
         setError('Failed to load recent projects');
-        console.error(err);
       } finally {
         setIsLoading(false);
       }
@@ -39,74 +41,68 @@ export default function DashboardPage() {
         </div>
 
         {/* Features Section */}
-        <div className="mb-10">
+        <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Features</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <FeatureCard
-              title="Code Analyzer"
-              description="Analyze your code for errors, warnings, and best practices."
-              icon={<CodeBracketIcon className="w-7 h-7 text-blue-500" />}
-              href="/analyze"
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <FeatureCard 
+              title="Code Analysis" 
+              description="Analyze your code for patterns and improvements"
+              icon={<CodeBracketIcon className="h-6 w-6" />}
               category="analyze"
+              href="/analyze"
             />
-            <FeatureCard
-              title="Chat Interface"
-              description="Discuss your code with advanced AI assistants."
-              icon={<ChatBubbleLeftRightIcon className="w-7 h-7 text-green-500" />}
-              href="/chat"
+            <FeatureCard 
+              title="AI Chat" 
+              description="Chat with AI about your code"
+              icon={<ChatBubbleLeftRightIcon className="h-6 w-6" />}
               category="chat"
-              comingSoon
+              href="/chat"
             />
-            <FeatureCard
-              title="Code Rewriter"
-              description="Automatically improve and refactor your code."
-              icon={<PencilSquareIcon className="w-7 h-7 text-purple-500" />}
-              href="/rewrite"
+            <FeatureCard 
+              title="Code Rewrite" 
+              description="Get suggestions for rewriting and improving code"
+              icon={<PencilSquareIcon className="h-6 w-6" />}
               category="rewrite"
-              comingSoon
+              href="/rewrite"
             />
-            <FeatureCard
-              title="Persona Generator"
-              description="Create custom AI personas for specific tasks."
-              icon={<UserCircleIcon className="w-7 h-7 text-yellow-500" />}
-              href="/persona"
+            <FeatureCard 
+              title="AI Personas" 
+              description="Chat with different AI personas"
+              icon={<UserCircleIcon className="h-6 w-6" />}
               category="persona"
-              comingSoon
+              href="/personas"
             />
           </div>
-        </div>
+        </section>
 
         {/* Recent Projects Section */}
-        <div className="mb-8">
+        <section className="mb-8">
           <h2 className="text-xl font-semibold mb-4">Recent Projects</h2>
           {isLoading ? (
-            <div className="flex justify-center py-8">
-              <div className="animate-pulse h-8 w-8 bg-gray-200 rounded-full"></div>
-            </div>
+            <div className="text-center py-4">Loading recent projects...</div>
           ) : error ? (
-            <div className="p-4 bg-red-50 text-red-700 rounded">
-              {error}
+            <div className="bg-red-50 border-l-4 border-red-400 p-4">
+              <p className="text-red-700">{error}</p>
             </div>
           ) : recentProjects.length === 0 ? (
-            <div className="p-4 bg-gray-50 text-gray-500 rounded">
-              No recent projects found. Start by analyzing some code!
+            <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
+              <p className="text-blue-700">No recent projects found. Create one to get started!</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {recentProjects.map(project => (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {recentProjects.map((project) => (
                 <CodePreviewCard
                   key={project.id}
                   title={project.title}
-                  description={`Last edited: ${new Date(project.updatedAt).toLocaleDateString()}`}
-                  codeSnippet={project.codeSnippet}
+                  description={project.description}
                   language={project.language}
+                  codeSnippet={project.codeSnippet}
                   category={project.category}
-                  onOpen={() => console.log(`Open project ${project.id}`)}
                 />
               ))}
             </div>
           )}
-        </div>
+        </section>
       </DashboardLayout>
     </RequireAuth>
   );

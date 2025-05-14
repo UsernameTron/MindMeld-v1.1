@@ -31,9 +31,27 @@ let isRefreshing = false;
 // Queue of callbacks to execute after token refresh
 let subscribers: ((token: string) => void)[] = [];
 
+// DO NOT use this function to set cookies directly
+// Now we only use the server-side /api/auth/token endpoint for setting cookies
+function mockAuthResponse(email: string, password: string): Promise<User> {
+  if (email === "test@example.com" && password === "Test123!") {
+    const user = { id: '1', name: 'Test User', email };
+    // Store token in memory and localStorage (but NOT cookie)
+    const mockToken = 'mock-jwt-token-' + Date.now();
+    setToken(mockToken);
+    // Store user data for UI
+    localStorage.setItem('user', JSON.stringify(user));
+    return Promise.resolve(user);
+  }
+  return Promise.reject(new Error('Invalid credentials'));
+}
+
 export const authService = {
   login: async (email: string, password: string): Promise<User> => {
+    console.log('authService: Login attempt with email:', email);
+
     try {
+      console.log('authService: Sending POST request to /api/auth/token');
       const response = await fetch('/api/auth/token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -41,19 +59,31 @@ export const authService = {
         credentials: 'include' // Important for HttpOnly cookies
       });
       
+      console.log('authService: Response status:', response.status);
+      
+      const contentType = response.headers.get('content-type');
+      if (!contentType || !contentType.includes('application/json')) {
+        const text = await response.text();
+        throw new Error(`Expected JSON, got: ${text.substring(0, 100)}`);
+      }
+      
       if (!response.ok) {
         const error = await response.json();
+        console.error('authService: Login failed with server error:', error);
         throw new Error(error.message || 'Login failed');
       }
       
       const data: LoginResponse = await response.json();
+      console.log('authService: Login response:', data);
       
-      // We don't need to store the token as it's in HttpOnly cookie
-      // Fetch user profile to establish session
-      const user = await authService.getUserProfile();
-      return user;
+      // Store user data in local storage for UI personalization
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user));
+      }
+      
+      return data.user;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('authService: Login error:', error);
       throw error;
     }
   },
@@ -61,12 +91,20 @@ export const authService = {
   logout: async (): Promise<void> => {
     // Clear any in-memory token
     setToken(null);
-
+    
+    // Clear localStorage user data
+    localStorage.removeItem('user');
+    
     // Call the logout endpoint to clear server-side cookies
-    await fetch('/api/auth/logout', { 
-      method: 'POST',
-      credentials: 'include' // Important for HttpOnly cookies
-    });
+    try {
+      await fetch('/api/auth/logout', { 
+        method: 'POST',
+        credentials: 'include' // Important for HttpOnly cookies
+      });
+    } catch (error) {
+      console.error('authService: Logout error:', error);
+      // Even if server logout fails, we've cleared client-side storage
+    }
   },
   
   getUserProfile: async (): Promise<User> => {
@@ -84,12 +122,14 @@ export const authService = {
   
   isAuthenticated: async (): Promise<boolean> => {
     try {
-      // Try to validate the current session
+      // Verify authentication with server
+      console.log('authService: Validating auth with server');
       const response = await fetch('/api/auth/validate', {
         credentials: 'include' // Important for HttpOnly cookies
       });
       return response.ok;
-    } catch {
+    } catch (error) {
+      console.error('authService: Auth validation error:', error);
       return false;
     }
   },

@@ -13,10 +13,22 @@ export class ApiService {
       method: 'GET'
     });
     
+    const contentType = response.headers.get('Content-Type') || '';
     if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      // Try to parse error as JSON, but if not possible, throw a generic error
+      if (contentType.includes('application/json')) {
+        const error = await response.json();
+        throw new Error(error.message || `API error: ${response.status}`);
+      } else {
+        const text = await response.text();
+        throw new Error(`API error: ${response.status} - ${text.substring(0, 100)}`);
+      }
     }
-    
+    // Only parse as JSON if the response is JSON
+    if (!contentType.includes('application/json')) {
+      const text = await response.text();
+      throw new Error(`Expected JSON, got: ${text.substring(0, 100)}`);
+    }
     return await response.json();
   }
   
@@ -31,10 +43,23 @@ export class ApiService {
       body: JSON.stringify(data)
     });
     
+    const contentType = response.headers.get('Content-Type') || '';
     if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      // Try to parse error as JSON, but if not possible, throw a generic error
+      if (contentType.includes('application/json')) {
+        const error = await response.json();
+        throw new Error(error.message || `API error: ${response.status}`);
+      } else {
+        const text = await response.text();
+        throw new Error(`API error: ${response.status} - ${text.substring(0, 100)}`);
+      }
     }
     
+    // Only parse as JSON if the response is JSON
+    if (!contentType.includes('application/json')) {
+      const text = await response.text();
+      throw new Error(`Expected JSON, got: ${text.substring(0, 100)}`);
+    }
     return await response.json();
   }
   
@@ -49,10 +74,21 @@ export class ApiService {
       body: JSON.stringify(data)
     });
     
+    const contentType = response.headers.get('Content-Type') || '';
     if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      if (contentType.includes('application/json')) {
+        const error = await response.json();
+        throw new Error(error.message || `API error: ${response.status}`);
+      } else {
+        const text = await response.text();
+        throw new Error(`API error: ${response.status} - ${text.substring(0, 100)}`);
+      }
     }
     
+    if (!contentType.includes('application/json')) {
+      const text = await response.text();
+      throw new Error(`Expected JSON, got: ${text.substring(0, 100)}`);
+    }
     return await response.json();
   }
   
@@ -62,10 +98,21 @@ export class ApiService {
       method: 'DELETE'
     });
     
+    const contentType = response.headers.get('Content-Type') || '';
     if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      if (contentType.includes('application/json')) {
+        const error = await response.json();
+        throw new Error(error.message || `API error: ${response.status}`);
+      } else {
+        const text = await response.text();
+        throw new Error(`API error: ${response.status} - ${text.substring(0, 100)}`);
+      }
     }
     
+    if (!contentType.includes('application/json')) {
+      const text = await response.text();
+      throw new Error(`Expected JSON, got: ${text.substring(0, 100)}`);
+    }
     return await response.json();
   }
 }

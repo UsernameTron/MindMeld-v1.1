@@ -11,6 +11,6 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     include: ['frontend/**/*.{test,spec}.{ts,tsx}'],
-    setupFiles: ['./vitest.setup.ts'],
+    setupFiles: ['./frontend/vitest.setup.ts'], // Corrected path
   }
 });

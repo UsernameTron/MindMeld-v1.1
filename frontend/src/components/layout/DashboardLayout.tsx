@@ -26,6 +26,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       label: 'Code Analyzer',
       href: '/analyze',
     },
+    {
+      label: 'Text to Speech',
+      href: '/tts',
+    },
   ];
 
   return (

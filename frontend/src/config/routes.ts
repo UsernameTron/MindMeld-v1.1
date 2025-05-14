@@ -1,10 +1,6 @@
 import { ReactNode } from 'react';
 // Only import Dashboard if it exists, otherwise use a placeholder
-let Dashboard: React.ComponentType = () => null;
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  Dashboard = require('../pages/dashboard').default;
-} catch {}
+const Dashboard: React.ComponentType = () => null;
 // Use a placeholder for Analyze (or import if it exists)
 const Analyze: React.ComponentType = () => null;
 // Use a placeholder for Login (or import if it exists)
