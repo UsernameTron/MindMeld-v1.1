@@ -1,104 +1,113 @@
-import React, { useEffect, useState } from 'react';
-import { useRouter } from '../src/shims/router';
-import { fetchData } from '../src/services/dataService.js';
-// Use the factory pattern instead of direct import
-import { createAuthService } from '@/services/authService.js';
-import { apiClient } from '@/services/api/apiClient.js';
-import { SpeakerWaveIcon } from '@heroicons/react/24/outline';
+import React, { useState, useEffect } from 'react';
+import { RequireAuth } from '../src/components/auth/RequireAuth';
+import { DashboardLayout } from '../src/components/layout/DashboardLayout';
+import { CodePreviewCard } from '../src/components/ui/molecules/CodePreviewCard';
+import { FeatureCard } from '../src/components/ui/molecules/FeatureCard';
+import { ChatBubbleLeftRightIcon, CodeBracketIcon, PencilSquareIcon, UserCircleIcon } from '@heroicons/react/24/outline';
+import { projectService } from '../src/services/projectService';
+import type { Project } from '../pages/api/projects/recent';
+import { withAuthSSR } from '../src/utils/auth';
+
+export const getServerSideProps = withAuthSSR();
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const [data, setData] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [sessionValid, setSessionValid] = useState(true);
-  // Create authService instance
-  const authService = createAuthService();
-
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      // Validate session before fetching data
-      const isValid = await authService.validateSession();
-      if (!isValid) {
-        setSessionValid(false);
-        router.push('/login');
-        return;
-      }
-
-      const result = await fetchData();
-      console.log('[Dashboard] refreshed data=', result);
-      setData(result.value);
-    } catch (err) {
-      console.error('Error loading data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [recentProjects, setRecentProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    console.log('[Dashboard] fetching data…');
-    
-    // First check if session is valid
-    authService.validateSession().then(isValid => {
-      if (!isValid) {
-        console.log('[Dashboard] Invalid session, redirecting to login');
-        setSessionValid(false);
-        router.push('/login');
-        return;
+    const loadProjects = async () => {
+      try {
+        const projects = await projectService.getRecentProjects();
+        setRecentProjects(projects);
+      } catch (err) {
+        setError('Failed to load recent projects');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
       }
-      
-      // Then fetch data
-      fetchData().then(d => {
-        console.log('[Dashboard] data=', d);
-        setData(d.value);
-      }).catch(console.error);
-    });
-  }, [router]);
-
-  // If session becomes invalid, don't render the dashboard
-  if (!sessionValid) {
-    return null;
-  }
+    };
+    loadProjects();
+  }, []);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-      
-      <button
-        data-testid="refresh-data"
-        onClick={loadData}
-        disabled={loading}
-        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-      >
-        {loading ? 'Refreshing…' : 'Refresh Data'}
-      </button>
-
-      <div 
-        data-testid="data-container" 
-        className="mt-4 p-4 border rounded bg-gray-50"
-      >
-        {data ?? 'No data yet.'}
-      </div>
-      
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* TTS Feature Card */}
-        <div className="rounded-lg border shadow-sm bg-white p-6 flex flex-col items-start hover:shadow-md transition-all duration-200">
-          <div className="flex items-center mb-4">
-            <SpeakerWaveIcon className="h-6 w-6 text-blue-600 mr-2" />
-            <span className="text-lg font-semibold">Text to Speech</span>
-          </div>
-          <p className="mb-4 text-gray-700">Convert text to natural-sounding speech using advanced AI models.</p>
-          <a href="/tts" className="mt-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Go to TTS</a>
+    <RequireAuth>
+      <DashboardLayout>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold mb-2">Welcome to MindMeld</h1>
+          <p className="text-gray-600">Your coding assistant dashboard</p>
         </div>
-        {/* ...other feature cards can go here... */}
-      </div>
-      
-      <button
-        onClick={() => authService.logout()}
-        className="mt-6 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-      >
-        Logout
-      </button>
-    </div>
+
+        {/* Features Section */}
+        <div className="mb-10">
+          <h2 className="text-xl font-semibold mb-4">Features</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <FeatureCard
+              title="Code Analyzer"
+              description="Analyze your code for errors, warnings, and best practices."
+              icon={<CodeBracketIcon className="w-7 h-7 text-blue-500" />}
+              href="/analyze"
+              category="analyze"
+            />
+            <FeatureCard
+              title="Chat Interface"
+              description="Discuss your code with advanced AI assistants."
+              icon={<ChatBubbleLeftRightIcon className="w-7 h-7 text-green-500" />}
+              href="/chat"
+              category="chat"
+              comingSoon
+            />
+            <FeatureCard
+              title="Code Rewriter"
+              description="Automatically improve and refactor your code."
+              icon={<PencilSquareIcon className="w-7 h-7 text-purple-500" />}
+              href="/rewrite"
+              category="rewrite"
+              comingSoon
+            />
+            <FeatureCard
+              title="Persona Generator"
+              description="Create custom AI personas for specific tasks."
+              icon={<UserCircleIcon className="w-7 h-7 text-yellow-500" />}
+              href="/persona"
+              category="persona"
+              comingSoon
+            />
+          </div>
+        </div>
+
+        {/* Recent Projects Section */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4">Recent Projects</h2>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-pulse h-8 w-8 bg-gray-200 rounded-full"></div>
+            </div>
+          ) : error ? (
+            <div className="p-4 bg-red-50 text-red-700 rounded">
+              {error}
+            </div>
+          ) : recentProjects.length === 0 ? (
+            <div className="p-4 bg-gray-50 text-gray-500 rounded">
+              No recent projects found. Start by analyzing some code!
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {recentProjects.map(project => (
+                <CodePreviewCard
+                  key={project.id}
+                  title={project.title}
+                  description={`Last edited: ${new Date(project.updatedAt).toLocaleDateString()}`}
+                  codeSnippet={project.codeSnippet}
+                  language={project.language}
+                  category={project.category}
+                  onOpen={() => console.log(`Open project ${project.id}`)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </DashboardLayout>
+    </RequireAuth>
   );
 }

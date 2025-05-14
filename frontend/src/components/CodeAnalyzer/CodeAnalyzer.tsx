@@ -1,31 +1,58 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import CodeEditor from '../CodeEditor/CodeEditor';
 import AnalysisResult from '../AnalysisResult/AnalysisResult';
 import { Button } from '../Button';
 import { createCodeService } from '../../services/codeService';
 import { apiClient } from '../../services/apiClient';
 import type { CodeAnalysisResult } from '../../services/codeService';
+import { useSettingsContext } from '../../context/SettingsContext';
 
 export interface CodeAnalyzerProps {
   initialCode?: string;
   initialLanguage?: string;
   category?: 'analyze' | 'chat' | 'rewrite' | 'persona';
-  codeService?: ReturnType<typeof createCodeService>; // <-- add this
+  codeService?: ReturnType<typeof createCodeService>;
 }
 
 const defaultCodeService = createCodeService(apiClient);
 
 export const CodeAnalyzer: React.FC<CodeAnalyzerProps> = ({
-  initialCode = '// Enter your code here',
+  initialCode,
   initialLanguage = 'javascript',
   category = 'analyze',
-  codeService = defaultCodeService, // <-- use injected or default
+  codeService = defaultCodeService,
 }) => {
-  const [code, setCode] = useState(initialCode);
+  // Access settings context for persistence
+  const { settings, updateSettings } = useSettingsContext();
+  
+  // Use lastCode from settings if available, otherwise use initialCode or default
+  const defaultCode = settings.analyzer.lastCode || initialCode || '// Enter your code here';
+  
+  const [code, setCode] = useState(defaultCode);
   const [language, setLanguage] = useState(initialLanguage);
   const [analysis, setAnalysis] = useState<CodeAnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Initialize code from settings on mount
+  useEffect(() => {
+    if (settings.analyzer.lastCode) {
+      setCode(settings.analyzer.lastCode);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Handle code changes with persistence to settings
+  const handleCodeChange = useCallback((value: string | undefined) => {
+    const newCode = value || '';
+    setCode(newCode);
+    
+    // Persist to settings context
+    updateSettings({
+      analyzer: {
+        lastCode: newCode
+      }
+    });
+  }, [updateSettings]);
 
   const handleAnalyze = useCallback(async () => {
     setLoading(true);
@@ -66,7 +93,7 @@ export const CodeAnalyzer: React.FC<CodeAnalyzerProps> = ({
         </div>
         <CodeEditor
           initialValue={code}
-          onChange={(value: string | undefined) => setCode(value || '')}
+          onChange={handleCodeChange}
           language={language as any}
           height="500px"
         />

@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { ReactQueryProvider } from '@/lib/reactQueryProvider';
 import { OpenAPIProvider } from '@/context/OpenAPIContext';
+import { SettingsProvider } from '@/context/SettingsContext';
 import OpenAPIDebug from '@/components/dev/OpenAPIDebug';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -22,8 +23,10 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased`}>
         <OpenAPIProvider url="/api/openapi.yaml">
           <ReactQueryProvider>
-            <OpenAPIDebug />
-            {children}
+            <SettingsProvider>
+              <OpenAPIDebug />
+              {children}
+            </SettingsProvider>
           </ReactQueryProvider>
         </OpenAPIProvider>
       </body>

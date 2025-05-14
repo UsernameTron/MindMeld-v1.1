@@ -1,33 +1,29 @@
 import React, { useState, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
 import dynamic from 'next/dynamic';
-// import { tokens } from '../../../../design/tokens';
-
-// Dynamically import Monaco editor for better performance
-const MonacoEditor = dynamic(
-  () => import('@monaco-editor/react'),
-  { ssr: false, loading: () => <div className="h-64 bg-gray-100 animate-pulse rounded-md" /> }
-);
+import { useAuth } from '../../../../context/AuthContext';
 
 export interface CodeEditorProps {
-  /** Initial code value */
   value?: string;
-  /** Language for syntax highlighting */
   language?: string;
-  /** Function called when code changes */
   onChange?: (value: string | undefined) => void;
-  /** Editor height */
   height?: string | number;
-  /** Component size variant */
   size?: 'small' | 'medium' | 'large';
-  /** Feature category for styling */
   category?: 'analyze' | 'chat' | 'rewrite' | 'persona';
-  /** Whether editor is readonly */
   readOnly?: boolean;
-  /** Additional CSS classes */
   className?: string;
-  /** Optional editor options */
   options?: Record<string, any>;
+  theme?: 'light' | 'dark' | 'system';
+  loadingComponent?: React.ReactNode;
 }
+
+const MonacoEditor = dynamic(
+  () => import('@monaco-editor/react'),
+  {
+    ssr: false,
+    loading: ({ isLoading }) =>
+      isLoading ? <div className="h-64 bg-gray-100 animate-pulse rounded-md" /> : null
+  }
+);
 
 const CodeEditor = forwardRef<any, CodeEditorProps>(({
   value = '',
@@ -39,27 +35,45 @@ const CodeEditor = forwardRef<any, CodeEditorProps>(({
   readOnly = false,
   className = '',
   options = {},
+  theme = 'light',
+  loadingComponent
 }, ref) => {
+  const { isAuthenticated } = useAuth();
   const editorRef = useRef<any>(null);
-  const [mounted, setMounted] = useState(false);
 
-  // Expose the Monaco editor instance to parent via ref
-  useImperativeHandle(ref, () => editorRef.current, [mounted]);
+  // Theme handling
+  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(
+    theme === 'system'
+      ? (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+      : (theme === 'dark' ? 'dark' : 'light')
+  );
 
-  // Handle editor mount
+  useEffect(() => {
+    if (theme === 'system' && typeof window !== 'undefined') {
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      const handleChange = (e: MediaQueryListEvent) => {
+        setCurrentTheme(e.matches ? 'dark' : 'light');
+      };
+      setCurrentTheme(mediaQuery.matches ? 'dark' : 'light');
+      mediaQuery.addEventListener('change', handleChange);
+      return () => mediaQuery.removeEventListener('change', handleChange);
+    } else {
+      setCurrentTheme(theme === 'dark' ? 'dark' : 'light');
+    }
+  }, [theme]);
+
+  // Ref forwarding
+  useImperativeHandle(ref, () => editorRef.current, []);
   const handleEditorDidMount = (editor: any) => {
     editorRef.current = editor;
-    setMounted(true);
   };
 
-  // Size classes
+  // Size and category styling
   const sizeClasses = {
     small: 'text-sm',
     medium: 'text-base',
     large: 'text-lg',
   };
-
-  // Category styling
   const categoryClasses = {
     analyze: 'border-blue-500',
     chat: 'border-green-500',
@@ -68,29 +82,38 @@ const CodeEditor = forwardRef<any, CodeEditorProps>(({
   };
 
   return (
-    <div 
-      className={`code-editor rounded-md overflow-hidden border ${categoryClasses[category]} ${sizeClasses[size]} ${className}`}
+    <div
+      className={`code-editor rounded-md overflow-hidden border relative ${categoryClasses[category]} ${sizeClasses[size]} ${className}`}
       data-testid="code-editor"
     >
+      {!readOnly && !isAuthenticated && (
+        <div className="absolute top-2 right-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded z-10">
+          Read-only: Sign in to edit
+        </div>
+      )}
       <MonacoEditor
         height={height}
         language={language}
         value={value}
         onChange={onChange}
         onMount={handleEditorDidMount}
+        theme={currentTheme === 'dark' ? 'vs-dark' : 'light'}
         options={{
           minimap: { enabled: false },
           scrollBeyondLastLine: false,
           folding: true,
           lineNumbers: 'on',
-          readOnly,
+          readOnly: readOnly || !isAuthenticated,
           renderLineHighlight: 'all',
           ...options,
         }}
+        loading={loadingComponent}
         className="min-h-[200px]"
       />
     </div>
   );
 });
+
+CodeEditor.displayName = 'CodeEditor';
 
 export default CodeEditor;

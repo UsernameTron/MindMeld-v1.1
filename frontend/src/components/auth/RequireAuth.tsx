@@ -1,56 +1,44 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
+import { LoadingIndicator } from '../ui/molecules/LoadingIndicator';
 import { authService } from '../../services/authService';
 
-const BYPASS_AUTH_CHECKS = false;
-
-interface RequireAuthProps {
+export interface RequireAuthProps {
   children: React.ReactNode;
 }
 
 export const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isValidating, setIsValidating] = useState(true);
   const router = useRouter();
+  const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    const validateAuth = async () => {
-      setIsValidating(true);
-      console.debug('[RequireAuth] Starting session validation');
+    const checkAuth = async () => {
       try {
-        const valid = await authService.validateSession();
-        console.debug('[RequireAuth] Session valid:', valid);
-        setIsAuthenticated(valid);
-        if (!BYPASS_AUTH_CHECKS && !valid) {
-          console.debug('[RequireAuth] Not authenticated, redirecting to /login');
-          router.replace('/login');
+        const isAuthenticated = authService.isAuthenticated();
+        if (!isAuthenticated) {
+          // Redirect to login with return URL
+          router.push(`/login?returnTo=${encodeURIComponent(router.asPath)}`);
+          return;
         }
       } catch (error) {
-        console.error('[RequireAuth] Session validation error:', error);
-        setIsAuthenticated(false);
-        if (!BYPASS_AUTH_CHECKS) {
-          console.debug('[RequireAuth] Error state, redirecting to /login');
-          router.replace('/login');
-        }
+        console.error('Auth check failed:', error);
+        // Redirect on error
+        router.push('/login');
       } finally {
-        setIsValidating(false);
-        console.debug('[RequireAuth] Validation complete');
+        setIsChecking(false);
       }
     };
-    validateAuth();
+    checkAuth();
   }, [router]);
 
-  useEffect(() => {
-    console.debug('[RequireAuth] Render state:', {
-      isAuthenticated,
-      isValidating,
-    });
-  }, [isAuthenticated, isValidating]);
-
-  if (isValidating) {
-    return null;
+  if (isChecking) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <LoadingIndicator size="lg" />
+      </div>
+    );
   }
 
-  return (BYPASS_AUTH_CHECKS || isAuthenticated) ? <>{children}</> : null;
+  return <>{children}</>;
 };

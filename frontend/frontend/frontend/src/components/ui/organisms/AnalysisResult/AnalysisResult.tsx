@@ -1,7 +1,8 @@
+'use client';
 import React, { useState } from 'react';
-import { cn } from '../../utils/cn';
-import { LoadingIndicator } from '../LoadingIndicator/LoadingIndicator';
-import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay';
+import { cn } from '../../../../utils/cn';
+import { LoadingIndicator } from '../../molecules/LoadingIndicator/LoadingIndicator';
+import { ErrorDisplay } from '../../molecules/ErrorDisplay/ErrorDisplay';
 import AnalysisFeedbackItem from './AnalysisFeedbackItem';
 
 export type FeedbackSeverity = 'info' | 'warning' | 'error';
@@ -44,7 +45,7 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({
       </div>
     );
   }
-  const error = emptyMessage.toLowerCase().includes('error');
+  
   if (!feedback || feedback.length === 0) {
     // Show error if emptyMessage is an error string
     const isError = emptyMessage && /failed|error/i.test(emptyMessage);
@@ -57,12 +58,14 @@ const AnalysisResult: React.FC<AnalysisResultProps> = ({
       </div>
     );
   }
+  
   const sorted = [...feedback].sort((a, b) => {
     if (severityOrder[a.severity] !== severityOrder[b.severity]) {
       return severityOrder[a.severity] - severityOrder[b.severity];
     }
     return (a.line ?? 0) - (b.line ?? 0);
   });
+  
   return (
     <div className={cn('space-y-3', className)} data-testid="analysis-result">
       <div className="font-semibold text-slate-700 dark:text-slate-200 text-base mb-2">
