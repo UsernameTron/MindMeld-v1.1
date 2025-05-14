@@ -51,6 +51,8 @@ This project uses [`next/font`](https://nextjs.org/docs/app/building-your-applic
 ## Security Improvements
 - Upgraded to Next.js 15.3.2 (fixes critical SSRF vulnerability).
 - All dependencies pass `npm audit` (no high/critical vulnerabilities).
+- Implemented secure authentication with HttpOnly cookies (May 2025).
+- Added CORS protection via reverse proxy pattern for external APIs.
 
 ## Development Instructions (Updated)
 - Use the `pages/` directory for all new features.

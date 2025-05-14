@@ -6,6 +6,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).json({ message: 'Method not allowed' });
   }
 
+  // For CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   try {
     // Extract the refresh token from cookies
     const refreshToken = req.cookies.refresh_token;
@@ -17,10 +22,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Verify the refresh token
     const payload = verifyToken(refreshToken);
     if (!payload) {
-      // Clear invalid cookies
+      // Clear invalid cookies with secure attributes
+      const isProduction = process.env.NODE_ENV === 'production';
       res.setHeader('Set-Cookie', [
-        'auth_token=; HttpOnly; Path=/; Max-Age=0',
-        'refresh_token=; HttpOnly; Path=/; Max-Age=0'
+        `auth_token=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict${isProduction ? '; Secure' : ''}`,
+        `refresh_token=; HttpOnly; Path=/; Max-Age=0; SameSite=Strict${isProduction ? '; Secure' : ''}`
       ]);
       return res.status(401).json({ message: 'Invalid refresh token' });
     }
@@ -31,11 +37,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       email: payload.email
     });
 
+    // Determine if we're in production
+    const isProduction = process.env.NODE_ENV === 'production';
+    
     // Issue a new access token - keep the same refresh token
     res.setHeader('Set-Cookie', [
-      `auth_token=${newAccessToken}; HttpOnly; Path=/; Max-Age=3600` // 1 hour
+      `auth_token=${newAccessToken}; HttpOnly; Path=/; Max-Age=3600; SameSite=Strict${isProduction ? '; Secure' : ''}` // 1 hour
     ]);
 
+    // Return the token for client-side in-memory storage
     res.status(200).json({ 
       accessToken: newAccessToken
     });

@@ -1,7 +1,6 @@
 import { NextResponse } from '@/shims/server';
 import type { NextRequest } from '@/shims/server';
 
-// This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
   // Get the pathname of the request
   const { pathname } = request.nextUrl;
@@ -9,16 +8,34 @@ export function middleware(request: NextRequest) {
   // Allowed public paths that don't require authentication
   const isPublicPath = 
     pathname === '/login' || 
-    pathname === '/api/auth/token' || 
-    pathname === '/api/auth/refresh';
+    pathname.startsWith('/api/auth/token') || 
+    pathname.startsWith('/api/auth/refresh') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/static') ||
+    pathname.startsWith('/images') ||
+    pathname === '/favicon.ico';
 
   // Check if user has auth token
   const authToken = request.cookies.get('auth_token')?.value;
-
+  
+  // API routes except auth routes should return 401 instead of redirect
+  const isApiRoute = pathname.startsWith('/api/') && !pathname.startsWith('/api/auth/');
+  
   // Handle protected routes
   if (!isPublicPath && !authToken) {
-    // User trying to access protected route without token, redirect to login
-    return NextResponse.redirect(new URL('/login', request.url));
+    if (isApiRoute) {
+      // Return 401 for API routes
+      return new NextResponse(
+        JSON.stringify({ message: 'Authentication required' }),
+        { 
+          status: 401,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    } else {
+      // Redirect to login page for regular routes
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
   }
 
   // Handle login page when user is already authenticated
@@ -27,7 +44,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  return NextResponse.next();
+  // For secure cookie transmission
+  const response = NextResponse.next();
+  
+  // Add security headers
+  response.headers.set('X-Frame-Options', 'DENY');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  return response;
 }
 
 export const config = {
