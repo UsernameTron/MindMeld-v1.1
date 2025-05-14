@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-// Removed missing import
-import { LoadingIndicator } from '../../molecules/LoadingIndicator/LoadingIndicator';
-import { ErrorDisplay } from '../../molecules/ErrorDisplay/ErrorDisplay';
+import { LoadingIndicator } from '@components/ui/molecules/LoadingIndicator';
+import { ErrorDisplay } from '@components/ui/molecules/ErrorDisplay';
 import AnalysisFeedbackItem from './AnalysisFeedbackItem';
 
 export type FeedbackSeverity = 'info' | 'warning' | 'error';

@@ -2,14 +2,14 @@ import { vi } from 'vitest';
 // Mocks must be defined before imports
 vi.mock('next/router');
 vi.mock('next/navigation');
-vi.mock('../services/authService');
+vi.mock('@/services/authService');
 
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LoginPage } from '../components/LoginPage';
-// Import directly from mock files - important to use correct import syntax
-import { authService } from '../__mocks__/services/authService';
-import { RouterWrapper, routerFunctions } from './test-utils/RouterWrapper';
+// Import directly from mock files using alias paths
+import { authService } from '@/__mocks__/services/authService';
+import { RouterWrapper, routerFunctions } from '@test-utils/router';
 
 console.debug('[TEST] authService import:', authService);
 console.debug('[TEST] authService.login:', authService?.login);
@@ -24,11 +24,7 @@ beforeEach(() => {
 });
 
 describe('LoginPage', () => {
-  test.skip('submits form with credentials and redirects on success', async () => {
-    // This test is skipped for now due to issues with the authService mock
-    console.debug('[TEST] test: authService:', authService);
-    console.debug('[TEST] test: authService.login:', authService?.login);
-    console.debug('[TEST] test: typeof authService.login:', typeof authService?.login);
+  test('submits form with credentials and redirects on success', async () => {
     (authService.login as any).mockResolvedValueOnce({
       token: 'test-token',
       refreshToken: 'refresh-token',
@@ -54,11 +50,7 @@ describe('LoginPage', () => {
     });
   });
 
-  test.skip('displays error message when login fails', async () => {
-    // This test is skipped for now due to issues with the authService mock
-    console.debug('[TEST] test: authService:', authService);
-    console.debug('[TEST] test: authService.login:', authService?.login);
-    console.debug('[TEST] test: typeof authService.login:', typeof authService?.login);
+  test('displays error message when login fails', async () => {
     (authService.login as any).mockRejectedValueOnce(new Error('Invalid username or password'));
     render(
       <RouterWrapper>

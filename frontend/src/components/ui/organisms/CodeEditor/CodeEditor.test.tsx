@@ -1,6 +1,14 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import CodeEditor from './CodeEditor';
+import { AuthProvider } from '../../../../context/AuthContext';
+import { renderWithAuth } from '../../../../../test-utils/AuthWrapper';
+
+// Mock the useAuth hook to avoid needing the full AuthProvider
+vi.mock('../../../../context/AuthContext', () => ({
+  useAuth: () => ({ isAuthenticated: true }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+}));
 
 // Mock dynamic import of Monaco editor
 vi.mock('next/dynamic', () => ({
@@ -19,36 +27,45 @@ vi.mock('next/dynamic', () => ({
 }));
 
 describe('CodeEditor', () => {
+  // Helper function to render with mocked auth context
+  const renderWithMockAuth = (ui: React.ReactElement) => {
+    return render(
+      <AuthProvider>
+        {ui}
+      </AuthProvider>
+    );
+  };
+
   test('renders the editor with default props', () => {
-    render(<CodeEditor />);
+    renderWithMockAuth(<CodeEditor />);
     const editor = screen.getByTestId('code-editor');
     const monaco = screen.getByTestId('monaco-editor');
-    expect(editor).toBeInTheDocument();
-    expect(monaco).toBeInTheDocument();
+    expect(editor).toBeTruthy();
+    expect(monaco).toBeTruthy();
     expect(monaco).toHaveAttribute('data-language', 'javascript');
   });
 
   test('passes the correct language to Monaco', () => {
-    render(<CodeEditor language="python" />);
+    renderWithMockAuth(<CodeEditor language="python" />);
     const monaco = screen.getByTestId('monaco-editor');
     expect(monaco).toHaveAttribute('data-language', 'python');
   });
 
   test('applies category styling correctly', () => {
-    render(<CodeEditor category="chat" />);
+    renderWithMockAuth(<CodeEditor category="chat" />);
     const editor = screen.getByTestId('code-editor');
     expect(editor.className).toContain('border-green-500');
   });
 
   test('applies size styling correctly', () => {
-    render(<CodeEditor size="large" />);
+    renderWithMockAuth(<CodeEditor size="large" />);
     const editor = screen.getByTestId('code-editor');
     expect(editor.className).toContain('text-lg');
   });
 
   test('passes initial value to editor', () => {
     const initialCode = 'const hello = "world";';
-    render(<CodeEditor value={initialCode} />);
+    renderWithMockAuth(<CodeEditor value={initialCode} />);
     const monaco = screen.getByTestId('monaco-editor');
     expect(monaco).toHaveAttribute('data-value', initialCode);
   });

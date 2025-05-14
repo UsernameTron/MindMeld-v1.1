@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
-import { cn } from '../../utils/cn';
-import { Button } from '../Button';
+import { cn } from '@utils/cn';
+import { Button } from '@components/atoms/Button';
 
 import type { AnalysisFeedback } from './AnalysisResult';
 
