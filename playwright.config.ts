@@ -9,19 +9,18 @@ try {
 
 export default defineConfig({
   testDir: 'e2e/playwright',
+  testMatch: ['**/*.spec.ts'],
+  reporter: [['list'], ['html']],
   timeout: 120_000, // Allow plenty of time for tests to run
-  retries: 1,
-  workers: 1, // Run tests one at a time for reliability
+  retries: process.env.CI ? 2 : 1,
+  workers: process.env.CI ? 1 : 1, // Run tests one at a time for reliability
   fullyParallel: false,
   use: { 
     baseURL: 'http://localhost:3000',
+    trace: 'retain-on-failure',
     // Give actions plenty of time to complete
     actionTimeout: 30000,
     navigationTimeout: 60000,
-    // Slow down for visibility
-    launchOptions: {
-      slowMo: 100
-    },
   },
   webServer: {
     command: 'npm run dev',

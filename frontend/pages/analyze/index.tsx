@@ -1,27 +1,18 @@
-'use client';
-
 import React, { useState, useEffect, useCallback } from 'react';
-import { Metadata } from 'next';
-import CodeEditor from '@/components/ui/organisms/CodeEditor/CodeEditor';
-import AnalysisResult from '@/components/ui/organisms/AnalysisResult/AnalysisResult';
-import { FeatureErrorBoundary } from '@/components/ui/organisms/FeatureErrorBoundary/FeatureErrorBoundary';
-import { ErrorDisplay } from '@/components/ui/molecules/ErrorDisplay/ErrorDisplay';
-import { AnalyzerSettings } from '@/components/ui/molecules/AnalyzerSettings';
-import { analysisService, type AnalysisFeedbackItem } from '@/services/analysisService';
-import { useSettingsContext } from '@/context/SettingsContext';
+import Head from 'next/head';
+import { ErrorBoundary } from '../../src/components/common/ErrorBoundary';
+import { ErrorDisplay } from '../../src/components/ui/molecules/ErrorDisplay/ErrorDisplay';
+import CodeEditor from '../../src/components/ui/organisms/CodeEditor/CodeEditor';
+import AnalysisResult from '../../src/components/ui/organisms/AnalysisResult/AnalysisResult';
+import { AnalyzerSettings } from '../../src/components/ui/molecules/AnalyzerSettings/AnalyzerSettings';
+import { analysisService, type AnalysisFeedbackItem } from '../../src/services/analysisService';
+import { useSettingsContext } from '../../src/context/SettingsContext';
+import { DashboardLayout } from '../../src/components/layout/DashboardLayout';
 import { debounce } from 'lodash';
+import { RequireAuth } from '../../src/components/auth/RequireAuth';
+import { withAuthSSR } from '../../src/utils/auth';
 
-// This must be set in a separate file as metadata can't be in client components
-export const metadata: Metadata = {
-  title: 'Code Analyzer | MindMeld',
-  description: 'Analyze your code for issues, best practices, and improvements.',
-  openGraph: {
-    title: 'Code Analyzer | MindMeld',
-    description: 'Analyze your code for issues, best practices, and improvements.',
-    url: '/analyze',
-    type: 'website',
-  },
-};
+export const getServerSideProps = withAuthSSR();
 
 export default function AnalyzePage() {
   // Get settings from context
@@ -126,59 +117,59 @@ export default function AnalyzePage() {
   }, [analyzer.theme]);
 
   return (
-    <FeatureErrorBoundary category="analyze" fallback={<ErrorDisplay severity="error" message="Something went wrong with the code analyzer" title="Analyzer Error" />}>
-      <div className="container mx-auto px-4 py-6">
-        <h1 className="text-2xl font-bold mb-6">Code Analyzer</h1>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Settings sidebar */}
-          <div className="lg:col-span-1">
-            <AnalyzerSettings
-              supportedLanguages={supportedLanguages}
-              isLoadingLanguages={isLoadingLanguages}
-              onAnalyze={handleAnalyze}
-              isAnalyzing={isAnalyzing}
-            />
-          </div>
-          
-          {/* Main code editor and analysis results */}
-          <div className="lg:col-span-3 space-y-6">
-            <div className="bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-700 overflow-hidden">
-              <CodeEditor
-                initialValue={code}
-                onChange={(value) => setCode(value || '')}
-                language={analyzer.language as any}
-                theme={editorTheme() as any}
-                height="400px"
-                width="100%"
-                readOnly={isAnalyzing}
-                error={!!error}
-                // Pass additional editor settings from analyzer config
-                onMount={(editor) => {
-                  // Set editor options from settings
-                  editor.updateOptions({
-                    fontSize: analyzer.fontSize,
-                    wordWrap: analyzer.wordWrap ? 'on' : 'off',
-                    lineNumbers: analyzer.showLineNumbers ? 'on' : 'off',
-                  });
-                }}
-              />
-            </div>
+    <RequireAuth>
+      <Head>
+        <title>Code Analyzer | MindMeld</title>
+        <meta name="description" content="Analyze your code for issues, best practices, and improvements." />
+      </Head>
+      <DashboardLayout>
+        <ErrorBoundary 
+          category="analyze" 
+          fallback={<ErrorDisplay severity="error" message="Something went wrong with the code analyzer" title="Analyzer Error" />}
+        >
+          <div className="container mx-auto px-4 py-6">
+            <h1 className="text-2xl font-bold mb-6">Code Analyzer</h1>
             
-            <div className="bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-700 p-4">
-              <AnalysisResult 
-                feedback={feedback}
-                loading={isAnalyzing}
-                emptyMessage={error || (analyzer.autoAnalyze 
-                  ? 'Type to trigger automatic analysis...' 
-                  : 'No analysis results yet. Click "Analyze Code" to start.')}
-                featureCategory="analyze"
-                onApplySuggestion={handleApplySuggestion}
-              />
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Settings sidebar */}
+              <div className="lg:col-span-1">
+                <AnalyzerSettings
+                  supportedLanguages={supportedLanguages}
+                  isLoadingLanguages={isLoadingLanguages}
+                  onAnalyze={handleAnalyze}
+                  isAnalyzing={isAnalyzing}
+                />
+              </div>
+              
+              {/* Main code editor and analysis results */}
+              <div className="lg:col-span-3 space-y-6">
+                <div className="bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-700 overflow-hidden">
+                  <CodeEditor
+                    value={code}
+                    onChange={(value) => setCode(value || '')}
+                    language={analyzer.language as any}
+                    theme={editorTheme() as any}
+                    height="400px"
+                    readOnly={isAnalyzing}
+                  />
+                </div>
+                
+                <div className="bg-white dark:bg-slate-900 rounded-md border border-slate-200 dark:border-slate-700 p-4">
+                  <AnalysisResult 
+                    feedback={feedback}
+                    loading={isAnalyzing}
+                    emptyMessage={error || (analyzer.autoAnalyze 
+                      ? 'Type to trigger automatic analysis...' 
+                      : 'No analysis results yet. Click "Analyze Code" to start.')}
+                    featureCategory="analyze"
+                    onApplySuggestion={handleApplySuggestion}
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
-    </FeatureErrorBoundary>
+        </ErrorBoundary>
+      </DashboardLayout>
+    </RequireAuth>
   );
 }

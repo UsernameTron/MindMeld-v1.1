@@ -1,8 +1,9 @@
 'use client';
 import React, { useEffect } from 'react';
 import { useRouter } from '@/shims/navigation';
-import { ErrorDisplay } from '@/components/ErrorDisplay/ErrorDisplay';
-import { Button } from '@/components/Button';
+import { ErrorDisplay } from '@/components/ui/molecules/ErrorDisplay';
+import { Button } from '@/components/ui/atoms/Button';
+import { cn } from '@/utils/cn';
 
 export default function AnalyzeError({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();

@@ -34,9 +34,28 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Routing Architecture (Updated May 2025)
+- **Pages Router** is now the exclusive routing system (`pages/` directory).
+- All App Router (`app/`) patterns and files have been removed.
+- For new routes, add files to `pages/`.
+- See `docs/development-guidelines.md` for migration and usage details.
+
+## Error Handling
+- All top-level pages should be wrapped in an `ErrorBoundary`.
+- Custom error pages: `pages/_error.tsx`, `pages/404.tsx`.
+
+## Security Improvements
+- Upgraded to Next.js 15.3.2 (fixes critical SSRF vulnerability).
+- All dependencies pass `npm audit` (no high/critical vulnerabilities).
+
+## Development Instructions (Updated)
+- Use the `pages/` directory for all new features.
+- Avoid `'use client'` unless required for isolated client-only components.
+- See `docs/development-guidelines.md` for more.
 
 ## React/Vitest Aliasing & Select Accessibility
 

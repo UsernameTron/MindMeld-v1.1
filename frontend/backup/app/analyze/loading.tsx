@@ -1,5 +1,5 @@
 import React from 'react';
-import { LoadingIndicator } from '@/components/LoadingIndicator/LoadingIndicator';
+import { LoadingIndicator } from '@/components/ui/molecules/LoadingIndicator/LoadingIndicator';
 
 export default function AnalyzeLoading() {
   return (
