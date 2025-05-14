@@ -7,7 +7,8 @@ on:
       
 jobs:
   validate-components:
-    runs-on: ubuntu-latest
+    # Temporary workaround: use ubuntu-22.04 runner due to missing upload-artifact IAP on ubuntu-24.04 (May 2025)
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
       
@@ -44,7 +45,8 @@ jobs:
         working-directory: ./frontend
 
   tech-debt-check:
-    runs-on: ubuntu-latest
+    # Temporary workaround: use ubuntu-22.04 runner due to missing upload-artifact IAP on ubuntu-24.04 (May 2025)
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744
       

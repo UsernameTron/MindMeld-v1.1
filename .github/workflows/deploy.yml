@@ -2,14 +2,19 @@ name: Deploy
 
 on:
   push:
-    branches: [main, production]
+    branches:
+      - main
+      - production
   workflow_dispatch:
 
 jobs:
   deploy:
     name: Deploy
-    runs-on: ubuntu-latest
-    environment: ${{ github.ref_name == 'main' ? 'staging' : 'production' }}
+    # Temporary workaround: use ubuntu-22.04 runner due to missing upload-artifact IAP on ubuntu-24.04 (May 2025)
+    runs-on: ubuntu-22.04
+    # Set environment based on branch
+    environment:
+      name: ${{ github.ref_name == 'main' && 'staging' || github.ref_name == 'production' && 'production' || 'review' }}
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node.js
@@ -19,9 +24,12 @@ jobs:
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
-      - run: npm run lint
-      - run: npm run type-check
-      - run: npm test
+      - name: Lint
+        run: npm run lint
+      - name: Type Check
+        run: npm run type-check
+      - name: Test
+        run: npm test
       - name: Build
         run: npm run build
         env:
@@ -34,6 +42,9 @@ jobs:
           elif [[ "$GITHUB_REF" == "refs/heads/production" ]]; then
             echo "Deploying to production environment"
             # Add production deployment commands here
+          else
+            echo "Deploying to review environment"
+            # Add review deployment commands here
           fi
         env:
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
