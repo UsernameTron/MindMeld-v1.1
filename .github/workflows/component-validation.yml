@@ -59,8 +59,40 @@ jobs:
         run: |
           node ./scripts/analyze-tech-debt.js > tech-debt-report.md
           
-      - name: Upload tech debt report
-        uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
+# --- Artifact upload workaround: use GitHub Releases as temporary storage (see actions-runner-workaround.md) ---
+      - name: Generate unique release tag
+        id: tag
+        run: |
+          echo "tag=tech-debt-report-${{ github.run_id }}-$(date +%s)" >> $GITHUB_OUTPUT
+
+      - name: Package tech debt report
+        run: |
+          zip tech-debt-report.zip tech-debt-report.md
+
+      - name: Upload tech debt report as release asset
+        uses: softprops/action-gh-release@v2
         with:
-          name: tech-debt-report
-          path: tech-debt-report.md
+          files: tech-debt-report.zip
+          tag_name: ${{ steps.tag.outputs.tag }}
+          draft: true
+          prerelease: false
+          fail_on_unmatched_files: true
+          body: "Temporary artifact for workflow ${{ github.workflow }} (Run #${{ github.run_id }})"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # To download artifact in another job, use the GitHub API (see actions-runner-workaround.md)
+
+      # Cleanup: delete the draft release after workflow completion
+      - name: Cleanup temporary release
+        if: always()
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          RELEASE_ID=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/$TAG" | \
+            jq -r '.id')
+          if [ "$RELEASE_ID" != "null" ]; then
+            curl -X DELETE -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/releases/$RELEASE_ID"
+          fi
+      # --- End workaround ---

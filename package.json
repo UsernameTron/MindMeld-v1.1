@@ -31,6 +31,7 @@
   "homepage": "https://github.com/UsernameTron/MindMeld#readme",
   "description": "",
   "devDependencies": {
+    "@actions/artifact": "^2.3.2",
     "@axe-core/playwright": "^4.10.1",
     "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",
