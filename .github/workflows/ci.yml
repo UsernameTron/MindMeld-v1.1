@@ -33,9 +33,12 @@ jobs:
       - run: npm run type-check
       - run: npm test
       - name: Fetch OpenAPI schema
-        env:
-          NEXT_PUBLIC_API_SCHEMA_URL: ${{ secrets.NEXT_PUBLIC_API_SCHEMA_URL }}
-        run: npm --prefix frontend run fetch-schema
+        run: |
+          if [ -n "${{ secrets.NEXT_PUBLIC_API_SCHEMA_URL }}" ]; then
+            NEXT_PUBLIC_API_SCHEMA_URL="${{ secrets.NEXT_PUBLIC_API_SCHEMA_URL }}" npm --prefix frontend run fetch-schema
+          else
+            echo "NEXT_PUBLIC_API_SCHEMA_URL not set, skipping fetch-schema."
+          fi
       - name: Generate API types
         run: npm --prefix frontend run generate-types
       - name: Check OpenAPI type drift
@@ -60,9 +63,12 @@ jobs:
       - name: Run Playwright tests with A11y
         run: npm run test:e2e
       - name: Check schema freshness
-        env:
-          NEXT_PUBLIC_API_SCHEMA_URL: ${{ secrets.NEXT_PUBLIC_API_SCHEMA_URL }}
-        run: node scripts/check-schema-fresh.js
+        run: |
+          if [ -n "${{ secrets.NEXT_PUBLIC_API_SCHEMA_URL }}" ]; then
+            NEXT_PUBLIC_API_SCHEMA_URL="${{ secrets.NEXT_PUBLIC_API_SCHEMA_URL }}" node scripts/check-schema-fresh.js
+          else
+            echo "NEXT_PUBLIC_API_SCHEMA_URL not set, skipping schema freshness check."
+          fi
       - name: Start frontend for Lighthouse
         run: npm --prefix frontend run start &
       - name: Run Lighthouse CI

@@ -175,6 +175,11 @@ class SentimentRequest(BaseModel):
         description="Include detailed sentiment scores in response",
         json_schema_extra={"example": True},
     )
+    include_emotions: bool = Field(
+        True,
+        description="Include emotion category scores in response (joy, anger, fear, etc.)",
+        json_schema_extra={"example": True},
+    )
     model_name: Optional[str] = Field(
         None,
         description="Specific model to use for sentiment analysis",
@@ -200,7 +205,7 @@ class SentimentResponse(BaseModel):
     """
     Response model for sentiment analysis operations.
 
-    Provides sentiment classification and scores for the analyzed text.
+    Provides sentiment classification, emotion categories, and scores for the analyzed text.
     """
 
     text: str = Field(
@@ -217,6 +222,11 @@ class SentimentResponse(BaseModel):
         ...,
         description="Detailed sentiment scores",
         json_schema_extra={"example": {"POSITIVE": 0.95, "NEGATIVE": 0.05}},
+    )
+    emotions: Optional[Dict[str, float]] = Field(
+        None,
+        description="Emotion category scores (joy, anger, fear, sadness, surprise, disgust)",
+        json_schema_extra={"example": {"joy": 0.8, "surprise": 0.15, "anger": 0.02, "sadness": 0.01, "fear": 0.01, "disgust": 0.01}},
     )
 
 
@@ -237,6 +247,11 @@ class BatchSentimentRequest(BaseModel):
     include_scores: bool = Field(
         True,
         description="Include detailed sentiment scores in response",
+        json_schema_extra={"example": True},
+    )
+    include_emotions: bool = Field(
+        True,
+        description="Include emotion category scores in response (joy, anger, fear, etc.)",
         json_schema_extra={"example": True},
     )
     model_name: Optional[str] = Field(

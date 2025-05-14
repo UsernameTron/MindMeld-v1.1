@@ -29,8 +29,8 @@ analyze_service = AnalyzeService()
 @router.post(
     "",
     response_model=StandardResponse[AnalyzeResponse],
-    summary="Analyze text sentiment",
-    description="Analyzes the sentiment of provided text using Hugging Face transformers",
+    summary="Analyze text sentiment and emotions",
+    description="Analyzes the sentiment and emotions of provided text using Hugging Face transformers",
     dependencies=[Depends(RateLimiter(requests=20, window=60 * 5))],
     responses={
         429: {
@@ -48,7 +48,7 @@ async def analyze_text(
     request: AnalyzeRequest, service: AnalyzeService = Depends()
 ) -> StandardResponse[AnalyzeResponse]:
     """
-    Analyze the sentiment of the provided text.
+    Analyze the sentiment and emotions of the provided text.
 
     Args:
         request (AnalyzeRequest): The request containing the text to analyze.
@@ -57,49 +57,72 @@ async def analyze_text(
     Returns:
         StandardResponse[AnalyzeResponse]: The analysis result wrapped in a standard response.
     """
-    sentiment_request = SentimentRequest(text=request.text)
+    sentiment_request = SentimentRequest(text=request.text, include_emotions=True)
     result = service.analyze_sentiment(sentiment_request)
+    
+    # Extract sentiment score
+    sentiment_score = list(result.scores.values())[0] if result.scores else 0.0
+    
+    # Find dominant emotion for key phrase extraction
+    dominant_emotion = None
+    if result.emotions:
+        dominant_emotion = max(result.emotions.items(), key=lambda x: x[1])[0]
+    
     results = [
         AnalysisResult(
             text=request.text,
             label=result.sentiment.upper(),
-            score=list(result.scores.values())[0] if result.scores else 0.0,
+            score=sentiment_score,
             confidence_level=(
-                "high"
-                if (list(result.scores.values())[0] if result.scores else 0.0) > 0.8
-                else "medium"
+                "high" if sentiment_score > 0.8 else "medium"
             ),
-            is_uncertain=(list(result.scores.values())[0] if result.scores else 0.0)
-            < 0.5,
-            key_phrases=[],
+            is_uncertain=sentiment_score < 0.5,
+            key_phrases=[],  # Could extract based on dominant emotion if needed
             intensity_level=(
-                "strong"
-                if (list(result.scores.values())[0] if result.scores else 0.0) > 0.8
-                else "moderate"
+                "strong" if sentiment_score > 0.8 else "moderate"
             ),
         )
     ]
     analyze_response = AnalyzeResponse(result=results[0])
+    
+    # Add emotion data to the metadata
+    meta = {
+        "model": "default", 
+        "task": "sentiment-analysis",
+        "emotions": result.emotions if result.emotions else {}
+    }
+    
     return StandardResponse(
         success=True,
         data=analyze_response,
-        meta={"model": "default", "task": "sentiment-analysis"},
+        meta=meta,
     )
 
 
-@router.post("/sentiment", response_model=SentimentResponse)
+@router.post(
+    "/sentiment",
+    response_model=SentimentResponse,
+    summary="Analyze sentiment and emotions",
+    description="Performs sentiment and emotion analysis on the provided text.",
+)
 async def analyze_sentiment(request: SentimentRequest) -> SentimentResponse:
     """
-    Perform sentiment analysis on the provided text.
+    Perform sentiment and emotion analysis on the provided text.
 
     Args:
         request (SentimentRequest): The request containing the text to analyze.
 
     Returns:
-        SentimentResponse: The sentiment analysis result.
+        SentimentResponse: The sentiment and emotion analysis result.
     """
     service = AnalyzeService.get_instance(request.model_name)
-    return service.analyze_sentiment(request)
+    result = service.analyze_sentiment(request)
+    # Log dominant emotion if emotions are present
+    if result.emotions:
+        dominant_emotion = max(result.emotions.items(), key=lambda x: x[1])[0]
+        import logging
+        logging.getLogger("uvicorn.info").info(f"Dominant emotion: {dominant_emotion}")
+    return result
 
 
 @router.post("/batch-sentiment", response_model=BatchSentimentResponse)

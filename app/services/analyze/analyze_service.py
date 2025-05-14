@@ -44,8 +44,10 @@ class AnalyzeService:
             model_name: Name of the model to use, defaults to settings.DEFAULT_MODEL_NAME
         """
         self.model_name: str = model_name or settings.DEFAULT_MODEL_NAME
+        self.emotion_model_name: str = settings.EMOTION_MODEL_NAME
         self.device: str = settings.INFERENCE_DEVICE
         self._sentiment_pipeline = None
+        self._emotion_pipeline = None
         self._zero_shot_pipeline = None
 
     @classmethod
@@ -69,7 +71,7 @@ class AnalyzeService:
         Get or create a pipeline for the specified task.
 
         Args:
-            task: The pipeline task (e.g., 'sentiment-analysis')
+            task: The pipeline task (e.g., 'sentiment-analysis', 'emotion')
             model_name: Optional model name override
 
         Returns:
@@ -81,12 +83,50 @@ class AnalyzeService:
                     task, model=model_name or self.model_name, device=self.device
                 )
             return self._sentiment_pipeline
+        elif task == "emotion":
+            if not self._emotion_pipeline:
+                self._emotion_pipeline = pipeline(
+                    "text-classification", model=self.emotion_model_name, device=self.device
+                )
+            return self._emotion_pipeline
         elif task == "zero-shot-classification":
             if not self._zero_shot_pipeline:
                 self._zero_shot_pipeline = pipeline(
                     task, model="facebook/bart-large-mnli", device=self.device
                 )
             return self._zero_shot_pipeline
+
+    def analyze_emotions(self, text: str) -> Dict[str, float]:
+        """
+        Analyze emotions in text using a dedicated emotion model.
+
+        Args:
+            text: Input text to analyze
+
+        Returns:
+            Dict[str, float]: Dictionary of emotion categories and their scores
+
+        Raises:
+            InferenceError: If there's an issue with the model inference
+        """
+        with tracer.start_as_current_span("analyze_emotions"):
+            try:
+                classifier = self._get_pipeline("emotion")
+                results = classifier(text)
+                # The emotion model returns a list of dictionaries with label and score
+                emotions_dict = {}
+                for item in results:
+                    label = item["label"].lower()
+                    score = item["score"]
+                    emotions_dict[label] = score
+                # Ensure all required emotion categories are present with default values
+                required_emotions = ["joy", "anger", "fear", "sadness", "surprise", "disgust"]
+                for emotion in required_emotions:
+                    if emotion not in emotions_dict:
+                        emotions_dict[emotion] = 0.0
+                return emotions_dict
+            except Exception as e:
+                raise InferenceError(f"Error analyzing emotions: {str(e)}")
 
     def extract_key_phrases(self, text: str, label: str) -> List[KeyPhrase]:
         """
@@ -126,21 +166,32 @@ class AnalyzeService:
             request: SentimentRequest with text and parameters
 
         Returns:
-            SentimentResponse: Sentiment analysis results containing sentiment label and scores
+            SentimentResponse: Sentiment analysis results containing sentiment label, scores, 
+                              and emotion categories
 
         Raises:
             InferenceError: If there's an issue with the model inference
         """
         with tracer.start_as_current_span("analyze_sentiment"):
+            # Get sentiment analysis
             classifier = self._get_pipeline("sentiment-analysis")
             result = classifier(request.text)[0]
             sentiment = result["label"].lower()
             score = result["score"]
             # Build scores dict as required by SentimentResponse
             scores = {result["label"].upper(): score}
-            # key_phrases extraction logic can be added if needed, but not part of SentimentResponse
+            
+            # Get emotion analysis if requested
+            emotions = None
+            if getattr(request, "include_emotions", True):
+                emotions = self.analyze_emotions(request.text)
+            
+            # Return combined sentiment and emotion results
             return SentimentResponse(
-                text=request.text, sentiment=sentiment.upper(), scores=scores
+                text=request.text, 
+                sentiment=sentiment.upper(), 
+                scores=scores,
+                emotions=emotions
             )
 
     def analyze_batch_sentiment(
@@ -162,6 +213,12 @@ class AnalyzeService:
         with tracer.start_as_current_span("analyze_batch_sentiment"):
             results = []
             for text in request.texts:
-                single_request = SentimentRequest(text=text, model_name=request.model_name)
+                single_request = SentimentRequest(
+                    text=text, 
+                    model_name=request.model_name,
+                    include_scores=request.include_scores,
+                    include_emotions=request.include_emotions,
+                    normalize_scores=request.normalize_scores
+                )
                 results.append(self.analyze_sentiment(single_request))
             return BatchSentimentResponse(results=results)

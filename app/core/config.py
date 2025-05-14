@@ -34,6 +34,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = "INFO"
     # Model settings
     DEFAULT_MODEL_NAME: str = "distilbert-base-uncased-finetuned-sst-2-english"
+    EMOTION_MODEL_NAME: str = "j-hartmann/emotion-english-distilroberta-base"
     INFERENCE_DEVICE: str = "cpu"  # or "mps" for Apple Silicon GPU
     # OpenAI settings
     openai_api_key: str = Field("", env="OPENAI_API_KEY")
