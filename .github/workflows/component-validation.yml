@@ -22,17 +22,22 @@ jobs:
         
       - name: Run component verification
         run: |
-          # Get list of changed component directories
-          CHANGED_DIRS=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep -oP 'frontend/src/components/\K[^/]+' | sort -u)
-          
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          if [ -z "$BASE_SHA" ] || ! git cat-file -e $BASE_SHA; then
+            BASE_SHA=$(git rev-parse origin/main)
+          fi
+          CHANGED_DIRS=$(git diff --name-only $BASE_SHA ${{ github.sha }} | grep -oP 'frontend/src/components/\K[^/]+' | sort -u)
           for DIR in $CHANGED_DIRS; do
             ./scripts/verify-component.sh $DIR
           done
         
       - name: Run tests for changed components
         run: |
-          CHANGED_DIRS=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep -oP 'frontend/src/components/\K[^/]+' | sort -u)
-          
+          BASE_SHA=${{ github.event.pull_request.base.sha }}
+          if [ -z "$BASE_SHA" ] || ! git cat-file -e $BASE_SHA; then
+            BASE_SHA=$(git rev-parse origin/main)
+          fi
+          CHANGED_DIRS=$(git diff --name-only $BASE_SHA ${{ github.sha }} | grep -oP 'frontend/src/components/\K[^/]+' | sort -u)
           for DIR in $CHANGED_DIRS; do
             npm test -- --testPathPattern=$DIR
           done
@@ -53,7 +58,7 @@ jobs:
           node ./scripts/analyze-tech-debt.js > tech-debt-report.md
           
       - name: Upload tech debt report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.3
         with:
           name: tech-debt-report
           path: tech-debt-report.md
