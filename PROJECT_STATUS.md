@@ -25,10 +25,10 @@
 | TTS Service | Sprint 5 | Complete | ✅ | ✅ | ✅ | src/services/ttsService.ts | 2025-05-13 |
 | Audio Player | Sprint 5 | Complete | ✅ | ✅ | ✅ | src/components/ui/molecules/AudioPlayer/AudioPlayer.tsx | 2025-05-13 |
 | ... | ... | ... | ... | ... | ... | ... | ... |
-| Sentiment Analysis Backend | Sprint 6 | Complete | ✅ | ✅ | ✅ | backend/services/sentimentAnalyzer.ts | 2025-05-XX |
-| Sentiment Analysis Service | Sprint 6 | Complete | ✅ | ✅ | ✅ | src/services/sentimentAnalysisService.ts | 2025-05-XX |
-| URL Input Form | Sprint 6 | Complete | ✅ | ✅ | ✅ | src/components/forms/UrlInputForm.tsx | 2025-05-XX |
-| Sentiment Visualization | Sprint 6 | Not Started | ❌ | ❌ | ❌ | - | - |
+| Sentiment Analysis Backend | Sprint 6 | Complete | ✅ | ✅ | ✅ | backend/services/sentimentAnalyzer.ts | 2025-05-14 |
+| Sentiment Analysis Service | Sprint 6 | Complete | ✅ | ✅ | ✅ | src/services/sentimentAnalysisService.ts | 2025-05-14 |
+| URL Input Form | Sprint 6 | Complete | ✅ | ✅ | ✅ | src/components/forms/UrlInputForm.tsx | 2025-05-14 |
+| Sentiment Visualization | Sprint 6 | Complete | ✅ | ✅ | ✅ | src/components/ui/organisms/SentimentVisualization/SentimentVisualization.tsx | 2025-05-14 |
 | Summary Display | Sprint 6 | Not Started | ❌ | ❌ | ❌ | - | - |
 
 ... [continue for all phases and components]
@@ -43,8 +43,7 @@ For a component to be marked as "Complete," it must have:
 5. Storybook: Storybook stories created for UI components
 
 ## Current Sprint Focus
-Sprint 6: Sentiment Analysis Visualization (Components remaining: Sentiment Visualization and Summary Display)
+Sprint 6: Sentiment Analysis Visualization (Components remaining: Summary Display)
 
 ## Next Implementation Priority
-1. Sentiment Visualization Component
-2. Summary Display Component
+1. Summary Display Component
