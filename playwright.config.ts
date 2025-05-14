@@ -9,7 +9,10 @@ try {
 
 export default defineConfig({
   testDir: 'e2e/playwright',
-  testMatch: ['**/*.spec.ts'],
+  testMatch: [
+    '**/*.spec.ts',
+    '../frontend/e2e/playwright/tests/api/sentiment-analysis.integration.spec.ts', // Explicitly include the new test
+  ],
   reporter: [['list'], ['html']],
   timeout: 120_000, // Allow plenty of time for tests to run
   retries: process.env.CI ? 2 : 1,

@@ -30,6 +30,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       label: 'Text to Speech',
       href: '/tts',
     },
+    {
+      label: 'Sentiment Analysis',
+      href: '/sentiment-analysis',
+    },
   ];
 
   return (

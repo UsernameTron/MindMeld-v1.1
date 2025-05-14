@@ -11,7 +11,7 @@ from typing import AsyncIterator
 from fastapi import FastAPI, APIRouter
 from fastapi.staticfiles import StaticFiles
 
-from app.api.routes import analyze, auth, persona, rewrite, data, tts
+from app.api.routes import analyze, auth, persona, rewrite, data, tts, sentiment
 from app.api.routes.chat import router as chat_router
 from app.core.auth_middleware import APIKeyMiddleware
 from app.core.errors import register_exception_handlers
@@ -71,6 +71,7 @@ app.mount("/audio", StaticFiles(directory=settings.audio_storage_path), name="au
 v1_router = APIRouter(prefix="/api/v1")
 v1_router.include_router(analyze.router, prefix="/analyze", tags=["Analyze"])
 v1_router.include_router(chat_router, prefix="/chat", tags=["Chat"])
+v1_router.include_router(sentiment.router, prefix="/sentiment", tags=["Sentiment"])
 
 # Include versioned router in main app
 app.include_router(v1_router)

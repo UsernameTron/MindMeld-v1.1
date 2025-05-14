@@ -68,8 +68,8 @@ const SentimentVisualization: React.FC<SentimentVisualizationProps> = ({
   if (error) {
     return <div className={`text-center text-red-500 py-8 ${className || ''}`} role="alert" aria-live="assertive">{error}</div>;
   }
-  if (!data) {
-    return <div className={`text-center text-slate-500 py-8 ${className || ''}`}>No sentiment data available.</div>;
+  if (!data || (Array.isArray(data.scores) && data.scores.length === 0) || (mode === 'gauge' && (!data.overall || typeof data.overall.value !== 'number'))) {
+    return <div className={`text-center text-slate-500 py-8 ${className || ''}`}>No sentiment data</div>;
   }
 
   // --- Visualization Mode Switcher ---
@@ -81,22 +81,27 @@ const SentimentVisualization: React.FC<SentimentVisualizationProps> = ({
 
   // --- Chart View ---
   const renderChart = () => (
-    <ResponsiveContainer width="100%" height={220}>
-      <BarChart data={data.scores} aria-label="Sentiment Bar Chart">
-        <XAxis dataKey="label" stroke={theme === 'dark' ? '#e5e7eb' : '#334155'} />
-        <YAxis domain={[0, 1]} stroke={theme === 'dark' ? '#e5e7eb' : '#334155'} />
-        <Tooltip />
-        <Bar dataKey="value">
-          {data.scores.map((entry, idx) => (
-            <Cell key={`cell-${idx}`} fill={getColor(entry.label, theme)} />
-          ))}
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <div aria-label="Sentiment Bar Chart" role="region" style={{ width: '100%', height: 220 }}>
+      <ResponsiveContainer width="100%" height={220}>
+        <BarChart data={data.scores}>
+          <XAxis dataKey="label" stroke={theme === 'dark' ? '#e5e7eb' : '#334155'} />
+          <YAxis domain={[0, 1]} stroke={theme === 'dark' ? '#e5e7eb' : '#334155'} />
+          <Tooltip />
+          <Bar dataKey="value">
+            {data.scores.map((entry, idx) => (
+              <Cell key={`cell-${idx}`} fill={getColor(entry.label, theme)} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 
   // --- Gauge View ---
   const renderGauge = () => {
+    if (!data.overall || typeof data.overall.value !== 'number') {
+      return <div className="text-center text-slate-500 py-8">No sentiment data</div>;
+    }
     // Pie chart as a gauge (single value)
     const gaugeValue = data.overall.value;
     const gaugeColor = getColor(data.overall.label, theme);

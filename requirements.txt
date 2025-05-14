@@ -1,4 +1,10 @@
-fastapi>=0.95.0
+fastapi
+uvicorn
+requests
+beautifulsoup4
+textblob
+nrclex
+pydantic
 uvicorn[standard]>=0.22.0
 pydantic>=1.10.0
 pydantic-settings>=2.0.0

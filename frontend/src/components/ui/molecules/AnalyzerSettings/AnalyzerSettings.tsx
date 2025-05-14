@@ -3,9 +3,9 @@
 import React from 'react';
 import { useSettingsContext } from '@/context/SettingsContext';
 import { type AnalyzerRuleset } from '@/hooks/useSettings';
-import { LoadingIndicator } from '@/components/ui/molecules/LoadingIndicator/LoadingIndicator';
-import { ErrorDisplay } from '@/components/ui/molecules/ErrorDisplay/ErrorDisplay';
-import { Button } from '@/components/ui/atoms/Button';
+import { LoadingIndicator } from '../LoadingIndicator/LoadingIndicator';
+import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay';
+import { Button } from '../../../atoms/Button';
 import { cn } from '@/utils/cn';
 
 interface AnalyzerSettingsProps {
@@ -75,7 +75,7 @@ export const AnalyzerSettings: React.FC<AnalyzerSettingsProps> = ({
           Language
         </label>
         {isLoadingLanguages ? (
-          <LoadingIndicator variant="spinner" size="small" category="analyze" />
+          <LoadingIndicator variant="spinner" size="sm" category="analyze" />
         ) : (
           <select
             id="language-select"
@@ -208,10 +208,10 @@ export const AnalyzerSettings: React.FC<AnalyzerSettingsProps> = ({
         <Button 
           data-testid="analyze-btn"
           onClick={onAnalyze} 
-          loading={isAnalyzing}
+          disabled={isAnalyzing}
           className="w-full"
         >
-          Analyze Code
+          {isAnalyzing ? <LoadingIndicator size="sm" /> : 'Analyze Code'}
         </Button>
       )}
     </div>
