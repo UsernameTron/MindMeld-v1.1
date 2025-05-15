@@ -1,0 +1,38 @@
+.mm-template-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+.mm-template-card {
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1rem;
+  min-width: 220px;
+  max-width: 320px;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  transition: border 0.2s, box-shadow 0.2s;
+}
+.mm-template-card.selected, .mm-template-card:focus {
+  border: 2px solid #4285F4;
+  box-shadow: 0 0 0 2px #4285F433;
+}
+.mm-template-icon {
+  font-size: 2rem;
+  margin-right: 1rem;
+}
+.mm-template-info {
+  flex: 1;
+}
+.mm-template-title {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+.mm-template-desc {
+  color: #666;
+  font-size: 0.95rem;
+  margin-top: 0.25rem;
+}

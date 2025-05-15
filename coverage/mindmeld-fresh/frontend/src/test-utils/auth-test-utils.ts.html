@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>0/15</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/13</span>
+                <span class='fraction'>0/15</span>
             </div>
         
             
@@ -80,48 +80,39 @@
 <a name='L15'></a><a href='#L15'>15</a>
 <a name='L16'></a><a href='#L16'>16</a>
 <a name='L17'></a><a href='#L17'>17</a>
-<a name='L18'></a><a href='#L18'>18</a>
-<a name='L19'></a><a href='#L19'>19</a>
-<a name='L20'></a><a href='#L20'>20</a>
-<a name='L21'></a><a href='#L21'>21</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L18'></a><a href='#L18'>18</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { vi } from 'vitest';<span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" ></span></span></span>
+<span class="cstat-no" title="statement not covered" >import { authService } from '@/services/authService';</span>
+<span class="cstat-no" title="statement not covered" >import { isTokenExpired } from '@/utils/jwt';</span>
 &nbsp;
-// Mock authenticated state
-<span class="cstat-no" title="statement not covered" >export function mockAuthenticatedUser() {</span>
-<span class="cstat-no" title="statement not covered" >  document.cookie = 'auth_token=test-valid-token';</span>
+<span class="cstat-no" title="statement not covered" >export function mockAuthenticatedUser(token = 'valid-token') {</span>
+<span class="cstat-no" title="statement not covered" >  document.cookie = `auth_token=${token}`;</span>
+<span class="cstat-no" title="statement not covered" >  localStorage.setItem('token', token);</span>
+<span class="cstat-no" title="statement not covered" >  vi.mocked(isTokenExpired).mockReturnValue(false);</span>
+<span class="cstat-no" title="statement not covered" >  vi.mocked(authService.isAuthenticated).mockReturnValue(true);</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 &nbsp;
-// Mock unauthenticated state
 <span class="cstat-no" title="statement not covered" >export function mockUnauthenticatedUser() {</span>
 <span class="cstat-no" title="statement not covered" >  document.cookie = '';</span>
-<span class="cstat-no" title="statement not covered" >}</span>
-&nbsp;
-// Mock token expiration check
-<span class="cstat-no" title="statement not covered" >export function mockTokenValidation(isValid: boolean) {</span>
-  // This assumes you've properly set up the JWT mock
-<span class="cstat-no" title="statement not covered" >  const jwt = require('@/utils/jwt');</span>
-<span class="cstat-no" title="statement not covered" >  if (jwt.isTokenExpired &amp;&amp; typeof jwt.isTokenExpired === 'function') {</span>
-<span class="cstat-no" title="statement not covered" >    jwt.isTokenExpired = vi.fn().mockReturnValue(!isValid);</span>
-<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >  localStorage.removeItem('token');</span>
+<span class="cstat-no" title="statement not covered" >  vi.mocked(isTokenExpired).mockReturnValue(true);</span>
+<span class="cstat-no" title="statement not covered" >  vi.mocked(authService.isAuthenticated).mockReturnValue(false);</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 &nbsp;</pre></td></tr></table></pre>
 
@@ -130,7 +121,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-12T17:04:57.724Z
+                at 2025-05-15T02:36:48.566Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

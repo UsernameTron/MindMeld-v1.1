@@ -1,0 +1,36 @@
+.mm-prompt-display {
+  margin: 2rem auto;
+  max-width: 700px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 1.5rem;
+  position: relative;
+}
+.mm-prompt-content {
+  font-family: 'Fira Mono', 'Consolas', monospace;
+  font-size: 1rem;
+  background: #f4f4f4;
+  border-radius: 4px;
+  padding: 1rem;
+  overflow-x: auto;
+  min-height: 120px;
+  margin-bottom: 1rem;
+  outline: none;
+}
+.mm-copy-btn {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: #4285F4;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.mm-copy-btn:hover, .mm-copy-btn:focus {
+  background: #3367d6;
+}

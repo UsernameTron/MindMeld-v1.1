@@ -63,6 +63,39 @@ All workflows now use [softprops/action-gh-release](https://github.com/softprops
       fi
   ```
 
+## Artifact upload Personal Access Token (PAT) requirements
+
+### Why a PAT is needed
+- GitHub Actions' default `GITHUB_TOKEN` does not have `release:write` permissions in `pull_request` workflows, which breaks release-based artifact uploads (e.g., with softprops/action-gh-release).
+- To enable artifact uploads for both push and PR events, a Personal Access Token (PAT) with `repo` and `release:write` scopes is required.
+
+### Setup instructions
+1. Create a new GitHub PAT with the following scopes:
+   - `repo`
+   - `release:write`
+2. Add the PAT as a repository secret named `GH_PAT`.
+3. The workflows are configured to use `GH_PAT` for release creation and artifact upload steps only on `push` and `workflow_dispatch` events (not on forked PRs).
+4. The PAT is never exposed to steps that do not require it (principle of least privilege).
+
+### Security notes
+- Never use a PAT with excessive permissions.
+- Never print the PAT or expose it in logs.
+- If the PAT is compromised, revoke it immediately and update the secret.
+
+### Example usage in workflow:
+```yaml
+- name: Upload artifact as release asset
+  uses: softprops/action-gh-release@v2
+  env:
+    GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+  if: ${{ secrets.GH_PAT != '' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+  # ...other config...
+```
+
+### Troubleshooting
+- If artifact upload fails with a 403, check that the PAT is valid and has the correct scopes.
+- If the secret is missing, the step will be skipped (see workflow `if` condition).
+
 ## Notes
 - Artifact naming and retention behavior are preserved.
 - All changes are documented inline in workflow files.

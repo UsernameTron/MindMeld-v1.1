@@ -11,7 +11,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     // Exclude E2E Playwright tests and only include frontend unit tests
-    include: ['frontend/**/*.{test,spec}.{ts,tsx}'],
+    include: ['frontend/**/*.{test,spec}.{ts,tsx}', './test-template-integration.spec.ts'],
     exclude: [
       '**/e2e/**', 
       '**/node_modules/**', 

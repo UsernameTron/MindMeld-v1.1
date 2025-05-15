@@ -1,0 +1,46 @@
+GitHub Actions Workflow Failure Summary (last 20 runs)
+Date: Wed May 14 19:16:14 CDT 2025
+
+Failure Patterns (grouped, with counts):
+----------------------------------------
+   1 validate-components	run tests for changed components	2025-05-14t22:47:58.1919783z fatal: bad object 3dce18db45e409bbf1a2e77c8eb778aa1748c06f
+   1 validate-components	run component verification	2025-05-15t00:11:02.7168205z ##[error]process completed with exit code 128.
+   1 validate-components	run component verification	2025-05-15t00:11:02.7153152z fatal: ambiguous argument 'origin/main': unknown revision or path not in the working tree.
+   1 validate-components	run component verification	2025-05-14t23:19:58.1917251z ##[error]process completed with exit code 128.
+   1 validate-components	run component verification	2025-05-14t23:19:58.1895414z fatal: ambiguous argument 'origin/main': unknown revision or path not in the working tree.
+   1 validate-components	run component verification	2025-05-14t23:10:53.9640549z ##[error]process completed with exit code 128.
+   1 validate-components	run component verification	2025-05-14t23:10:53.9627649z fatal: ambiguous argument 'origin/main': unknown revision or path not in the working tree.
+   1 validate-components	run component verification	2025-05-14t23:03:55.2531122z ##[error]process completed with exit code 128.
+   1 validate-components	run component verification	2025-05-14t23:03:55.2518196z fatal: ambiguous argument 'origin/main': unknown revision or path not in the working tree.
+   1 validate-components	run component verification	2025-05-14t22:57:54.0874240z ##[error]process completed with exit code 128.
+   1 validate-components	run component verification	2025-05-14t22:57:54.0859441z fatal: ambiguous argument 'origin/main': unknown revision or path not in the working tree.
+   1 validate-components	run component verification	2025-05-14t22:54:04.1611297z ##[error]process completed with exit code 128.
+   1 validate-components	run component verification	2025-05-14t22:54:04.1592684z fatal: ambiguous argument 'origin/main': unknown revision or path not in the working tree.
+   1 validate-components	run component verification	2025-05-14t22:47:58.1744298z fatal: bad object 3dce18db45e409bbf1a2e77c8eb778aa1748c06f
+   1 validate-components	install dependencies	2025-05-15t00:10:43.5500562z npm warn deprecated node-domexception@1.0.0: use your platform's native domexception instead
+   1 validate-components	install dependencies	2025-05-14t23:19:39.1729564z npm warn deprecated node-domexception@1.0.0: use your platform's native domexception instead
+   1 validate-components	install dependencies	2025-05-14t23:10:34.8003540z npm warn deprecated node-domexception@1.0.0: use your platform's native domexception instead
+   1 validate-components	install dependencies	2025-05-14t23:03:36.4075906z npm warn deprecated node-domexception@1.0.0: use your platform's native domexception instead
+   1 validate-components	install dependencies	2025-05-14t22:57:34.6811132z npm warn deprecated node-domexception@1.0.0: use your platform's native domexception instead
+   1 validate-components	install dependencies	2025-05-14t22:53:43.9298976z npm warn deprecated node-domexception@1.0.0: use your platform's native domexception instead
+   1 validate-components	install dependencies	2025-05-14t22:47:39.5820336z npm warn deprecated node-domexception@1.0.0: use your platform's native domexception instead
+   1 tech-debt-check	upload tech debt report as release asset	2025-05-15t00:10:39.1349917z ##[error]resource not accessible by integration - https://docs.github.com/rest/releases/releases#create-a-release
+   1 tech-debt-check	upload tech debt report as release asset	2025-05-15t00:10:39.1330169z ⚠️ unexpected error fetching github release for tag refs/pull/4/merge: httperror: resource not accessible by integration - https://docs.github.com/rest/releases/releases#create-a-release
+   1 tech-debt-check	upload tech debt report as release asset	2025-05-15t00:10:39.1324259z ⚠️ github release failed with status: 403
+   1 tech-debt-check	upload tech debt report as release asset	2025-05-14t23:19:27.8283289z ##[error]resource not accessible by integration - https://docs.github.com/rest/releases/releases#create-a-release
+   1 tech-debt-check	upload tech debt report as release asset	2025-05-14t23:19:27.8257636z ⚠️ unexpected error fetching github release for tag refs/pull/4/merge: httperror: resource not accessible by integration - https://docs.github.com/rest/releases/releases#create-a-release
+   1 tech-debt-check	upload tech debt report as release asset	2025-05-14t23:19:27.8250583z ⚠️ github release failed with status: 403
+   1 tech-debt-check	set up job	2025-05-14t23:10:27.6738815z ##[error]missing download info for actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
+   1 tech-debt-check	set up job	2025-05-14t23:03:28.8546979z ##[error]missing download info for actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
+   1 tech-debt-check	set up job	2025-05-14t22:57:25.7765681z ##[error]missing download info for actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32
+   1 tech-debt-check	set up job	2025-05-14t22:53:36.9055313z ##[error]missing download info for actions/upload-artifact@v3.1.3
+   1 tech-debt-check	set up job	2025-05-14t22:47:32.3030002z ##[error]missing download info for actions/upload-artifact@v3
+
+Recommendations:
+----------------
+- Review the most frequent error types above.
+- For dependency or permission errors, check token scopes and runner environment.
+- For syntax or YAML errors, validate workflow files with 'act' or the GitHub Actions linter.
+- For network or API failures, retry or check service status.
+- For persistent issues, consult the GitHub Actions documentation or open an issue with logs.
+
