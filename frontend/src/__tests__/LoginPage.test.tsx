@@ -9,7 +9,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LoginPage } from '../components/LoginPage';
 // Import directly from mock files using alias paths
 import { authService } from '@/__mocks__/services/authService';
-import { RouterWrapper, routerFunctions } from '@test-utils/router';
+import { RouterWrapper, routerFunctions } from '../../test-utils/router';
 
 console.debug('[TEST] authService import:', authService);
 console.debug('[TEST] authService.login:', authService?.login);

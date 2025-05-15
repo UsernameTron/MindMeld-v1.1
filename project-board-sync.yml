@@ -1,0 +1,103 @@
+name: Project Board Sync
+
+on:
+  issues:
+    types: [opened, edited, deleted, closed, reopened, labeled, unlabeled]
+  pull_request:
+    types: [opened, edited, closed, reopened, labeled, unlabeled]
+
+jobs:
+  project_board_sync:
+    runs-on: ubuntu-latest
+    name: Sync with Project Board
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Add to Project
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/users/UsernameTron/projects/1
+          github-token: ${{ secrets.PROJECT_ACCESS_TOKEN }}
+
+      - name: Update Project
+        id: update-project
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.PROJECT_ACCESS_TOKEN }}
+          script: |
+            const issue = context.payload.issue || context.payload.pull_request;
+            if (!issue) return;
+
+            // Project V2 IDs (update with your actual values)
+            const projectId = 'PVT_kwHOC0Cti84AyJp1';
+            const statusFieldId = 'PVTSSF_lAHOC0Cti84AyJp1zgoJnKU';
+            const todoOptionId = 'f75ad846';      // Todo (Backlog)
+            const inProgressOptionId = '47fc9ee4'; // In Progress (Now/Next)
+            const doneOptionId = '98236657';      // Done
+
+            let statusOptionId = null;
+
+            if (issue.labels) {
+              if (issue.labels.some(label => label.name === 'backlog')) {
+                statusOptionId = todoOptionId;
+              } else if (issue.labels.some(label => label.name === 'now') ||
+                        issue.labels.some(label => label.name === 'next')) {
+                statusOptionId = inProgressOptionId;
+              }
+            }
+
+            if (issue.state === 'closed') {
+              statusOptionId = doneOptionId;
+            }
+
+            if (statusOptionId) {
+              try {
+                await github.graphql(`
+                  mutation {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: "${projectId}"
+                      itemId: "${issue.node_id}"
+                      fieldId: "${statusFieldId}"
+                      value: { singleSelectOptionId: "${statusOptionId}" }
+                    }) {
+                      projectV2Item {
+                        id
+                      }
+                    }
+                  }
+                `);
+                console.log(`Successfully updated issue status`);
+              } catch (error) {
+                console.error(`Error updating issue: ${error}`);
+              }
+            }
+
+  static_analysis:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install black isort mypy flake8 bandit safety pyyaml
+      - name: Run static analysis
+        run: make static-analysis
+      - name: Run mindmeld_review.py
+        run: python scripts/mindmeld_review.py
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: mindmeld-review-report
+          path: mindmeld_review_report.html
+      - name: Comment results on PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            ### MindMeld Compliance Review
+            Static analysis and compliance checks have been run. See the attached HTML report for details.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

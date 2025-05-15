@@ -1,6 +1,8 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import CodeEditor from '../CodeEditor';
 import { AnalysisResult, AnalysisFeedback } from '../AnalysisResult';
+import { createCodeService } from '../../../../services/codeService';
+import { apiClient } from '../../../../services/apiClient';
 
 // Debounce utility
 function useDebounce(fn: (...args: any[]) => void, delay: number) {
@@ -11,33 +13,6 @@ function useDebounce(fn: (...args: any[]) => void, delay: number) {
   }, [fn, delay]);
 }
 
-const mockAnalyze = async (code: string, language: string): Promise<AnalysisFeedback[]> => {
-  // Simulate latency
-  await new Promise(res => setTimeout(res, 600));
-  if (!code.trim()) return [];
-  if (code.includes('error')) {
-    return [
-      {
-        id: '1',
-        message: 'Found forbidden word: error',
-        severity: 'error',
-        category: 'bug',
-        line: 1,
-        suggestion: 'Remove the word "error".'
-      }
-    ];
-  }
-  return [
-    {
-      id: '2',
-      message: `No issues found in your ${language} code!`,
-      severity: 'info',
-      category: 'best-practice',
-      line: 1
-    }
-  ];
-};
-
 const LANGUAGES = [
   { label: 'JavaScript', value: 'javascript' },
   { label: 'TypeScript', value: 'typescript' },
@@ -46,46 +21,148 @@ const LANGUAGES = [
   { label: 'C++', value: 'cpp' },
 ];
 
-const CodeAnalyzer: React.FC = () => {
-  const [code, setCode] = useState('');
-  const [language, setLanguage] = useState('javascript');
+// Sample snippets for each language
+const SAMPLE_SNIPPETS: Record<string, string> = {
+  javascript: `function calculateSum(numbers) {
+  return numbers.reduce((sum, num) => sum + num, 0);
+}
+
+// Example usage
+const result = calculateSum([1, 2, 3, 4, 5]);
+console.log(result);`,
+  
+  typescript: `function calculateSum(numbers: number[]): number {
+  return numbers.reduce((sum, num) => sum + num, 0);
+}
+
+// Example usage
+const result: number = calculateSum([1, 2, 3, 4, 5]);
+console.log(result);`,
+  
+  python: `def calculate_sum(numbers):
+    return sum(numbers)
+
+# Example usage
+result = calculate_sum([1, 2, 3, 4, 5])
+print(result)`,
+  
+  java: `public class SumCalculator {
+    public static int calculateSum(int[] numbers) {
+        int sum = 0;
+        for (int num : numbers) {
+            sum += num;
+        }
+        return sum;
+    }
+    
+    public static void main(String[] args) {
+        int[] numbers = {1, 2, 3, 4, 5};
+        int result = calculateSum(numbers);
+        System.out.println(result);
+    }
+}`,
+  
+  cpp: `#include <iostream>
+#include <vector>
+#include <numeric>
+
+int calculateSum(const std::vector<int>& numbers) {
+    return std::accumulate(numbers.begin(), numbers.end(), 0);
+}
+
+int main() {
+    std::vector<int> numbers = {1, 2, 3, 4, 5};
+    int result = calculateSum(numbers);
+    std::cout << result << std::endl;
+    return 0;
+}`
+};
+
+interface CodeAnalyzerProps {
+  initialCode?: string;
+  initialLanguage?: string;
+}
+
+const CodeAnalyzer: React.FC<CodeAnalyzerProps> = ({
+  initialCode,
+  initialLanguage = 'javascript'
+}) => {
+  // Initialize state with provided props or defaults
+  const [code, setCode] = useState(initialCode || SAMPLE_SNIPPETS[initialLanguage] || '');
+  const [language, setLanguage] = useState(initialLanguage);
   const [results, setResults] = useState<AnalysisFeedback[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [autoAnalyze, setAutoAnalyze] = useState(true);
+  const [codeService] = useState(() => createCodeService(apiClient));
   const editorRef = useRef<any>(null);
 
-  // Debounced analyze
-  const debouncedAnalyze = useDebounce(async (code: string, lang: string) => {
+  // Analyze the code using the service
+  const analyzeCode = async (codeToAnalyze: string, lang: string) => {
+    if (!codeToAnalyze.trim()) {
+      setResults([]);
+      return;
+    }
+    
     setLoading(true);
-    setResults(await mockAnalyze(code, lang));
-    setLoading(false);
-  }, 700);
+    setError(null);
+    
+    try {
+      const feedback = await codeService.getCodeFeedback(codeToAnalyze, lang);
+      setResults(feedback);
+    } catch (err: any) {
+      console.error('Analysis error:', err);
+      setError(err.message || 'Failed to analyze code');
+      setResults([{
+        id: 'error-1',
+        message: err.message || 'Failed to analyze code',
+        severity: 'error',
+        category: 'other'
+      }]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Debounced analyze
+  const debouncedAnalyze = useDebounce(analyzeCode, 800);
 
   // Auto analyze on code change
   const handleCodeChange = (val: string | undefined) => {
-    setCode(val ?? '');
-    if (autoAnalyze) debouncedAnalyze(val ?? '', language);
+    const newCode = val ?? '';
+    setCode(newCode);
+    if (autoAnalyze) debouncedAnalyze(newCode, language);
   };
 
   // Manual analyze
-  const handleAnalyze = async () => {
-    setLoading(true);
-    setResults(await mockAnalyze(code, language));
-    setLoading(false);
+  const handleAnalyze = () => {
+    analyzeCode(code, language);
   };
 
   // Language change
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLanguage(e.target.value);
-    // Optionally re-analyze on language switch
-    if (autoAnalyze) debouncedAnalyze(code, e.target.value);
+    const newLanguage = e.target.value;
+    setLanguage(newLanguage);
+    
+    // Load sample snippet if code is empty or a sample from another language
+    const currentSample = Object.values(SAMPLE_SNIPPETS).find(sample => code.trim() === sample.trim());
+    if (!code.trim() || currentSample) {
+      const newSample = SAMPLE_SNIPPETS[newLanguage] || '';
+      setCode(newSample);
+      if (autoAnalyze) debouncedAnalyze(newSample, newLanguage);
+    } else if (autoAnalyze) {
+      // Otherwise just analyze current code with new language
+      debouncedAnalyze(code, newLanguage);
+    }
   };
 
-  // Feedback navigation
-  const handleFeedbackItemClick = (feedback: AnalysisFeedback) => {
-    if (feedback.line && editorRef.current) {
-      // Monaco editor API: set position and reveal line
+  // Apply suggestion (replaces error text with suggested fix)
+  const handleApplySuggestion = (feedback: AnalysisFeedback) => {
+    if (feedback.line && feedback.suggestion && editorRef.current) {
+      // This is a simplified implementation - in a real app, you would need more 
+      // complex logic to actually modify the right part of the code
       const editor = editorRef.current;
+      // For now just navigate to the line
       if (editor.setPosition && editor.revealLineInCenter) {
         editor.setPosition({ lineNumber: feedback.line, column: 1 });
         editor.revealLineInCenter(feedback.line);
@@ -94,14 +171,22 @@ const CodeAnalyzer: React.FC = () => {
     }
   };
 
+  // Initial analysis on component mount
+  useEffect(() => {
+    if (code) {
+      debouncedAnalyze(code, language);
+    }
+  }, []);
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="flex flex-wrap items-center gap-4">
         <label className="font-medium">Language:</label>
         <select
           className="border rounded px-2 py-1"
           value={language}
           onChange={handleLanguageChange}
+          data-testid="language-selector"
         >
           {LANGUAGES.map(l => (
             <option key={l.value} value={l.value}>{l.label}</option>
@@ -113,6 +198,7 @@ const CodeAnalyzer: React.FC = () => {
             checked={autoAnalyze}
             onChange={e => setAutoAnalyze(e.target.checked)}
             className="accent-blue-600"
+            data-testid="auto-analyze-checkbox"
           />
           Auto Analyze
         </label>
@@ -120,22 +206,35 @@ const CodeAnalyzer: React.FC = () => {
           className="ml-auto px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
           onClick={handleAnalyze}
           disabled={loading}
+          data-testid="analyze-button"
         >
           {loading ? 'Analyzing...' : 'Analyze'}
         </button>
       </div>
+      
       <CodeEditor
         value={code}
         onChange={handleCodeChange}
         language={language}
         height={350}
         category="analyze"
+        onEditorMounted={(editor) => { editorRef.current = editor; }}
+        data-testid="code-editor"
       />
+      
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-700" data-testid="error-message">
+          <h3 className="font-bold">Error</h3>
+          <p>{error}</p>
+        </div>
+      )}
+      
       <AnalysisResult
         feedback={results}
         loading={loading}
         featureCategory="analyze"
-        onApplySuggestion={handleFeedbackItemClick}
+        onApplySuggestion={handleApplySuggestion}
+        emptyMessage={error ? "Analysis failed" : "Enter some code to analyze"}
       />
     </div>
   );

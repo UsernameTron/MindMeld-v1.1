@@ -1,0 +1,78 @@
+name: Project Board Sync
+
+on:
+  issues:
+    types: [opened, edited, deleted, closed, reopened, labeled, unlabeled]
+  pull_request:
+    types: [opened, edited, closed, reopened, labeled, unlabeled]
+
+jobs:
+  project_board_sync:
+    runs-on: ubuntu-latest
+    name: Sync with Project Board
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Add to Project
+        uses: actions/add-to-project@v0.5.0
+        with:
+          project-url: https://github.com/users/UsernameTron/projects/1
+          github-token: ${{ secrets.PROJECT_ACCESS_TOKEN }}
+
+      - name: Update Project
+        id: update-project
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.PROJECT_ACCESS_TOKEN }}
+          script: |
+            const issue = context.payload.issue || context.payload.pull_request;
+
+            if (!issue) return;
+
+            // Your actual project ID
+            const projectId = 'PVT_kwHOC0Cti84AyJp1';
+
+            // Your Status field ID
+            const statusFieldId = 'PVTSSF_lAHOC0Cti84AyJp1zgoJnKU';
+
+            // Status option IDs
+            const todoOptionId = 'f75ad846';      // Todo -> Use for backlog
+            const inProgressOptionId = '47fc9ee4'; // In Progress -> Use for now/next
+            const doneOptionId = '98236657';      // Done
+
+            let statusOptionId = null;
+
+            if (issue.labels) {
+              if (issue.labels.some(label => label.name === 'backlog')) {
+                statusOptionId = todoOptionId;
+              } else if (issue.labels.some(label => label.name === 'now') ||
+                        issue.labels.some(label => label.name === 'next')) {
+                statusOptionId = inProgressOptionId;
+              }
+            }
+
+            if (issue.state === 'closed') {
+              statusOptionId = doneOptionId;
+            }
+
+            if (statusOptionId) {
+              try {
+                await github.graphql(`
+                  mutation {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: "${projectId}"
+                      itemId: "${issue.node_id}"
+                      fieldId: "${statusFieldId}"
+                      value: { singleSelectOptionId: "${statusOptionId}" }
+                    }) {
+                      projectV2Item {
+                        id
+                      }
+                    }
+                  }
+                `);
+                console.log(`Successfully updated issue status`);
+              } catch (error) {
+                console.error(`Error updating issue: ${error}`);
+              }
+            }

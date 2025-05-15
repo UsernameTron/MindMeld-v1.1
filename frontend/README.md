@@ -114,6 +114,45 @@ This ensures:
 - Easy mocking and assertion of navigation in tests
 - Centralized control for future navigation changes
 
+## Code Analyzer Feature
+
+### Overview
+The Code Analyzer is a powerful tool that helps developers identify issues, optimize performance, and improve code quality across multiple programming languages. It integrates with the backend API to provide real-time feedback on code.
+
+### Features
+- **Multi-language Support**: JavaScript, TypeScript, Python, Java, and C++
+- **Real-time Analysis**: Get instant feedback as you type (with auto-analyze option)
+- **Detailed Feedback**: Identifies bugs, performance issues, security vulnerabilities, and style recommendations
+- **Code Navigation**: Jump directly to problem areas in your code
+- **Suggestion Application**: Apply recommended fixes with a single click
+- **Error Handling**: Graceful degradation when network or server issues occur
+
+### Usage
+1. Navigate to the Code Analyzer page in the navigation menu
+2. Select your programming language from the dropdown
+3. Enter or paste your code in the editor (or use the provided sample code)
+4. The analyzer will automatically analyze your code as you type (if auto-analyze is enabled)
+5. Click the "Analyze" button to manually trigger analysis
+6. Review feedback items in the results panel
+7. Click on feedback items to navigate to the relevant line in your code
+8. Click "Apply" buttons to implement suggested fixes
+
+### Integration
+The Code Analyzer uses the `codeService` which follows the dependency injection pattern:
+
+```typescript
+import { createCodeService } from './services/codeService';
+import { apiClient } from './services/apiClient';
+
+const codeService = createCodeService(apiClient);
+const feedback = await codeService.getCodeFeedback(code, language);
+```
+
+### API Endpoints
+- `POST /api/analyze/code`: Analyzes code and returns detailed feedback
+  - Request: `{ code: string, language: string, options?: Record<string, any> }`
+  - Response: Analysis results with issues, suggestions, and metrics
+
 ## MindMeld Template UI Automation & Testing
 
 ## Overview

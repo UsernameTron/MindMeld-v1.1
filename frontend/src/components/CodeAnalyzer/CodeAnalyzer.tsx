@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import CodeEditor from '../CodeEditor/CodeEditor';
-import AnalysisResult from '../AnalysisResult/AnalysisResult';
+import { AnalysisResult } from '@components/ui/organisms/AnalysisResult';
 import { Button } from '../Button';
 import { createCodeService } from '../../services/codeService';
 import { apiClient } from '../../services/apiClient';
