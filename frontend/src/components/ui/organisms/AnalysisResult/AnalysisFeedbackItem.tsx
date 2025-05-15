@@ -1,9 +1,13 @@
 'use client';
 import React, { useState } from 'react';
-import { cn } from '@utils/cn';
-import { Button } from '@components/atoms/Button';
-
+import { cn } from '../../../../utils/cn';
+import { Button } from '../../../atoms/Button';
 import type { AnalysisFeedback } from './AnalysisResult';
+
+interface AnalysisFeedbackItemProps {
+  feedback: AnalysisFeedback;
+  onApplySuggestion?: (feedback: AnalysisFeedback) => void;
+}
 
 const severityStyles: Record<string, string> = {
   error: 'border-red-400 bg-red-50 text-red-700',
@@ -15,11 +19,6 @@ const severityIcons: Record<string, React.ReactNode> = {
   warning: <svg className="w-5 h-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01M4.93 19h14.14c1.05 0 1.64-1.14 1.14-2.05l-7.07-12.2c-.5-.86-1.78-.86-2.28 0l-7.07 12.2c-.5.91.09 2.05 1.14 2.05z" /></svg>,
   info: <svg className="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><circle cx="12" cy="12" r="10" strokeWidth="2" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 16v-4m0-4h.01" /></svg>,
 };
-
-interface AnalysisFeedbackItemProps {
-  feedback: AnalysisFeedback;
-  onApplySuggestion?: (feedback: AnalysisFeedback) => void;
-}
 
 const AnalysisFeedbackItem: React.FC<AnalysisFeedbackItemProps> = ({ feedback, onApplySuggestion }) => {
   const [expanded, setExpanded] = useState(false);
