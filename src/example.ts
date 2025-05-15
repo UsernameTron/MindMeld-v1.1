@@ -2,6 +2,7 @@ import { promptService } from './services/promptService';
 import { deepResearchTemplate } from './templates/deepResearch';
 
 // Register a template
+// Feature flag respected in registerTemplate
 promptService.registerTemplate(deepResearchTemplate);
 
 // Generate a prompt

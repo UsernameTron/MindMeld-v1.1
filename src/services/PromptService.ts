@@ -11,6 +11,7 @@ import {
 } from '../../types/promptTypes';
 import { formatPromptFromTemplate, validateParameters } from '../utils/promptFormatter';
 import { Logger } from '../utils/logger';
+import { templateFeatureFlags } from '../config/promptTemplates';
 
 export class PromptService {
   private templates: Map<string, PromptTemplate> = new Map();
@@ -21,6 +22,11 @@ export class PromptService {
   }
 
   registerTemplate(template: PromptTemplate): void {
+    // Only register if feature flag is enabled
+    if (templateFeatureFlags[template.id] === false) {
+      this.logger.info(`Template ${template.id} is disabled by feature flag and will not be registered.`);
+      return;
+    }
     if (this.templates.has(template.id)) {
       this.logger.warn(`Template with ID ${template.id} already exists and will be overwritten.`);
     }

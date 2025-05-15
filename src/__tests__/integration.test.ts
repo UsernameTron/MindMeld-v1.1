@@ -69,6 +69,7 @@ describe('Prompt Template System Integration', () => {
     expect(reconvertedTemplate.parameters.length).toBe(2);
 
     // 4. Register with service
+    // Feature flag respected in registerTemplate
     service.registerTemplate(reconvertedTemplate);
     expect(service.getTemplateById('lifecycle-test')).toBeTruthy();
 

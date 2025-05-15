@@ -17,7 +17,16 @@ export interface PromptTemplate {
   format: (params: Record<string, string>) => string;
 }
 
-// Initial template examples
+// Feature flag map for template enable/disable
+export const templateFeatureFlags: Record<string, boolean> = {
+  'deep-research': true,
+  'advanced-reasoning': true,
+  'counterfactual': true,
+  'satirical-voice': true,
+  'pentagram-visual': true,
+};
+
+// Only export enabled templates for registration
 export const promptTemplates: PromptTemplate[] = [
   {
     id: 'deep-research',
@@ -173,4 +182,4 @@ ${params.topic}`
     ],
     format: (params) => `${params.scene}, ${params.style} style, ${params.mood} atmosphere, high detail, 8K resolution`
   }
-]
+].filter(t => templateFeatureFlags[t.id] !== false);

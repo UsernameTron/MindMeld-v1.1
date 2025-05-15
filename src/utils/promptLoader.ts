@@ -82,6 +82,7 @@ function validateAndRegisterTemplate(template: PromptTemplate, filename: string)
       return;
     }
   }
+  // Feature flag respected in registerTemplate
   promptService.registerTemplate(template);
   console.log(`Loaded template: ${template.title}`);
 }

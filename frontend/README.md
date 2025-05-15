@@ -114,6 +114,58 @@ This ensures:
 - Easy mocking and assertion of navigation in tests
 - Centralized control for future navigation changes
 
+## MindMeld Template UI Automation & Testing
+
+## Overview
+This project includes a fully automated Playwright test suite for the MindMeld template system, covering:
+- Visual regression and responsive UI tests (all templates, all screen sizes)
+- End-to-end workflow tests (template selection → parameter input → prompt generation)
+- Performance tests for simultaneous template registrations
+- Template-specific documentation and usage examples
+
+## Running the UI & E2E Tests
+
+From the project root:
+
+```sh
+npx playwright test e2e/playwright/tests/ui/
+npx playwright test e2e/playwright/tests/performance/
+```
+
+- Visual tests are in `e2e/playwright/tests/ui/` (screenshots saved to `screenshots/`)
+- Performance tests are in `e2e/playwright/tests/performance/`
+
+## Template Behaviors & Usage Examples
+
+Each template defines its own parameters, reasoning modes, and output constraints. See `src/templates/*.ts` for details.
+
+### Example: Deep Research Template
+```ts
+import { PromptService } from './services/PromptService';
+import { deepResearchTemplate } from './templates/deepResearchTemplate';
+
+const service = new PromptService([deepResearchTemplate]);
+const prompt = service.formatPrompt('deep-research', { topic: 'AI Ethics', depth: 'academic' });
+console.log(prompt);
+```
+
+- Required: topic, depth
+- Optional: sources, citationStyle
+- Output: Markdown, with citations if selected
+
+### Type Definitions
+- All templates extend `AdvancedPromptTemplate` (see `types/promptTypes.ts`)
+- Parameters, reasoning modes, and output verification are type-checked
+
+## Developer Notes
+- All tests run in CI (see `.github/workflows/ci.yml`)
+- For new templates, add to `src/templates/` and update the test suite
+- Document quirks or special behaviors in `docs/template-ui-automation.md`
+
+---
+
+_Last updated: May 15, 2025_
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

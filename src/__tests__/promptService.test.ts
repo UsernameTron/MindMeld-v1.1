@@ -30,6 +30,7 @@ describe('PromptService', () => {
       formatFnTemplate: 'Template'
     };
     
+    // Feature flag respected in registerTemplate
     service.registerTemplate(basicTemplate);
     service.registerTemplate(advancedTemplate);
     
