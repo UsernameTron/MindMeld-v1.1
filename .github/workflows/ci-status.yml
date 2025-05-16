@@ -1,0 +1,26 @@
+name: CI Status Checks
+on:
+  pull_request:
+    branches: [ main ]
+jobs:
+  report-failures:
+    name: Report GH Actions Failures
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - name: Install dependencies
+        run: npm ci
+      - name: Run ESLint
+        run: npm run lint
+      - name: Run verify-sprint
+        run: npx projectctl verify-sprint --format text
+      - name: Run report-failures
+        run: npx projectctl report-failures --workflow ci-status.yml --branch main --format text --since 1h
+      - name: Run next-action
+        run: npx projectctl next-action --format text
+      - name: Run status
+        run: npx projectctl status --format text
