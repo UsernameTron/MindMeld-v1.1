@@ -26,3 +26,5 @@ jobs:
         run: npx projectctl next-action --format text
       - name: Run status
         run: npx projectctl status --format text
+      - name: Update project status
+        run: npx projectctl update-status --commit
