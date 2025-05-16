@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import CodeAnalyzer from './CodeAnalyzer';
-import { renderWithAuth } from '../../../test-utils/auth-test-utils';
+import { renderWithAuthAndQuery } from '../../../../../test-utils/AuthWrapper';
 import * as codeServiceModule from '../../../../services/codeService';
 
 // Mock code service
@@ -20,56 +20,65 @@ vi.mock('../../../../services/apiClient', () => ({
   apiClient: {}
 }));
 
-// Mock the Monaco editor with a simpler approach for this specific test
+// Import the proper Monaco editor mock from test-utils
+import { MockMonacoEditor } from '../../../../../test-utils/monaco/MonacoMock';
+
+// Mock Monaco editor using the proper test utility
 vi.mock('@monaco-editor/react', () => ({
-  default: ({ value, onChange, language, onMount }: any) => {
-    React.useEffect(() => {
-      if (onMount) {
-        onMount({
-          getValue: () => value,
-          focus: vi.fn(),
-          revealLineInCenter: vi.fn(),
-          setPosition: vi.fn(),
-          setSelection: vi.fn()
-        });
-      }
-    }, [onMount]);
-    return (
-      <div data-testid="monaco-editor" data-language={language}>
-        <textarea
-          data-testid="mock-editor-textarea"
-          value={value || ''}
-          onChange={(e) => onChange?.(e.target.value)}
-        />
-      </div>
-    );
-  }
+  default: MockMonacoEditor,
+  useMonaco: () => ({
+    editor: {
+      defineTheme: vi.fn(),
+      setTheme: vi.fn()
+    }
+  })
 }));
 
 // Mock the CodeEditor component directly
 vi.mock('../CodeEditor', () => ({
-  default: ({ value, onChange, language, onEditorMounted }: any) => {
+  default: function MockCodeEditor({ value, onChange, language, onEditorMounted, height }: any) {
+    // Track editor instance for tests
+    const editorRef = React.useRef<any>(null);
+    
+    // Create editor and call onEditorMounted immediately 
+    // Use immediate effect to avoid act() warnings
     React.useEffect(() => {
-      if (onEditorMounted) {
-        onEditorMounted({
+      if (!editorRef.current) {
+        editorRef.current = {
           getValue: () => value,
           focus: vi.fn(),
           revealLineInCenter: vi.fn(),
           setPosition: vi.fn(),
-          setSelection: vi.fn()
-        });
+          setSelection: vi.fn(),
+          layout: vi.fn()
+        };
       }
-    }, [onEditorMounted]);
+      
+      if (onEditorMounted) {
+        onEditorMounted(editorRef.current);
+      }
+    }, []);
+    
+    // Update the mock editor when the value changes
+    React.useEffect(() => {
+      if (editorRef.current) {
+        editorRef.current.getValue = () => value;
+      }
+    }, [value]);
     
     return (
-      <div data-testid="code-editor" className="mock-code-editor">
-        <div data-testid="monaco-editor" data-language={language}>
-          <textarea
-            data-testid="mock-editor-textarea"
-            value={value || ''}
-            onChange={(e) => onChange?.(e.target.value)}
-          />
-        </div>
+      <div 
+        data-testid="code-editor" 
+        className="mock-code-editor"
+        style={{ height: typeof height === 'number' ? `${height}px` : height }}
+      >
+        <MockMonacoEditor
+          value={value}
+          language={language}
+          onChange={onChange}
+          height={height}
+          options={{ readOnly: false }}
+        />
       </div>
     );
   }
@@ -79,6 +88,42 @@ vi.mock('../CodeEditor', () => ({
 vi.mock('../../../../context/AuthContext', () => ({
   useAuth: () => ({ isAuthenticated: true }),
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+}));
+
+// Mock the AnalysisResult component to properly display errors
+vi.mock('../AnalysisResult', () => ({
+  AnalysisResult: ({ feedback, loading, onApplySuggestion, emptyMessage }: any) => {
+    return (
+      <div data-testid="analysis-result-component">
+        {loading && <div data-testid="analysis-loading">Loading analysis...</div>}
+        {!loading && feedback.length === 0 && (
+          <div data-testid="analysis-empty">{emptyMessage || "No results"}</div>
+        )}
+        {!loading && feedback.length > 0 && (
+          <div>
+            {feedback.map((item: any) => (
+              <div 
+                key={item.id} 
+                data-testid={`feedback-item-${item.id}`}
+                data-severity={item.severity}
+                data-category={item.category}
+              >
+                {item.message}
+                {item.suggestion && (
+                  <button 
+                    onClick={() => onApplySuggestion && onApplySuggestion(item)}
+                    data-testid={`apply-suggestion-${item.id}`}
+                  >
+                    Apply Suggestion
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
 }));
 
 describe('CodeAnalyzer Component Integration Tests', () => {
@@ -94,7 +139,7 @@ describe('CodeAnalyzer Component Integration Tests', () => {
   });
   
   it('renders the component with basic elements', () => {
-    renderWithAuth(<CodeAnalyzer />);
+    renderWithAuthAndQuery(<CodeAnalyzer />);
     
     // Check that core UI elements are rendered
     expect(screen.getByRole('button', { name: /analyze/i })).toBeInTheDocument();
@@ -105,7 +150,7 @@ describe('CodeAnalyzer Component Integration Tests', () => {
   });
   
   it('initializes with sample code based on selected language', () => {
-    renderWithAuth(<CodeAnalyzer />);
+    renderWithAuthAndQuery(<CodeAnalyzer />);
     
     // The component should have JavaScript sample by default
     const editorTextarea = screen.getByTestId('mock-editor-textarea');
@@ -114,7 +159,7 @@ describe('CodeAnalyzer Component Integration Tests', () => {
   
   it('changes language and loads appropriate sample code', async () => {
     mockGetCodeFeedback.mockResolvedValue([]);
-    renderWithAuth(<CodeAnalyzer />);
+    renderWithAuthAndQuery(<CodeAnalyzer />);
     
     // Change language to Python
     const languageSelector = screen.getByRole('combobox');
@@ -134,11 +179,24 @@ describe('CodeAnalyzer Component Integration Tests', () => {
   
   it('allows code editor input and triggers auto-analysis', async () => {
     mockGetCodeFeedback.mockResolvedValue([]);
-    renderWithAuth(<CodeAnalyzer />);
+    renderWithAuthAndQuery(<CodeAnalyzer />);
+    
+    // Wait for initial render to complete
+    await waitFor(() => {
+      expect(screen.getByTestId('code-editor')).toBeInTheDocument();
+    });
+    
+    // Clear initial auto-analyze call
+    mockGetCodeFeedback.mockClear();
     
     // Get the editor and enter some code
     const editor = screen.getByTestId('mock-editor-textarea');
     fireEvent.change(editor, { target: { value: 'const testVar = 5;' } });
+    
+    // Use fake timers to control debounce timing
+    vi.useFakeTimers();
+    vi.advanceTimersByTime(1000);
+    vi.useRealTimers();
     
     // Verify auto-analysis was triggered
     await waitFor(() => {
@@ -151,7 +209,12 @@ describe('CodeAnalyzer Component Integration Tests', () => {
   
   it('does not auto-analyze when checkbox is unchecked', async () => {
     mockGetCodeFeedback.mockResolvedValue([]);
-    renderWithAuth(<CodeAnalyzer />);
+    renderWithAuthAndQuery(<CodeAnalyzer />);
+    
+    // Wait for initial render to complete
+    await waitFor(() => {
+      expect(screen.getByTestId('code-editor')).toBeInTheDocument();
+    });
     
     // Uncheck auto-analyze
     const autoAnalyzeCheckbox = screen.getByRole('checkbox');
@@ -164,8 +227,12 @@ describe('CodeAnalyzer Component Integration Tests', () => {
     const editor = screen.getByTestId('mock-editor-textarea');
     fireEvent.change(editor, { target: { value: 'const noAutoAnalyze = true;' } });
     
-    // Give time for debounce
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Use fake timers to avoid real timeouts in tests
+    vi.useFakeTimers();
+    
+    // Fast-forward past debounce delay
+    vi.advanceTimersByTime(1000);
+    vi.useRealTimers();
     
     // Verify service wasn't called
     expect(mockGetCodeFeedback).not.toHaveBeenCalled();
@@ -178,7 +245,7 @@ describe('CodeAnalyzer Component Integration Tests', () => {
     ];
     mockGetCodeFeedback.mockResolvedValue(mockFeedbackResponse);
     
-    renderWithAuth(<CodeAnalyzer />);
+    renderWithAuthAndQuery(<CodeAnalyzer />);
     
     // Clear initial auto-analyze call
     mockGetCodeFeedback.mockClear();
@@ -195,29 +262,49 @@ describe('CodeAnalyzer Component Integration Tests', () => {
   });
   
   it('displays error message when API fails', async () => {
-    mockGetCodeFeedback.mockRejectedValue(new Error('API connection failed'));
+    // Setup error response with specific test message
+    const errorMessage = 'API connection failed';
+    mockGetCodeFeedback.mockRejectedValue(new Error(errorMessage));
     
-    renderWithAuth(<CodeAnalyzer />);
+    renderWithAuthAndQuery(<CodeAnalyzer />);
+    
+    // Wait for initial render
+    await waitFor(() => {
+      expect(screen.getByRole('button', { name: /analyze/i })).toBeInTheDocument();
+    });
+    
+    // Clear initial calls
+    mockGetCodeFeedback.mockClear();
+    mockGetCodeFeedback.mockRejectedValue(new Error(errorMessage));
     
     // Click the analyze button
     const analyzeButton = screen.getByRole('button', { name: /analyze/i });
     fireEvent.click(analyzeButton);
     
-    // Look for error message
+    // Verify the service was called
     await waitFor(() => {
       expect(mockGetCodeFeedback).toHaveBeenCalled();
-      // The implementation should return error feedback instead of throwing
+    });
+    
+    // Wait for error state to be rendered - the implementation converts errors to feedback items
+    // so we need to look for elements that would contain our error message
+    await waitFor(() => {
+      // The AnalysisResult component should receive the error feedback
+      const errorFeedbacks = screen.getAllByText(content => 
+        content.includes(errorMessage)
+      );
+      expect(errorFeedbacks.length).toBeGreaterThan(0);
     });
   });
   
   it('handles empty code gracefully', async () => {
     mockGetCodeFeedback.mockResolvedValue([]);
     
-    renderWithAuth(<CodeAnalyzer initialCode="" />);
+    renderWithAuthAndQuery(<CodeAnalyzer initialCode="" />);
     
     // Should not trigger initial analysis with empty code
-    await waitFor(() => {
-      expect(mockGetCodeFeedback).not.toHaveBeenCalled();
-    });
+    // Wait a bit to make sure no calls happen
+    await new Promise(resolve => setTimeout(resolve, 100));
+    expect(mockGetCodeFeedback).not.toHaveBeenCalled();
   });
 });

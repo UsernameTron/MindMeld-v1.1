@@ -4,6 +4,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import CodeAnalyzer from './CodeAnalyzer';
 import type { CodeAnalysisResult } from '../../services/codeService';
+import { renderWithAuthAndQuery } from '../../../test-utils/AuthWrapper';
 
 vi.mock('../../services/codeService', () => {
   return {
@@ -47,15 +48,18 @@ vi.mock('../AnalysisResult/AnalysisResult.tsx', () => ({
 
 describe('CodeAnalyzer', () => {
   let mockAnalyzeCode: ReturnType<typeof vi.fn>;
-  let mockCodeService: { analyzeCode: (code: string, language: string) => Promise<CodeAnalysisResult> };
+  let mockCodeService: { analyzeCode: (code: string, language: string) => Promise<CodeAnalysisResult>, getCodeFeedback: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     mockAnalyzeCode = vi.fn();
-    mockCodeService = { analyzeCode: mockAnalyzeCode };
+    mockCodeService = {
+      analyzeCode: mockAnalyzeCode,
+      getCodeFeedback: vi.fn()
+    };
   });
 
   it('renders with code editor and analysis panels', () => {
-    render(<CodeAnalyzer codeService={mockCodeService} />);
+    renderWithAuthAndQuery(<CodeAnalyzer codeService={mockCodeService} />);
     expect(screen.getByTestId('code-editor-panel')).toBeTruthy();
     expect(screen.getByTestId('analysis-result-panel')).toBeTruthy();
     expect(screen.getByTestId('analyze-btn')).toBeTruthy();
@@ -68,7 +72,7 @@ describe('CodeAnalyzer', () => {
       recommendations: []
     });
 
-    render(<CodeAnalyzer codeService={mockCodeService} />);
+    renderWithAuthAndQuery(<CodeAnalyzer codeService={mockCodeService} />);
     fireEvent.click(screen.getByTestId('analyze-btn'));
 
     await waitFor(() => {
@@ -85,7 +89,7 @@ describe('CodeAnalyzer', () => {
       }), 100))
     );
 
-    render(<CodeAnalyzer codeService={mockCodeService} />);
+    renderWithAuthAndQuery(<CodeAnalyzer codeService={mockCodeService} />);
     fireEvent.click(screen.getByTestId('analyze-btn'));
 
     expect(screen.getByTestId('analyze-btn')?.getAttribute("aria-busy")).toBe("true");
@@ -96,14 +100,21 @@ describe('CodeAnalyzer', () => {
   });
 
   it('sets error state when analysis fails', async () => {
-    mockAnalyzeCode.mockRejectedValue(new Error('Analysis failed'));
+    const errorMessage = 'Analysis failed';
+    mockAnalyzeCode.mockRejectedValue(new Error(errorMessage));
 
-    render(<CodeAnalyzer codeService={mockCodeService} />);
+    renderWithAuthAndQuery(<CodeAnalyzer codeService={mockCodeService} />);
     fireEvent.click(screen.getByTestId('analyze-btn'));
 
-    // Verify the API call was made and failed (error state set)
+    // Verify the API call was made
     await waitFor(() => {
       expect(mockAnalyzeCode).toHaveBeenCalled();
+    });
+    
+    // Wait for error state to be set and error feedback to be displayed
+    await waitFor(() => {
+      const mockAnalysisResult = screen.getByTestId('mock-analysis-result');
+      expect(mockAnalysisResult.textContent).toContain(errorMessage);
     });
   });
 

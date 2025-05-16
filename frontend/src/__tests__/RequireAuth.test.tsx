@@ -10,6 +10,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { RequireAuth } from '../../src/components/auth/RequireAuth';
 import { mockAuthenticatedUser, mockUnauthenticatedUser, mockTokenValidation } from '../test-utils/auth-test-utils';
 import { authService } from '@/services/authService';
+import { renderWithAuth } from '../../test-utils';
 
 // Helper to get the mocked push function from the __mocks__
 const getMockedPush = () => {

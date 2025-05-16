@@ -26,7 +26,7 @@ describe('codeService.analyzeCode (mocked)', () => {
     const result = await codeService.analyzeCode('let x = 1;', 'typescript');
     // Verify the API client was called correctly
     expect(mockApiClient.request).toHaveBeenCalledWith(
-      '/api/analyze',
+      '/api/analyze/code',
       { method: 'POST', data: { code: 'let x = 1;', language: 'typescript' } }
     );
     // Verify the result

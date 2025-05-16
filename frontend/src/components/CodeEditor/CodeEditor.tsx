@@ -2,9 +2,10 @@
 import React, { Suspense, useState, useCallback, useEffect, useRef } from 'react';
 import { debounce } from 'lodash';
 import { cn } from '../../utils/cn';
-import { LoadingIndicator } from '../LoadingIndicator/LoadingIndicator';
-import { FeatureErrorBoundary } from '../FeatureErrorBoundary/FeatureErrorBoundary';
-import { ErrorDisplay } from '../ErrorDisplay/ErrorDisplay';
+import { LoadingIndicator } from '../ui/molecules/LoadingIndicator/LoadingIndicator';
+import { FeatureErrorBoundary } from '../ui/organisms/FeatureErrorBoundary/FeatureErrorBoundary';
+import { ErrorDisplay } from '../ui/molecules/ErrorDisplay/ErrorDisplay';
+import type { SupportedLanguage } from '../../types/code';
 
 const MonacoEditor = React.lazy(() => import('@monaco-editor/react').then(mod => ({ default: (mod.default as unknown as React.ComponentType<any>) })));
 
@@ -13,8 +14,6 @@ declare global {
     monaco?: typeof import('monaco-editor');
   }
 }
-
-export type SupportedLanguage = 'javascript' | 'typescript' | 'python' | 'java' | 'go' | 'csharp';
 
 export interface CodeEditorProps {
   initialValue?: string;

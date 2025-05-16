@@ -119,6 +119,15 @@ export const authService = {
   
   // Expose apiClient
   apiClient,
+  
+  // Add getUserProfile mock to match real service
+  /**
+   * Mock getUserProfile returns the test user or stored user
+   */
+  getUserProfile: vi.fn().mockImplementation(() => {
+    if (storedUser) return Promise.resolve(storedUser);
+    return Promise.resolve(TEST_USER);
+  }),
 };
 
 // Patch login mock to always have .mockResolvedValueOnce and .mockRejectedValueOnce
