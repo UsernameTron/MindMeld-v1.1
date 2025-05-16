@@ -16,6 +16,8 @@ jobs:
         run: npm ci
       - name: Run ESLint
         run: npm run lint
+      - name: Enforce auto-fix
+        run: npm run lint:fix -- --check
       - name: Run verify-sprint
         run: npx projectctl verify-sprint --format text
       - name: Run report-failures
