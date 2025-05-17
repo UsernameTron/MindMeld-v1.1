@@ -1,0 +1,62 @@
+# .github/workflows/generate-and-run-tests.yml
+name: Generate & Run Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  generate-and-test:
+    runs-on: ubuntu-latest
+    env:
+      OLLAMA_MODEL: phi3.5:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install ollama pytest
+
+      - name: Start Ollama daemon
+        run: |
+          # if you have Ollama CLI, this will spin it up in background
+          ollama serve &
+          # wait for it to be ready
+          for i in {1..10}; do
+            ollama list && break
+            sleep 1
+          done
+
+      - name: Validate Ollama model
+        run: |
+          if ! ollama list | grep -q "${OLLAMA_MODEL}"; then
+            echo "Model $OLLAMA_MODEL not found. Exiting."
+            exit 1
+          fi
+
+      - name: Generate unit tests with agent
+        run: |
+          python3 run_agent.py test_generator \
+            "Generate unit tests for all modules under src/" \
+            src/ \
+            --model "${OLLAMA_MODEL}" \
+            --output-dir=generated_tests \
+            --verbose
+
+      - name: Copy generated tests into test suite
+        run: |
+          mkdir -p src/tests
+          cp generated_tests/*.py src/tests/ || echo "No tests generated."
+
+      - name: Run tests
+        run: |
+          pytest --maxfail=1 --disable-warnings -q src/tests
