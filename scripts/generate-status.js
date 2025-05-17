@@ -10,7 +10,7 @@ const components = [
   { name: 'ErrorDisplay', sprint: 'Sprint 2', category: 'molecule' },
   { name: 'FeatureErrorBoundary', sprint: 'Sprint 2', category: 'organism' },
   { name: 'CodeEditor', sprint: 'Sprint 3', category: 'organism' },
-  { name: 'AnalysisResult', sprint: 'Sprint 3', category: 'organism' }
+  { name: 'AnalysisResult', sprint: 'Sprint 3', category: 'organism' },
 ];
 
 // Implementation status
@@ -20,7 +20,7 @@ const results = components.map(component => {
     `./frontend/src/components/${component.name}`,
     `./frontend/src/components/ui/${component.category}s/${component.name}`,
     `./frontend/src/components/ui/${component.name}`,
-    `./frontend/src/components/${component.category}s/${component.name}`
+    `./frontend/src/components/${component.category}s/${component.name}`,
   ];
   
   let componentPath = null;
@@ -41,7 +41,7 @@ const results = components.map(component => {
     tested,
     documented,
     status: implemented && tested && documented ? 'Complete' : 
-           implemented ? 'Partial' : 'Not Implemented'
+           implemented ? 'Partial' : 'Not Implemented',
   };
 });
 

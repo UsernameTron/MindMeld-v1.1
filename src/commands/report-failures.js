@@ -11,12 +11,12 @@ export async function runReportFailures(options) {
   const status = options.status;
   const since = options.since;
   const format = options.format;
-  let ghArgs = [
+  const ghArgs = [
     'run', 'list',
     '--workflow', workflow,
     '--branch', branch,
     '--status', status,
-    '--json', 'conclusion,name,htmlUrl'
+    '--json', 'conclusion,name,htmlUrl',
   ];
   if (since) ghArgs.push('--since', since);
   let result;

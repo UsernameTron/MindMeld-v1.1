@@ -6,4 +6,7 @@ module.exports = {
     'promptService\\.test\\.js$', // skip Vitest test
   ],
   testEnvironment: 'node',
+  transform: {
+    '^.+\\.js$': 'babel-jest'
+  },
 };

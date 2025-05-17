@@ -1,13 +1,6 @@
-import { FlatCompat } from '@eslint/eslintrc';
+import { defineConfig } from 'eslint/config';
 
-const compat = new FlatCompat({
-  baseDirectory: process.cwd(),
-  recommendedConfig: true
-});
-
-export default [
-  // Load ESLint’s recommended rules and Prettier integration
-  ...compat.extends('eslint:recommended', 'plugin:prettier/recommended'),
+export default defineConfig([
   {
     ignores: ['node_modules/**', 'dist/**'],
     languageOptions: {
@@ -23,4 +16,4 @@ export default [
       'prefer-const': 'error'
     }
   }
-];
+]);

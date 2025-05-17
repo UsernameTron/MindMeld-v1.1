@@ -42,7 +42,7 @@ const commands = {
       const { runReportFailures } = require('../src/commands/report-failures');
       const code = await runReportFailures(options);
       process.exit(code);
-    }
+    },
   },
   'verify-sprint': {
     desc: 'Check if all sprint components are complete',
@@ -70,7 +70,7 @@ const commands = {
         format: options.format,
       });
       process.exit(code);
-    }
+    },
   },
   'next-action': {
     desc: 'Determine next priority action',
@@ -78,7 +78,7 @@ const commands = {
       // Placeholder: migrate next-action.sh logic here
       console.log('Not yet implemented: next-action');
       process.exit(2);
-    }
+    },
   },
   'status': {
     desc: 'Show project status and completion %',
@@ -86,7 +86,7 @@ const commands = {
       // Placeholder: migrate push.sh status logic here
       console.log('Not yet implemented: status');
       process.exit(2);
-    }
+    },
   },
   'test': {
     desc: 'Run projectctl unit tests',
@@ -96,8 +96,8 @@ const commands = {
       } catch (e) {
         process.exit(1);
       }
-    }
-  }
+    },
+  },
 };
 
 const y = yargs(hideBin(process.argv))

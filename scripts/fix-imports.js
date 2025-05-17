@@ -30,7 +30,7 @@ files.forEach(file => {
         // Replace import path with extension
         const newContent = content.replace(
           `from '${importPath}'`,
-          `from '${importPath}${ext}'`
+          `from '${importPath}${ext}'`,
         );
         if (newContent !== content) {
           content = newContent;

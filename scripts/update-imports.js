@@ -14,7 +14,7 @@ if (!component || !category) {
 
 // Find all TypeScript/TSX files
 const files = glob.sync('./frontend/src/**/*.{ts,tsx}', {
-  ignore: ['**/node_modules/**', '**/dist/**']
+  ignore: ['**/node_modules/**', '**/dist/**'],
 });
 
 // Process each file
@@ -34,7 +34,7 @@ files.forEach(file => {
     // Replace the import statement
     newContent = newContent.replace(
       `import ${importName} from '${oldPath}'`,
-      `import ${importName} from '${newPath}'`
+      `import ${importName} from '${newPath}'`,
     );
     updated = true;
   }
