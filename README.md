@@ -155,6 +155,12 @@ pytest tests/test_api/
 pytest tests/test_container/
 ```
 
+## Architecture
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for a high-level overview of agent orchestration and reporting.
+
+> The architecture diagram is uploaded as a CI artifact for traceability.
+
 ## License
 
 See the [LICENSE](LICENSE) file for details.

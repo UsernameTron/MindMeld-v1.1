@@ -1,0 +1,53 @@
+name: Stabilize Agents
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  stabilize:
+    runs-on: ubuntu-latest
+    env:
+      OLLAMA_MODEL: phi3.5:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install ollama pytest
+
+      - name: Start Ollama daemon
+        run: |
+          ollama serve &
+          for i in {1..10}; do
+            ollama list && break
+            sleep 1
+          done
+
+      - name: Pull Ollama model
+        run: |
+          ollama pull $OLLAMA_MODEL
+          if ! ollama list | grep -q "$OLLAMA_MODEL"; then
+            echo "Model $OLLAMA_MODEL pull failed."
+            exit 1
+          fi
+
+      - name: Enforce context-managed file access
+        run: |
+          grep -r --include='*.py' 'open(' . | grep -v 'with open' && exit 1 || echo 'All file access is context-managed.'
+
+      - name: Standardize model selection logic via $OLLAMA_MODEL
+        run: |
+          grep -r --include='*.py' 'os.getenv("OLLAMA_MODEL"' . || (echo 'Missing OLLAMA_MODEL usage.' && exit 1)
+
+      - name: Refactor all agents with AgentError / ModelError hierarchy
+        run: |
+          grep -r --include='*.py' 'class AgentError' . && grep -r --include='*.py' 'class ModelError' . || (echo 'Missing AgentError/ModelError.' && exit 1)

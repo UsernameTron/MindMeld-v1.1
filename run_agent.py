@@ -6,6 +6,7 @@ import jsonschema
 import time
 import os
 import requests
+import platform
 from packages.agents.AgentFactory import AGENT_REGISTRY
 
 # load the schema once
@@ -57,6 +58,7 @@ try:
 except TypeError:
     agent = creator() if callable(creator) else creator
 
+start_time = time.time()
 try:
     # If this is the dependency_agent, call analyze_deps directly
     if hasattr(agent, 'analyze_deps') and name == "dependency_agent":
@@ -76,13 +78,23 @@ except Exception as e:
 output_dir.mkdir(parents=True, exist_ok=True)
 
 # Add metadata to the result if it's an object
-timestamp = int(time.time())
+end_time = time.time()
+timestamp = int(end_time)
 if isinstance(result, dict):
-    result["metadata"] = result.get("metadata", {})
-    result["metadata"]["agent"] = name
-    result["metadata"]["timestamp"] = timestamp
-    result["metadata"]["payload"] = payload[:200]  # Save the input (truncated if too long)
-
+    result["metadata"] = {
+        "agent": name,
+        "timestamp": timestamp,
+        "payload": payload[:200],
+        "runtime_seconds": end_time - start_time,
+        "system_info": {
+            "os": platform.system(),
+            "python_version": platform.python_version(),
+            "cpu_count": os.cpu_count(),
+        },
+        "model_info": {
+            "name": os.getenv("OLLAMA_MODEL", "phi3.5:latest"),
+        }
+    }
 report_path = output_dir / f"{name}_{timestamp}.json"
 with open(report_path, "w") as f:
     if isinstance(result, (dict, list)):

@@ -43,6 +43,14 @@ jobs:
             exit 1
           fi
 
+      - name: Pull Ollama model
+        run: |
+          ollama pull $OLLAMA_MODEL
+          if ! ollama list | grep -q "$OLLAMA_MODEL"; then
+            echo "Model $OLLAMA_MODEL pull failed."
+            exit 1
+          fi
+
       - name: Generate unit tests with agent
         run: |
           python3 run_agent.py test_generator \
