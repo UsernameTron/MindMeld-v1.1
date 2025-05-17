@@ -51,11 +51,13 @@ def load_schema():
             "properties": {
                 "agent": {"type": "string"},
                 "status": {"type": "string", "enum": ["success", "error"]},
-                "metadata": {"type": "object"}
-            }
+                "metadata": {"type": "object"},
+            },
         }
 
+
 REPORT_SCHEMA = load_schema()
+
 
 def get_system_info():
     """Get system information for metadata."""
@@ -65,15 +67,17 @@ def get_system_info():
         "cpu_count": os.cpu_count(),
     }
 
+
 def get_model_info():
     """Get model information for metadata."""
     return {
         "name": os.getenv("OLLAMA_MODEL", "phi3.5:latest"),
         "config": {
             "temperature": float(os.getenv("TEMPERATURE", "0.7")),
-            "max_tokens": int(os.getenv("MAX_TOKENS", "2048"))
-        }
+            "max_tokens": int(os.getenv("MAX_TOKENS", "2048")),
+        },
     }
+
 
 def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
     """
@@ -98,16 +102,13 @@ def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
         return {
             "agent": agent_name,
             "status": "error",
-            "error": {
-                "message": "Empty payload provided",
-                "type": "ValidationError"
-            },
+            "error": {"message": "Empty payload provided", "type": "ValidationError"},
             "metadata": {
                 "agent": agent_name,
                 "timestamp": int(time.time()),
                 "system_info": get_system_info(),
-                "model_info": get_model_info()
-            }
+                "model_info": get_model_info(),
+            },
         }
 
     # Validate file input
@@ -119,14 +120,14 @@ def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
                 "status": "error",
                 "error": {
                     "message": f"File not found: {payload}",
-                    "type": "ValidationError"
+                    "type": "ValidationError",
                 },
                 "metadata": {
                     "agent": agent_name,
                     "timestamp": int(time.time()),
                     "system_info": get_system_info(),
-                    "model_info": get_model_info()
-                }
+                    "model_info": get_model_info(),
+                },
             }
         if path.is_dir():
             return {
@@ -134,14 +135,14 @@ def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
                 "status": "error",
                 "error": {
                     "message": f"Expected file path but received directory: {payload}",
-                    "type": "ValidationError"
+                    "type": "ValidationError",
                 },
                 "metadata": {
                     "agent": agent_name,
                     "timestamp": int(time.time()),
                     "system_info": get_system_info(),
-                    "model_info": get_model_info()
-                }
+                    "model_info": get_model_info(),
+                },
             }
 
     # Validate directory input
@@ -153,14 +154,14 @@ def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
                 "status": "error",
                 "error": {
                     "message": f"Directory not found: {payload}",
-                    "type": "ValidationError"
+                    "type": "ValidationError",
                 },
                 "metadata": {
                     "agent": agent_name,
                     "timestamp": int(time.time()),
                     "system_info": get_system_info(),
-                    "model_info": get_model_info()
-                }
+                    "model_info": get_model_info(),
+                },
             }
         if not path.is_dir():
             return {
@@ -168,14 +169,14 @@ def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
                 "status": "error",
                 "error": {
                     "message": f"Expected directory path but received file: {payload}",
-                    "type": "ValidationError"
+                    "type": "ValidationError",
                 },
                 "metadata": {
                     "agent": agent_name,
                     "timestamp": int(time.time()),
                     "system_info": get_system_info(),
-                    "model_info": get_model_info()
-                }
+                    "model_info": get_model_info(),
+                },
             }
 
     # Validate integer input
@@ -188,18 +189,19 @@ def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
                 "status": "error",
                 "error": {
                     "message": f"Agent {agent_name} expected integer input but received: {payload}",
-                    "type": "ValidationError"
+                    "type": "ValidationError",
                 },
                 "metadata": {
                     "agent": agent_name,
                     "timestamp": int(time.time()),
                     "system_info": get_system_info(),
-                    "model_info": get_model_info()
-                }
+                    "model_info": get_model_info(),
+                },
             }
 
     # All validation passed
     return None
+
 
 def check_model_availability(model_name="phi3.5:latest"):
     """Check if required model is available using ModelManager."""
@@ -213,7 +215,15 @@ def check_model_availability(model_name="phi3.5:latest"):
         logger.error(f"Error checking model availability: {str(e)}")
         return False
 
-def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp: int, runtime_seconds: float, job_id: str) -> Dict[str, Any]:
+
+def normalize_agent_output(
+    result: Any,
+    agent_name: str,
+    payload: str,
+    timestamp: int,
+    runtime_seconds: float,
+    job_id: str,
+) -> Dict[str, Any]:
     """
     Normalize the agent output to conform to the schema using schema validator.
     """
@@ -225,7 +235,7 @@ def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp
             payload=payload,
             timestamp=timestamp,
             runtime_seconds=runtime_seconds,
-            job_id=job_id
+            job_id=job_id,
         )
     except ImportError:
         # Fall back to original implementation if module not available
@@ -237,7 +247,7 @@ def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp
             "runtime_seconds": runtime_seconds,
             "job_id": job_id,
             "system_info": get_system_info(),
-            "model_info": get_model_info()
+            "model_info": get_model_info(),
         }
 
     # For string results (likely errors)
@@ -246,14 +256,11 @@ def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp
             return {
                 "agent": agent_name,
                 "status": "error",
-                "error": {
-                    "message": result,
-                    "type": "AgentError"
-                },
+                "error": {"message": result, "type": "AgentError"},
                 "timestamp": timestamp,
                 "payload": payload,
                 "runtime_seconds": runtime_seconds,
-                "metadata": metadata
+                "metadata": metadata,
             }
         else:
             return {
@@ -263,7 +270,7 @@ def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp
                 "timestamp": timestamp,
                 "payload": payload,
                 "runtime_seconds": runtime_seconds,
-                "metadata": metadata
+                "metadata": metadata,
             }
 
     # For dictionary results
@@ -272,7 +279,7 @@ def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp
             "agent": agent_name,
             "timestamp": timestamp,
             "payload": payload,
-            "runtime_seconds": runtime_seconds
+            "runtime_seconds": runtime_seconds,
         }
 
         # Copy over metadata if it exists, merge with our metadata
@@ -301,19 +308,29 @@ def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp
         # For error status, ensure error object exists
         if normalized.get("status") == "error" and "error" not in normalized:
             error_msg = result.get("error", "Unknown error")
-            normalized["error"] = {
-                "message": str(error_msg),
-                "type": "AgentError"
-            }
+            normalized["error"] = {"message": str(error_msg), "type": "AgentError"}
 
         # Copy all other fields to data
-        data_fields = {k: v for k, v in result.items()
-                      if k not in ["agent", "status", "timestamp", "payload",
-                                  "runtime_seconds", "metadata", "error"]}
+        data_fields = {
+            k: v
+            for k, v in result.items()
+            if k
+            not in [
+                "agent",
+                "status",
+                "timestamp",
+                "payload",
+                "runtime_seconds",
+                "metadata",
+                "error",
+            ]
+        }
         if data_fields:
             normalized["data"] = data_fields
         elif "data" not in normalized and normalized.get("status") == "success":
-            normalized["data"] = {"result": "Agent executed without specific data output"}
+            normalized["data"] = {
+                "result": "Agent executed without specific data output"
+            }
 
         return normalized
 
@@ -325,17 +342,22 @@ def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp
         "timestamp": timestamp,
         "payload": payload,
         "runtime_seconds": runtime_seconds,
-        "metadata": metadata
+        "metadata": metadata,
     }
+
 
 def main():
     """Run an agent from the command line."""
     # Parse command line arguments
     parser = argparse.ArgumentParser(description="Run an agent from the command line")
     parser.add_argument("agent_name", help="Name of the agent to run")
-    parser.add_argument("payload", help="Input for the agent (file path, directory path, etc.)")
+    parser.add_argument(
+        "payload", help="Input for the agent (file path, directory path, etc.)"
+    )
     parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
-    parser.add_argument("--output-dir", default="reports", help="Directory to save the report in")
+    parser.add_argument(
+        "--output-dir", default="reports", help="Directory to save the report in"
+    )
     parser.add_argument("--model", help="Override the default model")
     parser.add_argument("--list", action="store_true", help="List available agents")
 
@@ -376,7 +398,9 @@ def main():
     if validation_result:
         # Input validation failed, write the error report
         safe_file_write(report_path, json.dumps(validation_result, indent=2))
-        print(f"❌ Input validation failed: {validation_result.get('error', {}).get('message', 'Unknown error')}")
+        print(
+            f"❌ Input validation failed: {validation_result.get('error', {}).get('message', 'Unknown error')}"
+        )
         return 1
 
     # Check if agent exists in registry
@@ -384,10 +408,7 @@ def main():
         error_result = {
             "agent": name,
             "status": "error",
-            "error": {
-                "message": f"Unknown agent: {name}",
-                "type": "ImportError"
-            },
+            "error": {"message": f"Unknown agent: {name}", "type": "ImportError"},
             "timestamp": timestamp,
             "payload": payload,
             "metadata": {
@@ -395,8 +416,8 @@ def main():
                 "timestamp": timestamp,
                 "job_id": job_id,
                 "system_info": get_system_info(),
-                "model_info": get_model_info()
-            }
+                "model_info": get_model_info(),
+            },
         }
         safe_file_write(report_path, json.dumps(error_result, indent=2))
         print(f"❌ Unknown agent: {name}")
@@ -405,7 +426,11 @@ def main():
     # Check model availability for LLM-dependent agents
     if name in model_manager.get_llm_dependent_agents():
         # Get the model for this agent (either from registry or default)
-        model_name = args.model or model_manager.get_agent_model(name) or os.environ.get("OLLAMA_MODEL", "phi3.5:latest")
+        model_name = (
+            args.model
+            or model_manager.get_agent_model(name)
+            or os.environ.get("OLLAMA_MODEL", "phi3.5:latest")
+        )
 
         # Try to ensure the model is available (with auto-pull if configured)
         if not model_manager.ensure_model_available(model_name):
@@ -414,7 +439,7 @@ def main():
                 "status": "error",
                 "error": {
                     "message": f"Required model not available: {model_name}",
-                    "type": "ModelUnavailableError"
+                    "type": "ModelUnavailableError",
                 },
                 "timestamp": timestamp,
                 "payload": payload,
@@ -423,8 +448,8 @@ def main():
                     "timestamp": timestamp,
                     "job_id": job_id,
                     "system_info": get_system_info(),
-                    "model_info": {"name": model_name}
-                }
+                    "model_info": {"name": model_name},
+                },
             }
             safe_file_write(report_path, json.dumps(error_result, indent=2))
             print(f"❌ Model not available: {model_name}")
@@ -434,7 +459,7 @@ def main():
                 "status": "error",
                 "error": {
                     "message": f"Required model not available: {model_name}",
-                    "type": "ModelUnavailableError"
+                    "type": "ModelUnavailableError",
                 },
                 "timestamp": timestamp,
                 "payload": payload,
@@ -443,8 +468,8 @@ def main():
                     "timestamp": timestamp,
                     "job_id": job_id,
                     "system_info": get_system_info(),
-                    "model_info": {"name": model_name}
-                }
+                    "model_info": {"name": model_name},
+                },
             }
             with open(report_path, "w") as f:
                 json.dump(error_result, f, indent=2)
@@ -465,7 +490,7 @@ def main():
             "status": "error",
             "error": {
                 "message": f"Failed to create agent {name}: {str(e)}",
-                "type": e.__class__.__name__
+                "type": e.__class__.__name__,
             },
             "timestamp": timestamp,
             "payload": payload,
@@ -474,8 +499,8 @@ def main():
                 "timestamp": timestamp,
                 "job_id": job_id,
                 "system_info": get_system_info(),
-                "model_info": get_model_info()
-            }
+                "model_info": get_model_info(),
+            },
         }
         with open(report_path, "w") as f:
             json.dump(error_result, f, indent=2)
@@ -491,10 +516,10 @@ def main():
             # Define a function for executing agent with retry capabilities
             @retry_on_llm_error(max_retries=3, delay=1.0, backoff_factor=2.0)
             def execute_agent():
-                if hasattr(agent, 'analyze_deps') and name == "dependency_agent":
+                if hasattr(agent, "analyze_deps") and name == "dependency_agent":
                     verbose = "--verbose" in sys.argv
                     return agent.analyze_deps(payload, verbose)
-                elif hasattr(agent, 'run'):
+                elif hasattr(agent, "run"):
                     try:
                         return agent.run(payload)
                     except TypeError:
@@ -532,8 +557,8 @@ def main():
                     "timestamp": timestamp,
                     "job_id": job_id,
                     "system_info": get_system_info(),
-                    "model_info": get_model_info()
-                }
+                    "model_info": get_model_info(),
+                },
             }
 
             # Use safe_file_write to write the error report
@@ -551,13 +576,14 @@ def main():
         from utils.schema_validator import (
             normalize_agent_output as normalize_schema_output,
         )
+
         normalized_result = normalize_schema_output(
             output=result,
             agent_name=name,
             payload=payload,
             timestamp=timestamp,
             runtime_seconds=runtime_seconds,
-            job_id=job_id
+            job_id=job_id,
         )
     except ImportError:
         # Fall back to local normalization if module not available
@@ -569,7 +595,10 @@ def main():
     try:
         # Use schema validator to validate output
         from utils.schema_validator import validate_agent_output
-        validation_success, validation_error = validate_agent_output(normalized_result, REPORT_SCHEMA)
+
+        validation_success, validation_error = validate_agent_output(
+            normalized_result, REPORT_SCHEMA
+        )
 
         if not validation_success:
             # Add validation error but don't fail
@@ -598,6 +627,7 @@ def main():
         print("⚠️ Note: Output required schema normalization")
 
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
