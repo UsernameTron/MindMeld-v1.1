@@ -1,0 +1,25 @@
+{
+  "status": "success",
+  "metadata": {
+    "agent": "PerformanceProfilerAgent",
+    "timestamp": 1747494424,
+    "payload": "src/",
+    "runtime_seconds": 9.059906005859375e-06,
+    "system_info": {
+      "os": "Darwin",
+      "python_version": "3.10.13",
+      "cpu_count": 14
+    },
+    "model_info": {
+      "name": "phi3.5:latest"
+    }
+  },
+  "agent": "PerformanceProfilerAgent",
+  "timestamp": 1747494424,
+  "data": {
+    "args": [
+      "src/"
+    ],
+    "kwargs": {}
+  }
+}

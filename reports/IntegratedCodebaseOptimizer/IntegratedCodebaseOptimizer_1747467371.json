@@ -1,8 +1,0 @@
-{
-  "analysis": "IntegratedCodebaseOptimizer does not implement run.",
-  "metadata": {
-    "agent": "IntegratedCodebaseOptimizer",
-    "timestamp": 1747467371,
-    "payload": "src/"
-  }
-}

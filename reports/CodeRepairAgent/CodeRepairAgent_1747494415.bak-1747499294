@@ -1,0 +1,18 @@
+{
+  "file": "src/",
+  "error": "[Errno 21] Is a directory: 'src/'",
+  "metadata": {
+    "agent": "CodeRepairAgent",
+    "timestamp": 1747494415,
+    "payload": "src/",
+    "runtime_seconds": 2.7894973754882812e-05,
+    "system_info": {
+      "os": "Darwin",
+      "python_version": "3.10.13",
+      "cpu_count": 14
+    },
+    "model_info": {
+      "name": "phi3.5:latest"
+    }
+  }
+}

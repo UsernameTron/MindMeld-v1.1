@@ -1,0 +1,486 @@
+#!/usr/bin/env python3
+import sys
+from pathlib import Path
+import json
+import jsonschema
+import time
+import os
+import requests
+import platform
+import traceback
+import uuid
+from typing import Dict, Any, Optional, Union
+from packages.agents.AgentFactory import AGENT_REGISTRY, AGENT_INPUT_TYPES
+
+# load the schema once
+schema_path = Path(__file__).parent / "agent_report_schema.json"
+with open(schema_path) as sf:
+    REPORT_SCHEMA = json.load(sf)
+
+def get_system_info():
+    """Get system information for metadata."""
+    return {
+        "os": platform.system(),
+        "python_version": platform.python_version(),
+        "cpu_count": os.cpu_count(),
+    }
+
+def get_model_info():
+    """Get model information for metadata."""
+    return {
+        "name": os.getenv("OLLAMA_MODEL", "phi3.5:latest"),
+        "config": {
+            "temperature": float(os.getenv("TEMPERATURE", "0.7")),
+            "max_tokens": int(os.getenv("MAX_TOKENS", "2048"))
+        }
+    }
+
+def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
+    """
+    Validate that the input matches the agent's expected type.
+    Returns an error dict if validation fails, None if validation passes.
+    """
+    # Skip validation if agent doesn't have a defined input type
+    if agent_name not in AGENT_INPUT_TYPES:
+        return None
+    
+    input_type = AGENT_INPUT_TYPES[agent_name]
+    
+    # Check for empty payload
+    if not payload or (isinstance(payload, str) and payload.strip() == ""):
+        return {
+            "status": "error",
+            "error": {
+                "message": "Empty payload provided",
+                "type": "ValidationError"
+            },
+            "metadata": {
+                "agent": agent_name,
+                "timestamp": int(time.time()),
+                "system_info": get_system_info(),
+                "model_info": get_model_info()
+            }
+        }
+    
+    # Validate file input
+    if input_type == "file":
+        path = Path(payload)
+        if not path.exists():
+            return {
+                "status": "error",
+                "error": {
+                    "message": f"File not found: {payload}",
+                    "type": "ValidationError"
+                },
+                "metadata": {
+                    "agent": agent_name,
+                    "timestamp": int(time.time()),
+                    "system_info": get_system_info(),
+                    "model_info": get_model_info()
+                }
+            }
+        if path.is_dir():
+            return {
+                "status": "error",
+                "error": {
+                    "message": f"Expected file path but received directory: {payload}",
+                    "type": "ValidationError"
+                },
+                "metadata": {
+                    "agent": agent_name,
+                    "timestamp": int(time.time()),
+                    "system_info": get_system_info(),
+                    "model_info": get_model_info()
+                }
+            }
+    
+    # Validate directory input
+    elif input_type == "directory":
+        path = Path(payload)
+        if not path.exists():
+            return {
+                "status": "error",
+                "error": {
+                    "message": f"Directory not found: {payload}",
+                    "type": "ValidationError"
+                },
+                "metadata": {
+                    "agent": agent_name,
+                    "timestamp": int(time.time()),
+                    "system_info": get_system_info(),
+                    "model_info": get_model_info()
+                }
+            }
+        if not path.is_dir():
+            return {
+                "status": "error",
+                "error": {
+                    "message": f"Expected directory path but received file: {payload}",
+                    "type": "ValidationError"
+                },
+                "metadata": {
+                    "agent": agent_name,
+                    "timestamp": int(time.time()),
+                    "system_info": get_system_info(),
+                    "model_info": get_model_info()
+                }
+            }
+    
+    # Validate integer input
+    elif input_type == "integer":
+        try:
+            int(payload)  # Just validate, don't convert here
+        except (ValueError, TypeError):
+            return {
+                "status": "error",
+                "error": {
+                    "message": f"Agent {agent_name} expected integer input but received: {payload}",
+                    "type": "ValidationError"
+                },
+                "metadata": {
+                    "agent": agent_name,
+                    "timestamp": int(time.time()),
+                    "system_info": get_system_info(),
+                    "model_info": get_model_info()
+                }
+            }
+            int(payload)
+        except ValueError:
+            return {
+                "status": "error",
+                "error": {
+                    "message": f"Invalid input: expected integer, got '{payload}'",
+                    "type": "ValidationError"
+                },
+                "metadata": {
+                    "agent": agent_name,
+                    "timestamp": int(time.time()),
+                    "system_info": get_system_info(),
+                    "model_info": get_model_info()
+                }
+            }
+    
+    # All validation passed
+    return None
+
+def check_model_availability(model_name="phi3.5:latest"):
+    """Check if required model is available."""
+    try:
+        # Try to connect to Ollama API
+        ollama_url = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+        response = requests.get(f"{ollama_url}/api/tags", timeout=5)
+        
+        # Check if model is in the list
+        if response.status_code == 200:
+            models = response.json().get("models", [])
+            model_names = [m.get("name") for m in models]
+            return model_name in model_names
+        return False
+    except Exception:
+        return False
+
+def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp: int, runtime_seconds: float, job_id: str) -> Dict[str, Any]:
+    """
+    Normalize the agent output to conform to the schema.
+    """
+    # Start with base metadata
+    metadata = {
+        "agent": agent_name,
+        "timestamp": timestamp,
+        "payload": payload[:200],  # Truncate if too long
+        "runtime_seconds": runtime_seconds,
+        "job_id": job_id,
+        "system_info": get_system_info(),
+        "model_info": get_model_info()
+    }
+    
+    # For string results (likely errors)
+    if isinstance(result, str):
+        if "[ERROR]" in result:
+            return {
+                "status": "error",
+                "error": {
+                    "message": result,
+                    "type": "AgentError"
+                },
+                "timestamp": timestamp,
+                "payload": payload,
+                "runtime_seconds": runtime_seconds,
+                "metadata": metadata
+            }
+        else:
+            return {
+                "status": "success",
+                "data": {"result": result},
+                "timestamp": timestamp,
+                "payload": payload,
+                "runtime_seconds": runtime_seconds,
+                "metadata": metadata
+            }
+    
+    # For dictionary results
+    if isinstance(result, dict):
+        normalized = {
+            "timestamp": timestamp,
+            "payload": payload,
+            "runtime_seconds": runtime_seconds
+        }
+        
+        # Copy over metadata if it exists, merge with our metadata
+        if "metadata" in result:
+            result_metadata = result.pop("metadata", {})
+            metadata.update(result_metadata)
+        normalized["metadata"] = metadata
+        
+        # Determine status
+        if "status" in result:
+            normalized["status"] = result["status"]
+        elif "error" in result and result["error"]:
+            normalized["status"] = "error"
+            if isinstance(result["error"], str):
+                normalized["error"] = {"message": result["error"], "type": "AgentError"}
+            else:
+                normalized["error"] = result["error"]
+        elif "fixed" in result:
+            normalized["status"] = "success" if result["fixed"] else "error"
+            normalized["data"] = {"fixed": result["fixed"]}
+            if "diagnostics" in result:
+                normalized["data"]["diagnostics"] = result["diagnostics"]
+        else:
+            normalized["status"] = "success"
+        
+        # For error status, ensure error object exists
+        if normalized.get("status") == "error" and "error" not in normalized:
+            error_msg = result.get("error", "Unknown error")
+            normalized["error"] = {
+                "message": str(error_msg),
+                "type": "AgentError"
+            }
+        
+        # Copy all other fields to data
+        data_fields = {k: v for k, v in result.items() 
+                      if k not in ["agent", "status", "timestamp", "payload", 
+                                  "runtime_seconds", "metadata", "error"]}
+        if data_fields:
+            normalized["data"] = data_fields
+        elif "data" not in normalized and normalized.get("status") == "success":
+            normalized["data"] = {"result": "Agent executed without specific data output"}
+        
+        return normalized
+    
+    # For list or other objects
+    return {
+        "agent": agent_name,
+        "status": "success",
+        "data": {"result": str(result) if not isinstance(result, list) else result},
+        "timestamp": timestamp,
+        "payload": payload,
+        "runtime_seconds": runtime_seconds,
+        "metadata": metadata
+    }
+with open(report_path, "w") as f:
+    if isinstance(result, (dict, list)):
+        json.dump(result, f, indent=2)
+    else:
+        json.dump({"result": str(result), "metadata": {"agent": name, "timestamp": timestamp}}, f, indent=2)
+
+# validate
+try:
+    with open(report_path) as rf:
+        data = json.load(rf)
+    jsonschema.validate(instance=data, schema=REPORT_SCHEMA)
+    print(f"✅ Report valid and written to {report_path}")
+except Exception as e:
+    print(f"❌ Schema validation failed for {report_path}: {e}")
+
+def main():
+    """Run an agent from the command line."""
+    if len(sys.argv) < 3:
+        print("Usage: python run_agent.py <agent_name> <payload> [--verbose]")
+        return 1
+    
+    # Get agent name and payload from command line
+    name = sys.argv[1]
+    payload = sys.argv[2]
+    
+    # Create job ID for traceability
+    job_id = str(uuid.uuid4())
+    timestamp = int(time.time())
+    
+    # Ensure reports directory exists
+    reports_dir = Path("reports")
+    reports_dir.mkdir(exist_ok=True)
+    
+    # Create agent-specific directory
+    agent_dir = reports_dir / name
+    agent_dir.mkdir(exist_ok=True)
+    
+    # Define report path using agent name and timestamp
+    report_path = agent_dir / f"{name}_{timestamp}.json"
+
+    if name not in AGENT_REGISTRY:
+        error_result = {
+            "status": "error",
+            "error": {
+                "message": f"Unknown agent: {name}",
+                "type": "ImportError"
+            },
+            "timestamp": timestamp,
+            "payload": payload,
+            "metadata": {
+                "agent": name,
+                "timestamp": timestamp,
+                "job_id": job_id
+            }
+        }
+        with open(report_path, "w") as f:
+            json.dump(error_result, f, indent=2)
+        print(f"❌ Unknown agent: {name}")
+        sys.exit(1)
+
+    # Validate input before proceeding
+    validation_error = validate_input(name, payload)
+    if validation_error:
+        with open(report_path, "w") as f:
+            json.dump(validation_error, f, indent=2)
+        print(f"❌ Input validation failed: {validation_error['error']['message']}")
+        sys.exit(1)
+
+    # Check if Ollama is running for LLM-dependent agents
+    llm_agents = ["TestGeneratorAgent", "ceo", "executor", "summarizer"]
+    if name in llm_agents:
+        model_name = os.environ.get("OLLAMA_MODEL", "phi3.5:latest")
+        if not check_model_availability(model_name):
+            error_result = {
+                "status": "error",
+                "error": {
+                    "message": f"Required model not available: {model_name}",
+                    "type": "ModelUnavailableError"
+                },
+                "timestamp": timestamp,
+                "payload": payload,
+                "metadata": {
+                    "agent": name,
+                    "timestamp": timestamp,
+                    "job_id": job_id,
+                    "system_info": get_system_info(),
+                    "model_info": {"name": model_name}
+                }
+            }
+            with open(report_path, "w") as f:
+                json.dump(error_result, f, indent=2)
+            print(f"❌ Model not available: {model_name}")
+            sys.exit(1)
+
+    # Create the agent
+    try:
+        creator = AGENT_REGISTRY[name]
+        # always instantiate with no args
+        if callable(creator):
+            agent = creator()
+        else:
+            agent = creator
+    except Exception as e:
+        error_result = {
+            "status": "error",
+            "error": {
+                "message": f"Failed to create agent {name}: {str(e)}",
+                "type": e.__class__.__name__
+            },
+            "timestamp": timestamp,
+            "payload": payload,
+            "metadata": {
+                "agent": name,
+                "timestamp": timestamp,
+                "job_id": job_id,
+                "system_info": get_system_info(),
+                "model_info": get_model_info()
+            }
+        }
+        with open(report_path, "w") as f:
+            json.dump(error_result, f, indent=2)
+        print(f"❌ Failed to create agent: {e}")
+        sys.exit(1)
+
+    # Execute the agent with timing
+    start_time = time.time()
+    try:
+        # If this is the dependency_agent, call analyze_deps directly
+        if hasattr(agent, 'analyze_deps') and name == "dependency_agent":
+            verbose = "--verbose" in sys.argv
+            result = agent.analyze_deps(payload, verbose)
+        elif hasattr(agent, 'run'):
+            try:
+                result = agent.run(payload)
+            except TypeError:
+                result = agent.run()
+        else:
+            result = agent(payload) if callable(agent) else agent
+    except Exception as e:
+        # Handle execution error
+        end_time = time.time()
+        runtime_seconds = end_time - start_time
+        error_message = str(e)
+        error_type = e.__class__.__name__
+        
+        # Include traceback for more detailed error info
+        error_details = traceback.format_exc()
+        
+        error_result = {
+            "status": "error",
+            "error": {
+                "message": error_message,
+                "type": error_type,
+                "details": error_details
+            },
+            "timestamp": timestamp,
+            "payload": payload,
+            "runtime_seconds": runtime_seconds,
+            "metadata": {
+                "agent": name,
+                "timestamp": timestamp,
+                "job_id": job_id,
+                "system_info": get_system_info(),
+                "model_info": get_model_info()
+            }
+        }
+        
+        with open(report_path, "w") as f:
+            json.dump(error_result, f, indent=2)
+        
+        print(f"❌ Agent execution failed: {error_message}")
+        sys.exit(1)
+
+    # Calculate runtime and normalize output
+    end_time = time.time()
+    runtime_seconds = end_time - start_time
+    
+    # Normalize the result to match schema
+    normalized_result = normalize_agent_output(
+        result, name, payload, timestamp, runtime_seconds, job_id
+    )
+    
+    # Validate against schema
+    try:
+        jsonschema.validate(instance=normalized_result, schema=REPORT_SCHEMA)
+        validation_success = True
+    except jsonschema.exceptions.ValidationError as e:
+        validation_success = False
+        # Add validation error but don't fail
+        if "metadata" not in normalized_result:
+            normalized_result["metadata"] = {}
+        normalized_result["metadata"]["validation_error"] = str(e)
+        print(f"⚠️ Warning: Schema validation failed: {e}")
+    
+    # Write the report file
+    with open(report_path, "w") as f:
+        json.dump(normalized_result, f, indent=2)
+    
+    print(f"✅ Agent execution complete, report saved to {report_path}")
+    if not validation_success:
+        print("⚠️ Note: Output required schema normalization")
+    
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

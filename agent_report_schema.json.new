@@ -1,0 +1,92 @@
+// Modified agent_report_schema.json 
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agent Report",
+  "description": "Schema for agent execution reports",
+  "type": "object",
+  "properties": {
+    "agent": {
+      "type": "string",
+      "description": "Agent name"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["success", "error", "partial_success"],
+      "description": "Overall execution status"
+    },
+    "payload": {
+      "type": "string",
+      "description": "Input provided to agent"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Execution timestamp"
+    },
+    "runtime_seconds": {
+      "type": "number",
+      "description": "Execution duration"
+    },
+    "data": {
+      "type": "object",
+      "description": "Agent-specific result data"
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Human-readable error message"
+        },
+        "type": {
+          "type": "string",
+          "description": "Error classification"
+        },
+        "details": {
+          "type": "string",
+          "description": "Additional error context"
+        }
+      },
+      "required": ["message"],
+      "description": "Error information when status is error"
+    },
+    "review": {
+      "type": "object",
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warning", "error"]
+        },
+        "category": {
+          "type": "string",
+          "enum": ["style", "bug", "performance", "security", "best-practice", "other"]
+        },
+        "suggestion": {
+          "type": "string"
+        },
+        "details": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer"
+        }
+      },
+      "required": ["severity", "category"],
+      "description": "Frontend-compatible review information"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Operational metadata"
+    }
+  },
+  "required": ["agent", "status", "timestamp"],
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "error" } }
+      },
+      "then": {
+        "required": ["error"]
+      }
+    }
+  ]
+}

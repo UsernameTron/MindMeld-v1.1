@@ -1,0 +1,17 @@
+{
+  "tests": "To write PyTest unit tests, you first need a Python source file with code to test. Assuming `src` refers to this actual implementation of the functions or classes under test and located in an appropriate directory structure (e.g., `tests/`), here's how I would set up pytest:\n\nFirstly, make sure PyTest is installed (`pip install pytest`). Then write your tests within a file alongside your source code; typically this could be structured with the following files and directories in mind:\n\n```plaintext\nproject/\n\u2502\n\u251c\u2500\u2500 src/\n\u2502   \u2514\u2500\u2500 my_module.py  # Your actual Python module to test here\n\u2502\n\u2514\u2500\u2500 tests/\n    \u251c\u2500\u2500 __init__.py   # This makes 'tests' a package if there are subdirectories or modules within it for more granular testing\n    \u2514\u2500\u2500 test_my_module.py\n```\nHere\u2019s how you can generate pytest functions in `test_my_module.py` assuming the source code (`src/`) contains some classes and methods:\n\n```python\n# tests/test_my_module.py\nimport src  # This assumes your module is named 'my_module' inside of it located at \"./src/\" relative path from this test file location (tests/)\nimport pytest\n\ndef setup_function(func):\n    \"\"\"This function will be called before each PyTest Function.\"\"\"\n    print(\"Setup\")  # Optional: This can set up your environment for the tests, if needed.\n    \n@pytest.fixture()  \n# Fixtures are used to create a fixed baseline of variables and resources that we use in our test functions\ndef some_data():\n    return 'setup data'  # Replace with actual setup you need before each run like initializing objects, etc.\n    \n@pytest.mark.parametrize(\"input\", [\"value1\", \"value2\"])  \n# Parameterized tests allow us to provide different inputs for the same test logic without writing multiple similar functions; useful when testing a range of scenarios or versions with small changes in input/output behavior, etc.\ndef test_example(some_data):  # We inject our setup fixture into this function as its parameter (this is optional if not needed)\n    result = src.function_to_test(*input)  \n    \n    assert result == expected_value * some_condition_based on input, \"The test failed\"\n```\nYou will have to replace `src` with the actual module name and functions/methods you want tested as well as appropriate inputs & conditions for your tests. \n\nPlease note: PyTest can also be used in conjunction with other testing tools such as Selenium (for web-based UI automation) or mocking libraries like unittest.mock, to enhance its capabilities based on the specific needs of a project beyond what's illustrated here. It\u2019s important that your tests are written for maximum clarity and maintainability - they should be independent where possible but also able when necessary (and common in unit testing) make use of fixtures like setup/teardown, parameterized inputs etc to cover various scenarios comprehensively without redundancy.\n",
+  "metadata": {
+    "agent": "test_generator",
+    "timestamp": 1747494404,
+    "payload": "src/",
+    "runtime_seconds": 9.741668701171875,
+    "system_info": {
+      "os": "Darwin",
+      "python_version": "3.10.13",
+      "cpu_count": 14
+    },
+    "model_info": {
+      "name": "phi3.5:latest"
+    }
+  }
+}

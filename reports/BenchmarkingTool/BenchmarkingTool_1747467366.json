@@ -1,8 +1,0 @@
-{
-  "analysis": "BenchmarkingTool does not implement run.",
-  "metadata": {
-    "agent": "BenchmarkingTool",
-    "timestamp": 1747467366,
-    "payload": "src/"
-  }
-}

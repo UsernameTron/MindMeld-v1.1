@@ -1,9 +1,0 @@
-{
-  "error": "dependency_agent failed after 3 attempts",
-  "details": "Check if Ollama is running and the model is available.",
-  "metadata": {
-    "agent": "DependencyAgent",
-    "timestamp": 1747467304,
-    "payload": "src/"
-  }
-}

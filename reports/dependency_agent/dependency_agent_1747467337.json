@@ -1,9 +1,0 @@
-{
-  "error": "no Python files found under path",
-  "path": "src/",
-  "metadata": {
-    "agent": "dependency_agent",
-    "timestamp": 1747467337,
-    "payload": "src/"
-  }
-}
