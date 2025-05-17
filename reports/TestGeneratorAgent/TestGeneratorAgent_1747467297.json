@@ -1,0 +1,9 @@
+{
+  "error": "test_generator failed after 3 attempts",
+  "details": "Check if Ollama is running and the model is available.",
+  "metadata": {
+    "agent": "TestGeneratorAgent",
+    "timestamp": 1747467297,
+    "payload": "src/"
+  }
+}

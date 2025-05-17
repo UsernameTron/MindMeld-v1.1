@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: mindmeld-ollama
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  mindmeld:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mindmeld-agents
+    depends_on:
+      - ollama
+    volumes:
+      - ./reports:/app/reports
+      - ./logs:/app/logs
+      - ./outputs:/app/outputs
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - MAX_RETRIES=3
+      - BASE_TIMEOUT=30
+      - FALLBACK_MODEL=llama2
+    command: ["python", "run_all_agents.py", "--wait-for-ollama"]
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mindmeld-api
+    depends_on:
+      - ollama
+    volumes:
+      - ./logs:/app/logs
+      - ./outputs:/app/outputs
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+      - API_PORT=8000
+      - MAX_RETRIES=3
+      - BASE_TIMEOUT=30
+      - FALLBACK_MODEL=llama2
+    command: ["bash", "scripts/start_api.sh"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+volumes:
+  ollama_data:

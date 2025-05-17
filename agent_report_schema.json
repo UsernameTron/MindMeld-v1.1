@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agent Report",
+  "description": "Schema for run_agent.py output reports",
+  "oneOf": [
+    {
+      "type": "object",
+      "properties": {
+        "analysis": {
+          "description": "Main analysis content from the agent",
+          "type": ["string", "object", "array"]
+        },
+        "results": {
+          "description": "Results from the agent's analysis",
+          "type": ["string", "object", "array"]
+        },
+        "metadata": {
+          "description": "Metadata about the report or execution",
+          "type": "object"
+        },
+        "error": {
+          "description": "Error information if the agent failed",
+          "type": "string"
+        },
+        "timestamp": {
+          "description": "Time when the report was generated",
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    },
+    {
+      "type": "array",
+      "items": {
+        "type": ["object", "string", "number"]
+      }
+    }
+  ]
+}

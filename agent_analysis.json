@@ -1,0 +1,590 @@
+{
+  "Agent": {
+    "agent_name": "Agent",
+    "files": {
+      "python": [
+        "packages/agents/advanced_reasoning/agents.py"
+      ],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": [
+        "packages/agents/advanced_reasoning/orchestration_config.json",
+        "packages/agents/advanced_reasoning/monitoring_dashboard_config.json",
+        "packages/agents/advanced_reasoning/system_test_results.json",
+        "packages/agents/advanced_reasoning/vector_memory_meta.json",
+        "packages/agents/advanced_reasoning/ui_dashboard_config.json",
+        "packages/agents/advanced_reasoning/benchmark_results.json",
+        "packages/agents/advanced_reasoning/distill_config.json"
+      ]
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "TestGeneratorAgent": {
+    "agent_name": "TestGeneratorAgent",
+    "files": {
+      "python": [
+        "packages/agents/advanced_reasoning/agents.py"
+      ],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": [
+        "packages/agents/advanced_reasoning/orchestration_config.json",
+        "packages/agents/advanced_reasoning/monitoring_dashboard_config.json",
+        "packages/agents/advanced_reasoning/system_test_results.json",
+        "packages/agents/advanced_reasoning/vector_memory_meta.json",
+        "packages/agents/advanced_reasoning/ui_dashboard_config.json",
+        "packages/agents/advanced_reasoning/benchmark_results.json",
+        "packages/agents/advanced_reasoning/distill_config.json"
+      ]
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "DependencyAgent": {
+    "agent_name": "DependencyAgent",
+    "files": {
+      "python": [
+        "packages/agents/advanced_reasoning/agents.py"
+      ],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": [
+        "packages/agents/advanced_reasoning/orchestration_config.json",
+        "packages/agents/advanced_reasoning/monitoring_dashboard_config.json",
+        "packages/agents/advanced_reasoning/system_test_results.json",
+        "packages/agents/advanced_reasoning/vector_memory_meta.json",
+        "packages/agents/advanced_reasoning/ui_dashboard_config.json",
+        "packages/agents/advanced_reasoning/benchmark_results.json",
+        "packages/agents/advanced_reasoning/distill_config.json"
+      ]
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "ceo": {
+    "agent_name": "ceo",
+    "files": {
+      "python": [],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": []
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "executor": {
+    "agent_name": "executor",
+    "files": {
+      "python": [],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": []
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "summarizer": {
+    "agent_name": "summarizer",
+    "files": {
+      "python": [],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": []
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "test_generator": {
+    "agent_name": "test_generator",
+    "files": {
+      "python": [],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": []
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "dependency_agent": {
+    "agent_name": "dependency_agent",
+    "files": {
+      "python": [],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": []
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "CodeAnalyzerAgent": {
+    "agent_name": "CodeAnalyzerAgent",
+    "files": {
+      "python": [
+        "packages/agents/advanced_reasoning/agents.py"
+      ],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": [
+        "packages/agents/advanced_reasoning/orchestration_config.json",
+        "packages/agents/advanced_reasoning/monitoring_dashboard_config.json",
+        "packages/agents/advanced_reasoning/system_test_results.json",
+        "packages/agents/advanced_reasoning/vector_memory_meta.json",
+        "packages/agents/advanced_reasoning/ui_dashboard_config.json",
+        "packages/agents/advanced_reasoning/benchmark_results.json",
+        "packages/agents/advanced_reasoning/distill_config.json"
+      ]
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "CodeDebuggerAgent": {
+    "agent_name": "CodeDebuggerAgent",
+    "files": {
+      "python": [
+        "packages/agents/advanced_reasoning/agents.py"
+      ],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": [
+        "packages/agents/advanced_reasoning/orchestration_config.json",
+        "packages/agents/advanced_reasoning/monitoring_dashboard_config.json",
+        "packages/agents/advanced_reasoning/system_test_results.json",
+        "packages/agents/advanced_reasoning/vector_memory_meta.json",
+        "packages/agents/advanced_reasoning/ui_dashboard_config.json",
+        "packages/agents/advanced_reasoning/benchmark_results.json",
+        "packages/agents/advanced_reasoning/distill_config.json"
+      ]
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "CodeRepairAgent": {
+    "agent_name": "CodeRepairAgent",
+    "files": {
+      "python": [
+        "packages/agents/advanced_reasoning/agents.py"
+      ],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": [
+        "packages/agents/advanced_reasoning/orchestration_config.json",
+        "packages/agents/advanced_reasoning/monitoring_dashboard_config.json",
+        "packages/agents/advanced_reasoning/system_test_results.json",
+        "packages/agents/advanced_reasoning/vector_memory_meta.json",
+        "packages/agents/advanced_reasoning/ui_dashboard_config.json",
+        "packages/agents/advanced_reasoning/benchmark_results.json",
+        "packages/agents/advanced_reasoning/distill_config.json"
+      ]
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "CodeEmbeddingIndex": {
+    "agent_name": "CodeEmbeddingIndex",
+    "files": {
+      "python": [
+        "packages/agents/advanced_reasoning/agents.py"
+      ],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": [
+        "packages/agents/advanced_reasoning/orchestration_config.json",
+        "packages/agents/advanced_reasoning/monitoring_dashboard_config.json",
+        "packages/agents/advanced_reasoning/system_test_results.json",
+        "packages/agents/advanced_reasoning/vector_memory_meta.json",
+        "packages/agents/advanced_reasoning/ui_dashboard_config.json",
+        "packages/agents/advanced_reasoning/benchmark_results.json",
+        "packages/agents/advanced_reasoning/distill_config.json"
+      ]
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "SemanticCodeSearch": {
+    "agent_name": "SemanticCodeSearch",
+    "files": {
+      "python": [
+        "packages/agents/advanced_reasoning/agents.py"
+      ],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": [
+        "packages/agents/advanced_reasoning/orchestration_config.json",
+        "packages/agents/advanced_reasoning/monitoring_dashboard_config.json",
+        "packages/agents/advanced_reasoning/system_test_results.json",
+        "packages/agents/advanced_reasoning/vector_memory_meta.json",
+        "packages/agents/advanced_reasoning/ui_dashboard_config.json",
+        "packages/agents/advanced_reasoning/benchmark_results.json",
+        "packages/agents/advanced_reasoning/distill_config.json"
+      ]
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "PerformanceProfilerAgent": {
+    "agent_name": "PerformanceProfilerAgent",
+    "files": {
+      "python": [
+        "packages/agents/advanced_reasoning/agents.py"
+      ],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": [
+        "packages/agents/advanced_reasoning/orchestration_config.json",
+        "packages/agents/advanced_reasoning/monitoring_dashboard_config.json",
+        "packages/agents/advanced_reasoning/system_test_results.json",
+        "packages/agents/advanced_reasoning/vector_memory_meta.json",
+        "packages/agents/advanced_reasoning/ui_dashboard_config.json",
+        "packages/agents/advanced_reasoning/benchmark_results.json",
+        "packages/agents/advanced_reasoning/distill_config.json"
+      ]
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "OptimizationSuggesterAgent": {
+    "agent_name": "OptimizationSuggesterAgent",
+    "files": {
+      "python": [
+        "packages/agents/advanced_reasoning/agents.py"
+      ],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": [
+        "packages/agents/advanced_reasoning/orchestration_config.json",
+        "packages/agents/advanced_reasoning/monitoring_dashboard_config.json",
+        "packages/agents/advanced_reasoning/system_test_results.json",
+        "packages/agents/advanced_reasoning/vector_memory_meta.json",
+        "packages/agents/advanced_reasoning/ui_dashboard_config.json",
+        "packages/agents/advanced_reasoning/benchmark_results.json",
+        "packages/agents/advanced_reasoning/distill_config.json"
+      ]
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "BenchmarkingTool": {
+    "agent_name": "BenchmarkingTool",
+    "files": {
+      "python": [
+        "packages/agents/advanced_reasoning/agents.py"
+      ],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": [
+        "packages/agents/advanced_reasoning/orchestration_config.json",
+        "packages/agents/advanced_reasoning/monitoring_dashboard_config.json",
+        "packages/agents/advanced_reasoning/system_test_results.json",
+        "packages/agents/advanced_reasoning/vector_memory_meta.json",
+        "packages/agents/advanced_reasoning/ui_dashboard_config.json",
+        "packages/agents/advanced_reasoning/benchmark_results.json",
+        "packages/agents/advanced_reasoning/distill_config.json"
+      ]
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "IntegratedCodebaseOptimizer": {
+    "agent_name": "IntegratedCodebaseOptimizer",
+    "files": {
+      "python": [
+        "packages/agents/advanced_reasoning/agents.py"
+      ],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": [
+        "packages/agents/advanced_reasoning/orchestration_config.json",
+        "packages/agents/advanced_reasoning/monitoring_dashboard_config.json",
+        "packages/agents/advanced_reasoning/system_test_results.json",
+        "packages/agents/advanced_reasoning/vector_memory_meta.json",
+        "packages/agents/advanced_reasoning/ui_dashboard_config.json",
+        "packages/agents/advanced_reasoning/benchmark_results.json",
+        "packages/agents/advanced_reasoning/distill_config.json"
+      ]
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  },
+  "pipeline_coordinator": {
+    "agent_name": "pipeline_coordinator",
+    "files": {
+      "python": [],
+      "shell": [
+        "run-e2e-tests.sh",
+        "scripts/full-test.sh",
+        "scripts/migrate-component.sh",
+        "scripts/push.sh",
+        "scripts/extract_github_workflow_failures.sh",
+        "scripts/next-action.sh",
+        "scripts/verify-sprint.sh",
+        "scripts/tempCodeRunnerFile.sh",
+        "scripts/weekly-status.sh",
+        "scripts/verify-component.sh"
+      ],
+      "configs": []
+    },
+    "classes": {},
+    "training_entry_points": [],
+    "dataset_paths": [],
+    "hyperparameters": {},
+    "model_classes": [],
+    "install_commands": [],
+    "notes": ""
+  }
+}

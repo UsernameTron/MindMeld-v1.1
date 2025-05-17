@@ -1,0 +1,28 @@
+version: '3.8'
+
+# This docker-compose file extends the main compose file for CI/CD testing
+
+services:
+  ollama:
+    # No changes needed for Ollama service
+    command: >
+      sh -c "ollama serve & 
+             sleep 10 && 
+             ollama pull llama2:latest && 
+             tail -f /dev/null"
+  
+  mindmeld:
+    # Test configurations for the MindMeld service
+    environment:
+      - MAX_RETRIES=2
+      - BASE_TIMEOUT=30
+      - FALLBACK_MODEL=llama2
+      - OLLAMA_HOST=http://ollama:11434
+      - TEST_MODE=true
+    depends_on:
+      ollama:
+        condition: service_healthy
+    command: >
+      sh -c "python -m pytest tests/test_agent -v && 
+             python -m pytest tests/test_api -v &&
+             python -m pytest tests/test_container -v"

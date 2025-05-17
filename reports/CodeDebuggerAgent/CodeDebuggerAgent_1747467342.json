@@ -1,0 +1,8 @@
+{
+  "analysis": "CodeDebuggerAgent does not implement run.",
+  "metadata": {
+    "agent": "CodeDebuggerAgent",
+    "timestamp": 1747467342,
+    "payload": "src/"
+  }
+}

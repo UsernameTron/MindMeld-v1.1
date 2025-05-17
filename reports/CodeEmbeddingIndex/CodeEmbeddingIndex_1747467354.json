@@ -1,0 +1,9 @@
+{
+  "error": "code_embedding failed after 3 attempts",
+  "details": "Check if Ollama is running and the model is available.",
+  "metadata": {
+    "agent": "CodeEmbeddingIndex",
+    "timestamp": 1747467354,
+    "payload": "src/"
+  }
+}
