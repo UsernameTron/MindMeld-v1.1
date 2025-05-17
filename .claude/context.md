@@ -1,6 +1,6 @@
 # MindMeld Repository Context for Claude
 
-Last updated: 2025-05-17 14:04:03
+Last updated: 2025-05-17 19:22:34
 
 ## File Index
 
@@ -24,10 +24,8 @@ Last updated: 2025-05-17 14:04:03
 ```python
 #!/usr/bin/env python3
 """
-Enhanced agent runner for MindMeld platform with improved error handling,
-file operations, and LLM interaction.
-
-Includes input validation, schema compliance, error handling, and performance optimization.
+Enhanced agent runner for MindMeld platform.
+Includes input validation, schema compliance, and error handling.
 """
 
 import sys
@@ -40,34 +38,13 @@ import requests
 import platform
 import traceback
 import uuid
-import argparse
-from typing import Dict, Any, Optional, Union, List
-
+from typing import Dict, Any, Optional, Union
 from packages.agents.AgentFactory import AGENT_REGISTRY, AGENT_INPUT_TYPES
-from utils.file_operations import read_file, write_file, path_exists
-from utils.error_handling import MindMeldError, ValidationError, LLMCallError, FileProcessingError
-from utils.llm_client import get_default_model, get_model_config
 
 # load the schema once
-def load_schema():
-    """Load the agent report schema from the schema file."""
-    schema_path = Path(__file__).parent / "agent_report_schema.json"
-    try:
-        return json.loads(read_file(schema_path))
-    except FileProcessingError as e:
-        print(f"Error loading schema: {e}")
-        # Provide a minimal default schema if the file can't be loaded
-        return {
-            "type": "object",
-            "required": ["agent", "status", "metadata"],
-            "properties": {
-                "agent": {"type": "string"},
-                "status": {"type": "string", "enum": ["success", "error"]},
-                "metadata": {"type": "object"}
-            }
-        }
-
-REPORT_SCHEMA = load_schema()
+schema_path = Path(__file__).parent / "agent_report_schema.json"
+with open(schema_path) as sf:
+    REPORT_SCHEMA = json.load(sf)
 
 def get_system_info():
     """Get system information for metadata."""
@@ -91,13 +68,6 @@ def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
     """
     Validate that the input matches the agent's expected type.
     Returns an error dict if validation fails, None if validation passes.
-    
-    Args:
-        agent_name: Name of the agent
-        payload: Input payload for the agent
-        
-    Returns:
-        Error report dict or None if validation passes
     """
     # Skip validation if agent doesn't have a defined input type
     if agent_name not in AGENT_INPUT_TYPES:
@@ -125,7 +95,7 @@ def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
     # Validate file input
     if input_type == "file":
         path = Path(payload)
-        if not path_exists(path):
+        if not path.exists():
             return {
                 "agent": agent_name,
                 "status": "error",
@@ -159,7 +129,7 @@ def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
     # Validate directory input
     elif input_type == "directory":
         path = Path(payload)
-        if not path_exists(path):
+        if not path.exists():
             return {
                 "agent": agent_name,
                 "status": "error",
@@ -334,24 +304,13 @@ def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp
 
 def main():
     """Run an agent from the command line."""
-    # Parse command line arguments
-    parser = argparse.ArgumentParser(description="Run an agent from the command line")
-    parser.add_argument("agent_name", help="Name of the agent to run")
-    parser.add_argument("payload", help="Input for the agent (file path, directory path, etc.)")
-    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
-    parser.add_argument("--output-dir", default="reports", help="Directory to save the report in")
-    parser.add_argument("--model", help="Override the default model")
-    parser.add_argument("--list", action="store_true", help="List available agents")
+    if len(sys.argv) < 3:
+        print("Usage: python run_agent.py <agent_name> <payload> [--verbose]")
+        return 1
     
-    args = parser.parse_args()
-    
-    # List available agents
-    if args.list:
-        print("Available agents:")
-        for agent in sorted(AGENT_REGISTRY.keys()):
-            input_type = AGENT_INPUT_TYPES.get(agent, "any")
-            print(f"  {agent} (input: {input_type})")
-        return 0
+    # Get agent name and payload from command line
+    name = sys.argv[1]
+    payload = sys.argv[2]
     
     # Create job ID for traceability
     job_id = str(uuid.uuid4())
@@ -602,324 +561,7 @@ AGENT_REGISTRY = get_registry()
 
 ## packages/agents/advanced_reasoning/agents.py (Priority: Highest)
 
-```python
-from ollama import Client
-try:
-    from .config import CEO_MODEL, FAST_MODEL, EXECUTOR_MODEL_ORIGINAL, EXECUTOR_MODEL_DISTILLED, USE_DISTILLED_EXECUTOR
-    DEFAULT_MODEL = CEO_MODEL
-except ImportError:
-    from config import CEO_MODEL, FAST_MODEL, EXECUTOR_MODEL_ORIGINAL, EXECUTOR_MODEL_DISTILLED, USE_DISTILLED_EXECUTOR
-    DEFAULT_MODEL = CEO_MODEL
-import time
-import torch
-from transformers import CLIPProcessor, CLIPModel, ViTImageProcessor, ViTModel, WhisperProcessor, WhisperForConditionalGeneration
-from PIL import Image
-import numpy as np
-import os
-import ast
-import json
-try:
-    from .vector_memory import vector_memory
-except ImportError:
-    from vector_memory import vector_memory
-from sentence_transformers import SentenceTransformer
-import faiss
-import re
-import cProfile
-import pstats
-import io
-import tokenize
-from memory_profiler import memory_usage
-import sys
-import os
-sys.path.insert(0, os.path.dirname(__file__))
-
-import functools
-from concurrent.futures import ThreadPoolExecutor
-from tempfile import NamedTemporaryFile
-import subprocess  # added for CodeRepairAgent and IntegratedCodebaseOptimizer
-
-class AgentError(Exception):
-    """Base class for agent exceptions"""
-    pass
-
-class ModelUnavailableError(AgentError):
-    """Raised when the required model is not available"""
-    pass
-
-def retry_on_failure(max_retries=3, backoff_factor=1.5):
-    """Decorator to retry operations with exponential backoff"""
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            last_exception = None
-            for attempt in range(max_retries):
-                try:
-                    return func(*args, **kwargs)
-                except Exception as e:
-                    last_exception = e
-                    wait_time = backoff_factor ** attempt
-                    print(f"Attempt {attempt+1} failed. Retrying in {wait_time:.2f}s: {str(e)}")
-                    time.sleep(wait_time)
-            raise last_exception
-        return wrapper
-    return decorator
-
-class BaseAgent:
-    """Base class for all MindMeld agents.
-    
-    Each agent must implement a clear interface:
-    1. Initialize with minimal dependencies
-    2. Provide a primary method that executes the agent's functionality
-    3. Return structured data that can be validated against the schema
-    
-    Example:
-        agent = MyAgent()
-        result = agent.analyze("path/to/code")
-        # result should be a dict or list conforming to agent_report_schema.json
-    """
-    pass
-
-class TestGeneratorAgent(BaseAgent):
-    """Generates pytest tests for a given module path."""
-    def __init__(self):
-        self.client = Client()
-    @retry_on_failure()
-    def generate_tests(self, module_path, bug_trace=None):
-        prompt = f"Generate pytest tests for {module_path}"
-        try:
-            resp = self.client.chat(model=DEFAULT_MODEL,
-                                    messages=[{"role":"user","content":prompt}])
-        except Exception as e:
-            raise ModelUnavailableError(f"Failed to get response from model: {e}") from e
-        return getattr(resp, "message", {}).get("content", str(resp))
-    def run(self, module_path, bug_trace=None):
-        return {"tests": self.generate_tests(module_path, bug_trace)}
-
-class DependencyAgent(BaseAgent):
-    """Analyzes Python imports under a path."""
-    def analyze_deps(self, path: str, *args, **kwargs):
-        from concurrent.futures import ThreadPoolExecutor
-        from functools import partial
-        import ast
-        import os
-        def process_file(filename, root_path):
-            full_path = os.path.join(root_path, filename)
-            try:
-                with open(full_path, "r", encoding="utf-8") as f:
-                    src = f.read()
-                tree = ast.parse(src, filename=full_path)
-                imports = {
-                    node.module or alias.name
-                    for node in ast.walk(tree)
-                    if isinstance(node, (ast.Import, ast.ImportFrom))
-                    for alias in (node.names if hasattr(node, "names") else [])
-                }
-                return os.path.relpath(full_path, path), sorted(imports)
-            except Exception:
-                return os.path.relpath(full_path, path), []
-        py_files = []
-        for root, _, files in os.walk(path):
-            for fn in files:
-                if fn.endswith(".py"):
-                    py_files.append((fn, root))
-        with ThreadPoolExecutor(max_workers=min(32, os.cpu_count() * 4)) as executor:
-            results = list(executor.map(lambda x: process_file(x[0], x[1]), py_files))
-        return dict(results)
-    def run(self, path, *args, **kwargs):
-        return {"dependencies": self.analyze_deps(path, *args, **kwargs)}
-
-class CodeAnalyzerAgent(BaseAgent):
-    """Scans repository and returns file→content map."""
-    def __init__(self, root_dir="."):
-        self.root_dir = root_dir
-    def analyze(self, max_file_size_mb=5, *args, **kwargs):
-        max_size = int(max_file_size_mb) * 1024 * 1024  # Ensure int for comparison
-        file_map = {}
-        for dirpath, _, filenames in os.walk(self.root_dir):
-            for fname in filenames:
-                if fname.endswith((".py", ".js", ".ts", ".java", ".cpp", ".c", ".go")):
-                    path = os.path.join(dirpath, fname)
-                    file_size = os.path.getsize(path)
-                    if file_size > max_size:
-                        file_map[path] = f"[File too large: {file_size/1024/1024:.2f}MB]"
-                        continue
-                    try:
-                        with open(path, "r", encoding="utf-8", errors="ignore") as f:
-                            file_map[path] = f.read()
-                    except Exception as e:
-                        file_map[path] = f"[Error reading file: {str(e)}]"
-        return file_map
-    def run(self, root_dir=None, *args, **kwargs):
-        return {"files": self.analyze(root_dir or self.root_dir, *args, **kwargs)}
-
-def create_ceo():
-    """Returns a CEO agent (stub for now)."""
-    class CeoAgent(BaseAgent):
-        def run(self, *args, **kwargs):
-            return {"status": "CEO agent executed (stub)", "args": args, "kwargs": kwargs}
-    return CeoAgent()
-def create_executor():
-    """Returns an executor agent (stub for now)."""
-    return IntegratedCodebaseOptimizer()
-def create_summarizer():
-    """Returns a summarizer agent with proper integer handling."""
-    class SummarizerAgent(BaseAgent):
-        def run(self, value):
-            # Ensure input is converted to integer
-            try:
-                if not isinstance(value, int):
-                    value = int(value)
-                # Now use the properly converted integer
-                return {"summary_id": value, "status": "Summarizer agent executed successfully"}
-            except (ValueError, TypeError) as e:
-                raise ValueError(f"Summarizer agent requires an integer input: {str(e)}")
-    return SummarizerAgent()
-def create_test_generator():
-    """Returns a test generator agent (stub for now)."""
-    return TestGeneratorAgent()
-def create_dependency_agent():
-    """Returns a dependency agent instance."""
-    return DependencyAgent()
-
-class Agent(BaseAgent):
-    def __init__(self, name="agent", model=None, max_retries=None, base_timeout=None, fallback_model=None, client=None):
-        self.name = name
-        self.model = model or os.environ.get("MODEL", "default-model")
-        self.max_retries = int(max_retries or os.environ.get("MAX_RETRIES", 3))
-        self.base_timeout = int(base_timeout or os.environ.get("BASE_TIMEOUT", 10))
-        self.fallback_model = fallback_model or os.environ.get("FALLBACK_MODEL", "llama2")
-        self.client = client if client is not None else Client()
-
-    def run(self, prompt):
-        retries = 0
-        while retries < self.max_retries:
-            try:
-                resp = self.client.chat(
-                    model=self.model,
-                    messages=[{"role": "user", "content": f"[{self.name}] {prompt}"}]
-                )
-                return {"response": resp.message["content"], "model": self.model, "retries": retries}
-            except Exception as e:
-                retries += 1
-                time.sleep(self.base_timeout)
-        # Fallback model
-        try:
-            resp = self.client.chat(
-                model=self.fallback_model,
-                messages=[{"role": "user", "content": f"[{self.name}] {prompt}"}]
-            )
-            return {"response": resp.message["content"], "model": self.fallback_model, "retries": retries, "fallback": True}
-        except Exception as e:
-            return {
-                "error": f"{self.name} failed after {self.max_retries} attempts and fallback.",
-                "details": str(e)
-            }
-
-class CodeDebuggerAgent(BaseAgent):
-    """Detects syntax errors via py_compile."""
-    def locate_bugs(self, file_content: str):
-        import py_compile
-        import io
-        from tempfile import NamedTemporaryFile
-        with NamedTemporaryFile(suffix='.py', delete=True) as temp_file:
-            temp_file.write(file_content.encode('utf-8'))
-            temp_file.flush()
-            stderr_capture = io.StringIO()
-            original_stderr = sys.stderr
-            sys.stderr = stderr_capture
-            try:
-                py_compile.compile(temp_file.name, doraise=True)
-                return "No syntax errors"
-            except py_compile.PyCompileError as e:
-                return str(e)
-            finally:
-                sys.stderr = original_stderr
-    def run(self, file_path):
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                content = f.read()
-            result = self.locate_bugs(content)
-            return {"file": file_path, "diagnostics": result}
-        except Exception as e:
-            return {"file": file_path, "error": str(e)}
-
-class CodeRepairAgent(BaseAgent):
-    """Applies a naive fix for SyntaxErrors."""
-    def generate_fix(self, file_content: str, diagnostics: str):
-        if "SyntaxError" in diagnostics:
-            lines = file_content.splitlines()
-            import re
-            bad_lines = set(int(n) for n in re.findall(r"line (\\d+)", diagnostics))
-            return "\n".join(
-                ("# [FIXED] " + line if idx+1 in bad_lines else line)
-                for idx, line in enumerate(lines)
-            )
-        return file_content
-    def test_solution(self, file_path: str):
-        proc = subprocess.run(["python3", "-m", "py_compile", file_path],
-                              capture_output=True)
-        return proc.returncode == 0
-    def run(self, file_path):
-        try:
-            with open(file_path, "r", encoding="utf-8") as f:
-                content = f.read()
-            diagnostics = CodeDebuggerAgent().locate_bugs(content)
-            fixed = self.generate_fix(content, diagnostics)
-            tmp = "/tmp/_repaired.py"
-            with open(tmp, "w") as f:
-                f.write(fixed)
-            test_result = self.test_solution(tmp)
-            return {"file": file_path, "diagnostics": diagnostics, "fixed": fixed, "compiles": test_result}
-        except Exception as e:
-            return {"file": file_path, "error": str(e)}
-
-class IntegratedCodebaseOptimizer(BaseAgent):
-    """Runs analyze→debug→repair on a target file."""
-    def __init__(self, root_dir="."):
-        self.analyzer = CodeAnalyzerAgent(root_dir)
-        self.debugger = CodeDebuggerAgent()
-        self.repairer = CodeRepairAgent()
-    def optimize(self, target_file: str):
-        files = self.analyzer.analyze()
-        content = files.get(target_file, "")
-        diagnostics = self.debugger.locate_bugs(content)
-        fixed = self.repairer.generate_fix(content, diagnostics)
-        tmp = "/tmp/_repaired.py"
-        with open(tmp, "w") as f:
-            f.write(fixed)
-        return {
-            "fixed": self.repairer.test_solution(tmp),
-            "diagnostics": diagnostics
-        }
-    def run(self, target_file):
-        return self.optimize(target_file)
-
-class pipeline_coordinator(BaseAgent):
-    def run(self, *args, **kwargs):
-        return {"status": "Pipeline coordination executed (stub)", "args": args, "kwargs": kwargs}
-
-class CodeEmbeddingIndex(BaseAgent):
-    def run(self, *args, **kwargs):
-        return {"status": "CodeEmbeddingIndex executed (stub)", "args": args, "kwargs": kwargs}
-
-class SemanticCodeSearch(BaseAgent):
-    def run(self, *args, **kwargs):
-        return {"status": "SemanticCodeSearch executed (stub)", "args": args, "kwargs": kwargs}
-
-class PerformanceProfilerAgent(BaseAgent):
-    def run(self, *args, **kwargs):
-        return {"status": "PerformanceProfilerAgent executed (stub)", "args": args, "kwargs": kwargs}
-
-class OptimizationSuggesterAgent(BaseAgent):
-    def run(self, *args, **kwargs):
-        return {"status": "OptimizationSuggesterAgent executed (stub)", "args": args, "kwargs": kwargs}
-
-class BenchmarkingTool(BaseAgent):
-    def run(self, *args, **kwargs):
-        return {"status": "BenchmarkingTool executed (stub)", "args": args, "kwargs": kwargs}
-
-```
+**File not found**
 
 ## agent_report_schema.json (Priority: Highest)
 
@@ -1457,494 +1099,11 @@ async def get_task_status(task_id: str):
 
 ## utils/llm_client.py (Priority: High)
 
-```python
-"""
-LLM client utility for MindMeld.
-
-This module provides standardized LLM interaction with retry logic,
-fallback models, and consistent error handling.
-"""
-
-import os
-import json
-import logging
-import time
-import requests
-from typing import Dict, Any, Optional, List, Union
-from functools import wraps
-
-import tenacity
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
-
-from utils.error_handling import LLMCallError, ModelUnavailableError
-
-logger = logging.getLogger(__name__)
-
-# Default configuration
-DEFAULT_MODEL = "phi3.5:latest"
-DEFAULT_MAX_RETRIES = 3
-DEFAULT_BACKOFF_FACTOR = 1.5
-DEFAULT_MAX_BACKOFF = 10
-DEFAULT_TEMPERATURE = 0.7
-DEFAULT_MAX_TOKENS = 2048
-DEFAULT_TIMEOUT = 30  # seconds
-
-
-def get_default_model() -> str:
-    """
-    Get the default LLM model from environment variables.
-    
-    Returns:
-        Model name string
-    """
-    return os.getenv("OLLAMA_MODEL", DEFAULT_MODEL)
-
-
-def get_model_config() -> Dict[str, Any]:
-    """
-    Get the model configuration from environment variables.
-    
-    Returns:
-        Model configuration dictionary
-    """
-    return {
-        "temperature": float(os.getenv("TEMPERATURE", DEFAULT_TEMPERATURE)),
-        "max_tokens": int(os.getenv("MAX_TOKENS", DEFAULT_MAX_TOKENS)),
-        "timeout": int(os.getenv("TIMEOUT", DEFAULT_TIMEOUT))
-    }
-
-
-def get_fallback_model() -> str:
-    """
-    Get the fallback LLM model from environment variables.
-    
-    Returns:
-        Fallback model name string
-    """
-    return os.getenv("FALLBACK_MODEL", "llama2")
-
-
-def call_llm_with_retry(max_retries: int = DEFAULT_MAX_RETRIES, 
-                    backoff_factor: float = DEFAULT_BACKOFF_FACTOR,
-                    max_backoff: float = DEFAULT_MAX_BACKOFF):
-    """
-    Decorator to retry LLM calls with exponential backoff.
-    
-    Args:
-        max_retries: Maximum number of retry attempts
-        backoff_factor: Factor to multiply delay on each retry
-        max_backoff: Maximum backoff time in seconds
-        
-    Returns:
-        Decorated function
-    """
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            @retry(
-                stop=stop_after_attempt(max_retries),
-                wait=wait_exponential(multiplier=backoff_factor, max=max_backoff),
-                retry=retry_if_exception_type((LLMCallError, requests.exceptions.RequestException)),
-                reraise=True
-            )
-            def _retry_call():
-                try:
-                    return func(*args, **kwargs)
-                except Exception as e:
-                    if isinstance(e, LLMCallError):
-                        logger.warning(f"LLM call failed, retrying: {str(e)}")
-                        raise
-                    else:
-                        logger.warning(f"Error in LLM call, retrying: {str(e)}")
-                        raise LLMCallError(f"Error in LLM call: {str(e)}") from e
-            
-            try:
-                return _retry_call()
-            except tenacity.RetryError as e:
-                if e.last_attempt.exception():
-                    logger.error(f"All retry attempts failed: {str(e.last_attempt.exception())}")
-                    raise LLMCallError(f"All retry attempts failed: {str(e.last_attempt.exception())}")
-                else:
-                    logger.error("All retry attempts failed")
-                    raise LLMCallError("All retry attempts failed")
-        
-        return wrapper
-    return decorator
-
-
-def with_fallback_model(fallback_model: Optional[str] = None):
-    """
-    Decorator to try a fallback model if the primary model fails.
-    
-    Args:
-        fallback_model: Name of the fallback model to use
-        
-    Returns:
-        Decorated function
-    """
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            # Try with the primary model
-            try:
-                return func(*args, **kwargs)
-            except LLMCallError as e:
-                primary_model = kwargs.get('model_name') or get_default_model()
-                fallback = fallback_model or get_fallback_model()
-                
-                if primary_model == fallback:
-                    # Don't fallback to the same model
-                    logger.error(f"LLM call failed with model {primary_model}, no different fallback available")
-                    raise
-                
-                logger.warning(f"LLM call failed with model {primary_model}, trying fallback model {fallback}")
-                
-                # Try with the fallback model
-                kwargs['model_name'] = fallback
-                try:
-                    return func(*args, **kwargs)
-                except Exception as fallback_e:
-                    # Both primary and fallback failed
-                    logger.error(f"Fallback model {fallback} also failed: {str(fallback_e)}")
-                    raise LLMCallError(
-                        f"Both primary model ({primary_model}) and fallback model ({fallback}) failed",
-                        model_name=primary_model
-                    ) from e
-        
-        return wrapper
-    return decorator
-
-
-def check_model_availability(model_name: str = None) -> bool:
-    """
-    Check if the specified model is available in Ollama.
-    
-    Args:
-        model_name: Name of the model to check (default: get from environment)
-        
-    Returns:
-        True if the model is available, False otherwise
-    """
-    if model_name is None:
-        model_name = get_default_model()
-    
-    try:
-        # Set up the Ollama API URL
-        ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-        response = requests.get(f"{ollama_host}/api/tags")
-        
-        if response.status_code == 200:
-            models = response.json().get("models", [])
-            # Check if the model is in the list of available models
-            for model in models:
-                if model.get("name") == model_name:
-                    logger.debug(f"Model {model_name} is available")
-                    return True
-            
-            logger.warning(f"Model {model_name} is not available in Ollama")
-            return False
-        else:
-            logger.error(f"Failed to get model list from Ollama: {response.status_code}")
-            return False
-    except Exception as e:
-        logger.error(f"Error checking model availability: {str(e)}")
-        return False
-
-
-retry_on_llm_error = retry(
-    retry=retry_if_exception_type((requests.RequestException, LLMCallError)),
-    stop=stop_after_attempt(DEFAULT_MAX_RETRIES),
-    wait=wait_exponential(multiplier=DEFAULT_BACKOFF_FACTOR, max=DEFAULT_MAX_BACKOFF),
-    before_sleep=lambda retry_state: logger.warning(
-        f"Retrying LLM call after error (attempt {retry_state.attempt_number}/{DEFAULT_MAX_RETRIES})"
-    )
-)
-
-
-def with_fallback_model(func):
-    """
-    Decorator to retry with fallback model if primary model fails.
-    
-    Args:
-        func: The function to decorate
-        
-    Returns:
-        Wrapped function with fallback capability
-    """
-    @wraps(func)
-    def wrapper(prompt, model_name=None, *args, **kwargs):
-        try:
-            return func(prompt, model_name, *args, **kwargs)
-        except LLMCallError as e:
-            # Try with fallback model if available
-            fallback_model = get_fallback_model()
-            if fallback_model and fallback_model != model_name:
-                logger.warning(f"Primary model failed, trying with fallback model {fallback_model}")
-                kwargs["fallback_used"] = True
-                return func(prompt, fallback_model, *args, **kwargs)
-            else:
-                # Re-raise if no fallback or fallback is the same as primary
-                raise
-    
-    return wrapper
-
-
-@retry_on_llm_error
-@with_fallback_model
-def call_llm(prompt: str,
-            model_name: Optional[str] = None,
-            temperature: float = DEFAULT_TEMPERATURE,
-            max_tokens: int = DEFAULT_MAX_TOKENS,
-            timeout: int = DEFAULT_TIMEOUT,
-            system_prompt: Optional[str] = None,
-            fallback_used: bool = False) -> Dict[str, Any]:
-    """
-    Call the LLM model with retry and fallback logic.
-    
-    Args:
-        prompt: Input prompt for the model
-        model_name: Name of the model to use (default: get from environment)
-        temperature: Sampling temperature (default: 0.7)
-        max_tokens: Maximum tokens to generate (default: 2048)
-        timeout: Request timeout in seconds (default: 30)
-        system_prompt: Optional system prompt to use
-        fallback_used: Whether this is a fallback call
-        
-    Returns:
-        Dictionary containing the model response
-        
-    Raises:
-        LLMCallError: If the model call fails
-        ModelUnavailableError: If the model is not available
-    """
-    # Use default model if none specified
-    if model_name is None:
-        model_name = get_default_model()
-    
-    # Check if model is available
-    if not check_model_availability(model_name):
-        raise ModelUnavailableError(f"Model {model_name} is not available", model_name=model_name)
-    
-    try:
-        # Set up the Ollama API URL and payload
-        ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
-        url = f"{ollama_host}/api/generate"
-        
-        payload = {
-            "model": model_name,
-            "prompt": prompt,
-            "temperature": temperature,
-            "num_predict": max_tokens,
-        }
-        
-        if system_prompt:
-            payload["system"] = system_prompt
-        
-        # Log request details (excluding the prompt for brevity)
-        logger.debug(f"Calling model {model_name} with temperature={temperature}, max_tokens={max_tokens}")
-        
-        # Record start time for runtime calculation
-        start_time = time.time()
-        
-        # Make the API call
-        response = requests.post(url, json=payload, timeout=timeout)
-        
-        # Calculate runtime
-        runtime_seconds = time.time() - start_time
-        
-        if response.status_code == 200:
-            result = response.json()
-            
-            # Add metadata to the response
-            metadata = {
-                "model_info": {
-                    "name": model_name,
-                },
-                "runtime_seconds": runtime_seconds,
-                "temperature": temperature,
-                "max_tokens": max_tokens,
-            }
-            
-            if fallback_used:
-                metadata["fallback_used"] = True
-                metadata["model_info"]["initial_model"] = get_default_model()
-            
-            result["metadata"] = metadata
-            
-            logger.debug(f"LLM call completed in {runtime_seconds:.2f} seconds")
-            return result
-        else:
-            error_msg = f"LLM API call failed with status {response.status_code}: {response.text}"
-            logger.error(error_msg)
-            raise LLMCallError(error_msg, model_name=model_name)
-    
-    except requests.RequestException as e:
-        error_msg = f"LLM API request failed: {str(e)}"
-        logger.error(error_msg)
-        raise LLMCallError(error_msg, model_name=model_name) from e
-    
-    except Exception as e:
-        error_msg = f"Unexpected error in LLM call: {str(e)}"
-        logger.error(error_msg)
-        raise LLMCallError(error_msg, model_name=model_name) from e
-
-
-def extract_llm_response(response: Dict[str, Any]) -> str:
-    """
-    Extract the text from an LLM response.
-    
-    Args:
-        response: Response dictionary from call_llm
-        
-    Returns:
-        Response text
-    """
-    if "response" in response:
-        return response["response"]
-    elif "choices" in response and len(response["choices"]) > 0:
-        return response["choices"][0]["text"]
-    else:
-        logger.warning("Could not extract response text from LLM response")
-        return ""
-
-
-def check_syntax(code_string: str, filename: str = '<string>') -> tuple:
-    """
-    Check Python code syntax without executing it.
-    
-    Args:
-        code_string: Python code to check
-        filename: Filename to use in error messages
-        
-    Returns:
-        Tuple of (is_valid, error_message)
-    """
-    try:
-        compile(code_string, filename, 'exec')
-        return True, None
-    except SyntaxError as e:
-        return False, str(e)
-    except Exception as e:
-        return False, str(e)
-
-```
+**File not found**
 
 ## utils/error_handling.py (Priority: High)
 
-```python
-"""
-Error handling utility for MindMeld.
-
-This module provides a hierarchical exception system for all MindMeld operations.
-"""
-
-import logging
-from typing import Optional
-
-logger = logging.getLogger(__name__)
-
-
-class MindMeldError(Exception):
-    """Base exception for all MindMeld-related errors."""
-    
-    def __init__(self, message: str, *args, **kwargs):
-        """
-        Initialize the exception.
-        
-        Args:
-            message: Error message
-            *args: Additional positional arguments
-            **kwargs: Additional keyword arguments
-        """
-        self.message = message
-        super().__init__(message, *args, **kwargs)
-        logger.error(f"{self.__class__.__name__}: {message}")
-
-
-class ValidationError(MindMeldError):
-    """Raised when input validation fails."""
-    pass
-
-
-class FileProcessingError(MindMeldError):
-    """Raised when file operations fail."""
-    pass
-
-
-class LLMCallError(MindMeldError):
-    """Raised when LLM call fails."""
-    
-    def __init__(self, message: str, model_name: Optional[str] = None, *args, **kwargs):
-        """
-        Initialize the exception.
-        
-        Args:
-            message: Error message
-            model_name: Name of the LLM model that failed
-            *args: Additional positional arguments
-            **kwargs: Additional keyword arguments
-        """
-        self.model_name = model_name
-        if model_name:
-            message = f"{message} (model: {model_name})"
-        super().__init__(message, *args, **kwargs)
-
-
-class ModelUnavailableError(LLMCallError):
-    """Raised when required LLM model is not available."""
-    pass
-
-
-class AnalysisError(MindMeldError):
-    """Raised when code analysis operations fail."""
-    pass
-
-
-class CompilationError(MindMeldError):
-    """Raised when code compilation fails."""
-    pass
-
-
-class RepairError(MindMeldError):
-    """Raised when code repair fails."""
-    pass
-
-
-class SchemaValidationError(MindMeldError):
-    """Raised when output schema validation fails."""
-    pass
-
-
-class TimeoutError(MindMeldError):
-    """Raised when an operation times out."""
-    pass
-
-
-def format_error_for_json(error: Exception) -> dict:
-    """
-    Format an exception for inclusion in a JSON report.
-    
-    Args:
-        error: The exception to format
-        
-    Returns:
-        A dictionary containing error details
-    """
-    error_type = error.__class__.__name__
-    error_message = str(error)
-    
-    result = {
-        "message": error_message,
-        "type": error_type
-    }
-    
-    # Add additional context for specific error types
-    if isinstance(error, LLMCallError) and error.model_name:
-        result["model"] = error.model_name
-    
-    return result
-
-```
+**File not found**
 
 ## schema_validator.py (Priority: High)
 
@@ -2438,17 +1597,32 @@ on:
       - 'packages/agents/**/*.py'
   pull_request:
     branches: [ main, develop ]
-    paths:
-      - 'run_agent.py'
-      - 'agent_report_schema.json'
-      - 'schema_validator.py'
-      - 'reports/**/*.json'
-      - 'packages/agents/**/*.py'
   workflow_dispatch:
 
 jobs:
+  check-ollama-models:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+          
+      - name: Check Ollama models
+        id: check-models
+        run: |
+          python scripts/wait_for_ollama.py --models phi3.5:latest --timeout 60
+          
   validate-reports:
     runs-on: ubuntu-latest
+    needs: check-ollama-models
     steps:
       - uses: actions/checkout@v3
       
@@ -2467,24 +1641,49 @@ jobs:
         id: validate-schema
         run: |
           python validate_schema_ci.py
+          if [ $? -eq 0 ]; then echo "✅ Passed" > schema_validation_status.txt; else echo "❌ Failed" > schema_validation_status.txt; fi
           
       - name: Test agent pipeline validation
         id: test-pipeline
         run: |
           python test_agent_pipeline.py
+          if [ $? -eq 0 ]; then echo "✅ Passed" > pipeline_test_status.txt; else echo "❌ Failed" > pipeline_test_status.txt; fi
           
       - name: Run schema validation tests
         id: run-tests
         run: |
           python -m pytest test_schema_validator.py -v
+          if [ $? -eq 0 ]; then echo "✅ Passed" > schema_tests_status.txt; else echo "❌ Failed" > schema_tests_status.txt; fi
           
-      - name: Generate summary
+      - name: Generate validation summary
         if: always()
         run: |
-          echo "## Validation Report" > validation_report.md
-          echo "- Schema validation: ${{ steps.validate-schema.outcome }}" >> validation_report.md
-          echo "- Pipeline tests: ${{ steps.test-pipeline.outcome }}" >> validation_report.md
-          echo "- Schema tests: ${{ steps.run-tests.outcome }}" >> validation_report.md
+          echo "# Agent Report Validation Results" > validation_report.md
+          echo "" >> validation_report.md
+          
+          # Check schema validation status
+          if [ -f "schema_validation_status.txt" ]; then
+            STATUS=$(cat schema_validation_status.txt)
+            echo "- Schema validation: $STATUS" >> validation_report.md
+          else
+            echo "- Schema validation: Status unknown" >> validation_report.md
+          fi
+          
+          # Check pipeline test status
+          if [ -f "pipeline_test_status.txt" ]; then
+            STATUS=$(cat pipeline_test_status.txt)
+            echo "- Pipeline tests: $STATUS" >> validation_report.md
+          else
+            echo "- Pipeline tests: Status unknown" >> validation_report.md
+          fi
+          
+          # Check schema tests status
+          if [ -f "schema_tests_status.txt" ]; then
+            STATUS=$(cat schema_tests_status.txt)
+            echo "- Schema tests: $STATUS" >> validation_report.md
+          else
+            echo "- Schema tests: Status unknown" >> validation_report.md
+          fi
           
       - name: Upload validation report
         if: always()
@@ -2492,6 +1691,69 @@ jobs:
         with:
           name: validation-report
           path: validation_report.md
+          
+  test-agents:
+    runs-on: ubuntu-latest
+    needs: check-ollama-models
+    strategy:
+      matrix:
+        agent: [TestGeneratorAgent, DependencyAgent, CodeAnalyzerAgent, CodeDebuggerAgent, CodeRepairAgent, IntegratedCodebaseOptimizer]
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          
+      - name: Create test file
+        run: |
+          mkdir -p test_samples
+          echo 'def test_function():
+              print("Hello World")
+              return True' > test_samples/sample_code.py
+          
+      - name: Run ${{ matrix.agent }}
+        run: |
+          # Create output directory
+          mkdir -p test_outputs/${{ matrix.agent }}
+          
+          # Determine correct input type
+          INPUT_FILE="test_samples/sample_code.py"
+          if [[ "${{ matrix.agent }}" == "DependencyAgent" || "${{ matrix.agent }}" == "CodeAnalyzerAgent" || "${{ matrix.agent }}" == "IntegratedCodebaseOptimizer" ]]; then
+            INPUT_PATH="test_samples"
+          else
+            INPUT_PATH="$INPUT_FILE"
+          fi
+          
+          # Run the agent
+          python run_agent.py ${{ matrix.agent }} $INPUT_PATH --output-dir=test_outputs/${{ matrix.agent }}
+          
+      - name: Generate code coverage report
+        run: |
+          pip install pytest pytest-cov
+          
+          # Run pytest with appropriate test files
+          if [[ -f "tests/test_${{ matrix.agent }}.py" ]]; then
+            pytest --cov=packages.agents --cov-report=xml tests/test_${{ matrix.agent }}.py -v
+          elif [[ -f "tests/test_$(echo ${{ matrix.agent }} | tr '[:upper:]' '[:lower:]').py" ]]; then
+            pytest --cov=packages.agents --cov-report=xml tests/test_$(echo ${{ matrix.agent }} | tr '[:upper:]' '[:lower:]').py -v
+          else
+            # Run general tests if specific tests don't exist
+            pytest --cov=packages.agents --cov-report=xml tests/test_agents.py -v
+          fi
+          
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          name: ${{ matrix.agent }}-coverage
+          fail_ci_if_error: false
 
 ```
 
