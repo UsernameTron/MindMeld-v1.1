@@ -92,7 +92,7 @@ jobs:
           python validate_schema_ci.py --reports-dir=test_outputs
 
       - name: Upload agent output
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.agent }}-output
           path: test_outputs/${{ matrix.agent }}*.json
@@ -133,7 +133,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           path: combined_outputs
 
@@ -142,7 +142,7 @@ jobs:
           python -m scripts.analyze_agent_reports combined_outputs > combined_analysis.json
 
       - name: Upload combined analysis
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: agent-analysis
           path: combined_analysis.json

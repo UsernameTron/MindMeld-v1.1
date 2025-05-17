@@ -48,7 +48,7 @@ jobs:
       run: |
         python3 -c "import json, jsonschema, glob, sys; from pathlib import Path; schema_path = Path('agent_report_schema.json'); with open(schema_path) as f: SCHEMA = json.load(f); failed = False; files = glob.glob('reports/*/*.json'); for report_file in files: try: with open(report_file) as f2: data = json.load(f2) jsonschema.validate(instance=data, schema=SCHEMA) print(f'✅ {report_file} is valid') except json.JSONDecodeError: print(f'❌ {report_file} is not valid JSON') failed = True except jsonschema.exceptions.ValidationError as e: print(f'❌ {report_file} failed validation: {e}') failed = True except Exception as e: print(f'❌ Error reading {report_file}: {e}') failed = True if failed: print('Some reports failed validation') sys.exit(1) else: print('All reports passed validation')"
     - name: Upload agent reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: agent-reports
         path: reports/
