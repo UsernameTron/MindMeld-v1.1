@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "next build",
-    "test": "jest --config jest.config.js",
+    "test": "jest --config jest.config.mjs",
     "dev:backend": "ts-node --transpile-only src/index.ts",
     "test:watch": "vitest watch --config=vitest.config.js",
     "test:frontend": "vitest run --config=frontend/vitest.config.mts",
@@ -36,6 +36,7 @@
   "devDependencies": {
     "@actions/artifact": "^2.3.2",
     "@axe-core/playwright": "^4.10.1",
+    "@babel/core": "^7.27.1",
     "@babel/preset-env": "^7.27.2",
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
@@ -62,6 +63,7 @@
     "ajv": "^8.17.1",
     "axe-core": "^4.10.3",
     "axios-mock-adapter": "^2.1.0",
+    "babel-jest": "^29.7.0",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-plugin-prettier": "^5.4.0",
@@ -96,5 +98,5 @@
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },
-  "type": "commonjs"
+  "type": "module"
 }

@@ -6,4 +6,8 @@ export default {
     'promptService\\.test\\.js$', // skip Vitest test
   ],
   testEnvironment: 'node',
+  transform: {
+    '^.+\\.js$': ['babel-jest', { configFile: './babel.config.cjs', babelrc: false }],
+  },
+  moduleNameMapper: {},
 };
