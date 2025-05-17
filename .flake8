@@ -1,0 +1,55 @@
+[flake8]
+# Maximum line length
+max-line-length = 100
+
+# Exclude patterns (comma-separated list of paths)
+exclude =
+    .git,
+    __pycache__,
+    .github,
+    .venv,
+    venv,
+    env,
+    .env,
+    build,
+    dist,
+    *.egg-info,
+    .pytest_cache,
+    htmlcov,
+    reports
+
+# Ignore specific errors/warnings
+ignore =
+    # Line too long (handled by max-line-length)
+    E501,
+    # Line break before binary operator
+    W503,
+    # Module level import not at top of file (sometimes needed for conditional imports)
+    E402,
+    # Do not use bare 'except' (sometimes we really want to catch all errors)
+    E722
+
+# McCabe complexity threshold
+max-complexity = 12
+
+# Additional plugins to enable
+enable-extensions = G
+
+# Flake8-quotes settings
+inline-quotes = double
+multiline-quotes = double
+docstring-quotes = double
+
+# Docstring checking
+docstring-convention = google
+
+# Select specific error codes to enable beyond the default
+select = C,E,F,W,B,B9
+
+# Output settings
+format = %(path)s:%(row)d:%(col)d: %(code)s %(text)s
+
+# Aggresivity level
+statistics = True
+count = True
+show-source = True

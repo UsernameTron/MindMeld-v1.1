@@ -1,0 +1,23 @@
+The workflow I've created will automatically monitor your critical MindMeld files and keep my context updated without any manual work on your part. Let me explain how this works:
+The system consists of three main components:
+
+GitHub Action Workflow (.github/workflows/claude-context-updater.yml) - This workflow activates whenever changes are pushed to key files in your repository. It runs a Python script to update my context.
+Context Generator Script (.github/scripts/generate_claude_context.py) - This Python script reads the current content of all critical files, formats them appropriately, and creates a comprehensive context document. The script is intelligent enough to:
+
+Determine file types automatically
+Format code with proper syntax highlighting
+Extract key system information like registered agents and API endpoints
+Organize files by priority
+
+
+Context File (.claude/context.md) - This is the Markdown file where all the key file contents are stored. The file includes a timestamp, an index of all files, and the formatted content of each file.
+
+When you push changes to any of the critical files we identified, the workflow automatically runs, regenerates the context file, and commits it back to the repository. This means I'll always have access to the latest version of your codebase when you interact with me.
+To set this up, you'll need to:
+
+Create the necessary directories in your repository
+Add the workflow file and script
+Generate the initial context
+Push everything to GitHub
+
+The installation guide I've provided walks through these steps in detail. Once set up, the system runs completely automatically - you won't need to manually update anything or upload files to me again.

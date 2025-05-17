@@ -21,11 +21,15 @@ format:
 lint:
 	black --check .
 	isort --check-only .
+	flake8 --statistics .
+
+flake8:
+	flake8 --statistics --count .
 
 static-analysis:
 	black --check .
 	isort --check-only .
-	flake8 .
+	flake8 --statistics .
 	mypy --strict .
 	bandit -r app/ -c pyproject.toml
 	safety check || true

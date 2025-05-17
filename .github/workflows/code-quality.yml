@@ -1,0 +1,148 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+      - '.github/workflows/code-quality.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+      - '.github/workflows/code-quality.yml'
+  workflow_dispatch:
+
+jobs:
+  lint-and-type-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 flake8-docstrings flake8-bugbear flake8-comprehensions flake8-quotes mypy black isort
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Check formatting with Black
+        run: |
+          black --check .
+
+      - name: Check import order with isort
+        run: |
+          isort --check-only --profile black .
+
+      - name: Lint with flake8
+        run: |
+          # First check for critical errors that should fail the build
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Then run a more comprehensive but non-failing check
+          flake8 . --count --exit-zero --config=.flake8 --statistics
+
+      - name: Type checking with mypy
+        run: |
+          mypy --ignore-missing-imports --disallow-untyped-defs --disallow-incomplete-defs packages/agents
+
+  test-agents-matrix:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        agent: [test_generator, dependency_agent, code_analyzer, code_debugger, code_repair, summarizer]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Pull Ollama models
+        run: |
+          curl -fsSL https://ollama.ai/install.sh | sh
+          ollama pull phi3.5:latest
+          ollama pull codellama:latest
+
+      - name: Test ${{ matrix.agent }}
+        id: test-agent
+        run: |
+          mkdir -p test_outputs
+          python run_agent.py ${{ matrix.agent }} "Test runner for ${{ matrix.agent }}" test_data/ \
+            --output-dir=test_outputs \
+            --model "phi3.5:latest" \
+            --verbose
+
+      - name: Validate output schema
+        run: |
+          python validate_schema_ci.py --reports-dir=test_outputs
+
+      - name: Upload agent output
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.agent }}-output
+          path: test_outputs/${{ matrix.agent }}*.json
+
+  docstring-coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install interrogate
+
+      - name: Check docstring coverage
+        run: |
+          interrogate -v --ignore-init-method --ignore-module --ignore-nested-functions --ignore-regex "__.*__" -f 75 packages/
+
+  analyze-agent-reports:
+    needs: [test-agents-matrix]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: combined_outputs
+
+      - name: Analyze agent reports
+        run: |
+          python -m scripts.analyze_agent_reports combined_outputs > combined_analysis.json
+
+      - name: Upload combined analysis
+        uses: actions/upload-artifact@v3
+        with:
+          name: agent-analysis
+          path: combined_analysis.json

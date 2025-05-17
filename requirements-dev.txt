@@ -1,3 +1,11 @@
 pytest
 pytest-mock
 # (and your mock_kafka or other test-only deps)
+
+# Linting and code quality
+flake8>=7.0.0
+flake8-docstrings>=1.7.0
+flake8-bugbear>=24.1.0
+flake8-comprehensions>=3.16.0
+flake8-quotes>=3.4.0
+pre-commit>=4.2.0

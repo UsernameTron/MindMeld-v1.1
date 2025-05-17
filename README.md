@@ -164,3 +164,46 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for a high-level overview of agent orch
 ## License
 
 See the [LICENSE](LICENSE) file for details.
+
+## Code Quality
+
+MindMeld maintains high code quality through automated linting and formatting tools.
+
+### Linting
+
+We use Flake8 with several plugins to enforce coding standards:
+
+```bash
+# Run linter on the entire codebase
+./lint.sh
+
+# Run linter on a specific directory
+./lint.sh utils/
+
+# Automatically fix common issues
+./lint_fix.sh
+```
+
+### Code Style
+
+The project follows these standards:
+- [PEP 8](https://www.python.org/dev/peps/pep-0008/) - Python style guide
+- Black formatting with line length of 100
+- Docstrings using Google style
+
+### Pre-commit Hooks
+
+We use pre-commit hooks to ensure code quality before each commit:
+
+```bash
+# Install pre-commit hooks
+pre-commit install
+
+# Run hooks manually on all files
+pre-commit run --all-files
+```
+
+### CI/CD
+
+The CI pipeline automatically checks code quality on every pull request and push.
+See `.github/workflows/code-quality.yml` for details.

@@ -1,7 +1,0 @@
-{
-  "result": "[ERROR] Agent execution failed: invalid literal for int() with base 10: 'src/'",
-  "metadata": {
-    "agent": "summarizer",
-    "timestamp": 1747494391
-  }
-}

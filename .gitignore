@@ -35,7 +35,9 @@ playwright-report/
 Thumbs.db
 
 # IDEs and editors
-.vscode/
+.vscode/*
+!.vscode/tasks.json
+!.vscode/launch.json
 .idea/
 *.swp
 *.swo
@@ -97,6 +99,12 @@ Icon?
 # Ignore logs and archive
 logs/
 archive/
+
+# Exception for Github workflows and scripts
+!.github/
+!.github/workflows/
+!.github/scripts/
+!.claude/
 
 # Ignore temp markdown files
 *.temp.md
