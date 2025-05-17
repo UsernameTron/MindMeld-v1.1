@@ -1,6 +1,6 @@
 # MindMeld Repository Context for Claude
 
-Last updated: 2025-05-17 19:22:34
+Last updated: 2025-05-17 20:56:36
 
 ## File Index
 
@@ -24,27 +24,64 @@ Last updated: 2025-05-17 19:22:34
 ```python
 #!/usr/bin/env python3
 """
-Enhanced agent runner for MindMeld platform.
-Includes input validation, schema compliance, and error handling.
+Enhanced agent runner for MindMeld platform with improved error handling,
+file operations, and LLM interaction.
+
+Includes input validation, schema compliance, error handling, and performance optimization.
 """
 
-import sys
-from pathlib import Path
+import argparse
 import json
-import jsonschema
-import time
 import os
-import requests
 import platform
+import sys
+import time
 import traceback
 import uuid
-from typing import Dict, Any, Optional, Union
-from packages.agents.AgentFactory import AGENT_REGISTRY, AGENT_INPUT_TYPES
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
+
+import jsonschema
+import requests
+from utils.error_handling import (
+    FileProcessingError,
+    LLMCallError,
+    MindMeldError,
+    Transaction,
+    ValidationError,
+    format_error_for_json,
+    retry_on_llm_error,
+)
+from utils.file_operations import path_exists, read_file, safe_file_write, write_file
+from utils.llm_client import get_default_model, get_model_config
+from utils.model_manager import ModelManager
+from utils.schema_validator import normalize_agent_output, validate_agent_output
+
+from packages.agents.AgentFactory import AGENT_INPUT_TYPES, AGENT_REGISTRY
+
 
 # load the schema once
-schema_path = Path(__file__).parent / "agent_report_schema.json"
-with open(schema_path) as sf:
-    REPORT_SCHEMA = json.load(sf)
+def load_schema():
+    """Load the agent report schema from the schema file."""
+    schema_path = Path(__file__).parent / "agent_report_schema.json"
+    try:
+        return json.loads(read_file(schema_path))
+    except FileProcessingError as e:
+        print(f"Error loading schema: {e}")
+        # Provide a minimal default schema if the file can't be loaded
+        return {
+            "type": "object",
+            "required": ["agent", "status", "metadata"],
+            "properties": {
+                "agent": {"type": "string"},
+                "status": {"type": "string", "enum": ["success", "error"]},
+                "metadata": {"type": "object"},
+            },
+        }
+
+
+REPORT_SCHEMA = load_schema()
+
 
 def get_system_info():
     """Get system information for metadata."""
@@ -54,61 +91,67 @@ def get_system_info():
         "cpu_count": os.cpu_count(),
     }
 
+
 def get_model_info():
     """Get model information for metadata."""
     return {
         "name": os.getenv("OLLAMA_MODEL", "phi3.5:latest"),
         "config": {
             "temperature": float(os.getenv("TEMPERATURE", "0.7")),
-            "max_tokens": int(os.getenv("MAX_TOKENS", "2048"))
-        }
+            "max_tokens": int(os.getenv("MAX_TOKENS", "2048")),
+        },
     }
+
 
 def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
     """
     Validate that the input matches the agent's expected type.
     Returns an error dict if validation fails, None if validation passes.
+
+    Args:
+        agent_name: Name of the agent
+        payload: Input payload for the agent
+
+    Returns:
+        Error report dict or None if validation passes
     """
     # Skip validation if agent doesn't have a defined input type
     if agent_name not in AGENT_INPUT_TYPES:
         return None
-    
+
     input_type = AGENT_INPUT_TYPES[agent_name]
-    
+
     # Check for empty payload
     if not payload or (isinstance(payload, str) and payload.strip() == ""):
         return {
             "agent": agent_name,
             "status": "error",
-            "error": {
-                "message": "Empty payload provided",
-                "type": "ValidationError"
-            },
+            "error": {"message": "Empty payload provided", "type": "ValidationError"},
             "metadata": {
                 "agent": agent_name,
                 "timestamp": int(time.time()),
                 "system_info": get_system_info(),
-                "model_info": get_model_info()
-            }
+                "model_info": get_model_info(),
+            },
         }
-    
+
     # Validate file input
     if input_type == "file":
         path = Path(payload)
-        if not path.exists():
+        if not path_exists(path):
             return {
                 "agent": agent_name,
                 "status": "error",
                 "error": {
                     "message": f"File not found: {payload}",
-                    "type": "ValidationError"
+                    "type": "ValidationError",
                 },
                 "metadata": {
                     "agent": agent_name,
                     "timestamp": int(time.time()),
                     "system_info": get_system_info(),
-                    "model_info": get_model_info()
-                }
+                    "model_info": get_model_info(),
+                },
             }
         if path.is_dir():
             return {
@@ -116,33 +159,33 @@ def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
                 "status": "error",
                 "error": {
                     "message": f"Expected file path but received directory: {payload}",
-                    "type": "ValidationError"
+                    "type": "ValidationError",
                 },
                 "metadata": {
                     "agent": agent_name,
                     "timestamp": int(time.time()),
                     "system_info": get_system_info(),
-                    "model_info": get_model_info()
-                }
+                    "model_info": get_model_info(),
+                },
             }
-    
+
     # Validate directory input
     elif input_type == "directory":
         path = Path(payload)
-        if not path.exists():
+        if not path_exists(path):
             return {
                 "agent": agent_name,
                 "status": "error",
                 "error": {
                     "message": f"Directory not found: {payload}",
-                    "type": "ValidationError"
+                    "type": "ValidationError",
                 },
                 "metadata": {
                     "agent": agent_name,
                     "timestamp": int(time.time()),
                     "system_info": get_system_info(),
-                    "model_info": get_model_info()
-                }
+                    "model_info": get_model_info(),
+                },
             }
         if not path.is_dir():
             return {
@@ -150,16 +193,16 @@ def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
                 "status": "error",
                 "error": {
                     "message": f"Expected directory path but received file: {payload}",
-                    "type": "ValidationError"
+                    "type": "ValidationError",
                 },
                 "metadata": {
                     "agent": agent_name,
                     "timestamp": int(time.time()),
                     "system_info": get_system_info(),
-                    "model_info": get_model_info()
-                }
+                    "model_info": get_model_info(),
+                },
             }
-    
+
     # Validate integer input
     elif input_type == "integer":
         try:
@@ -170,64 +213,78 @@ def validate_input(agent_name: str, payload: str) -> Optional[Dict[str, Any]]:
                 "status": "error",
                 "error": {
                     "message": f"Agent {agent_name} expected integer input but received: {payload}",
-                    "type": "ValidationError"
+                    "type": "ValidationError",
                 },
                 "metadata": {
                     "agent": agent_name,
                     "timestamp": int(time.time()),
                     "system_info": get_system_info(),
-                    "model_info": get_model_info()
-                }
+                    "model_info": get_model_info(),
+                },
             }
-    
+
     # All validation passed
     return None
 
+
 def check_model_availability(model_name="phi3.5:latest"):
-    """Check if required model is available."""
+    """Check if required model is available using ModelManager."""
     try:
-        # Try to connect to Ollama API
-        ollama_url = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
-        response = requests.get(f"{ollama_url}/api/tags", timeout=5)
-        
-        # Check if model is in the list
-        if response.status_code == 200:
-            models = response.json().get("models", [])
-            model_names = [m.get("name") for m in models]
-            return model_name in model_names
-        return False
-    except Exception:
+        # Use the model manager to check availability
+        model_manager = ModelManager()
+        is_available = model_manager.check_model_availability(model_name)
+
+        return is_available
+    except Exception as e:
+        logger.error(f"Error checking model availability: {str(e)}")
         return False
 
-def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp: int, runtime_seconds: float, job_id: str) -> Dict[str, Any]:
+
+def normalize_agent_output(
+    result: Any,
+    agent_name: str,
+    payload: str,
+    timestamp: int,
+    runtime_seconds: float,
+    job_id: str,
+) -> Dict[str, Any]:
     """
-    Normalize the agent output to conform to the schema.
+    Normalize the agent output to conform to the schema using schema validator.
     """
-    # Start with base metadata
-    metadata = {
-        "agent": agent_name,
-        "timestamp": timestamp,
-        "payload": payload[:200] if payload else "",  # Truncate if too long
-        "runtime_seconds": runtime_seconds,
-        "job_id": job_id,
-        "system_info": get_system_info(),
-        "model_info": get_model_info()
-    }
-    
+    try:
+        # Use the schema validator's normalize function
+        return normalize_agent_output(
+            output=result,
+            agent_name=agent_name,
+            payload=payload,
+            timestamp=timestamp,
+            runtime_seconds=runtime_seconds,
+            job_id=job_id,
+        )
+    except ImportError:
+        # Fall back to original implementation if module not available
+        # Start with base metadata
+        metadata = {
+            "agent": agent_name,
+            "timestamp": timestamp,
+            "payload": payload[:200] if payload else "",  # Truncate if too long
+            "runtime_seconds": runtime_seconds,
+            "job_id": job_id,
+            "system_info": get_system_info(),
+            "model_info": get_model_info(),
+        }
+
     # For string results (likely errors)
     if isinstance(result, str):
         if "[ERROR]" in result:
             return {
                 "agent": agent_name,
                 "status": "error",
-                "error": {
-                    "message": result,
-                    "type": "AgentError"
-                },
+                "error": {"message": result, "type": "AgentError"},
                 "timestamp": timestamp,
                 "payload": payload,
                 "runtime_seconds": runtime_seconds,
-                "metadata": metadata
+                "metadata": metadata,
             }
         else:
             return {
@@ -237,24 +294,24 @@ def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp
                 "timestamp": timestamp,
                 "payload": payload,
                 "runtime_seconds": runtime_seconds,
-                "metadata": metadata
+                "metadata": metadata,
             }
-    
+
     # For dictionary results
     if isinstance(result, dict):
         normalized = {
             "agent": agent_name,
             "timestamp": timestamp,
             "payload": payload,
-            "runtime_seconds": runtime_seconds
+            "runtime_seconds": runtime_seconds,
         }
-        
+
         # Copy over metadata if it exists, merge with our metadata
         if "metadata" in result:
             result_metadata = result.pop("metadata", {})
             metadata.update(result_metadata)
         normalized["metadata"] = metadata
-        
+
         # Determine status
         if "status" in result:
             normalized["status"] = result["status"]
@@ -271,26 +328,36 @@ def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp
                 normalized["data"]["diagnostics"] = result["diagnostics"]
         else:
             normalized["status"] = "success"
-        
+
         # For error status, ensure error object exists
         if normalized.get("status") == "error" and "error" not in normalized:
             error_msg = result.get("error", "Unknown error")
-            normalized["error"] = {
-                "message": str(error_msg),
-                "type": "AgentError"
-            }
-        
+            normalized["error"] = {"message": str(error_msg), "type": "AgentError"}
+
         # Copy all other fields to data
-        data_fields = {k: v for k, v in result.items() 
-                      if k not in ["agent", "status", "timestamp", "payload", 
-                                  "runtime_seconds", "metadata", "error"]}
+        data_fields = {
+            k: v
+            for k, v in result.items()
+            if k
+            not in [
+                "agent",
+                "status",
+                "timestamp",
+                "payload",
+                "runtime_seconds",
+                "metadata",
+                "error",
+            ]
+        }
         if data_fields:
             normalized["data"] = data_fields
         elif "data" not in normalized and normalized.get("status") == "success":
-            normalized["data"] = {"result": "Agent executed without specific data output"}
-        
+            normalized["data"] = {
+                "result": "Agent executed without specific data output"
+            }
+
         return normalized
-    
+
     # For list or other objects
     return {
         "agent": agent_name,
@@ -299,52 +366,73 @@ def normalize_agent_output(result: Any, agent_name: str, payload: str, timestamp
         "timestamp": timestamp,
         "payload": payload,
         "runtime_seconds": runtime_seconds,
-        "metadata": metadata
+        "metadata": metadata,
     }
+
 
 def main():
     """Run an agent from the command line."""
-    if len(sys.argv) < 3:
-        print("Usage: python run_agent.py <agent_name> <payload> [--verbose]")
-        return 1
-    
-    # Get agent name and payload from command line
-    name = sys.argv[1]
-    payload = sys.argv[2]
-    
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Run an agent from the command line")
+    parser.add_argument("agent_name", help="Name of the agent to run")
+    parser.add_argument(
+        "payload", help="Input for the agent (file path, directory path, etc.)"
+    )
+    parser.add_argument("--verbose", action="store_true", help="Enable verbose output")
+    parser.add_argument(
+        "--output-dir", default="reports", help="Directory to save the report in"
+    )
+    parser.add_argument("--model", help="Override the default model")
+    parser.add_argument("--list", action="store_true", help="List available agents")
+
+    args = parser.parse_args()
+
+    # List available agents
+    if args.list:
+        print("Available agents:")
+        for agent in sorted(AGENT_REGISTRY.keys()):
+            input_type = AGENT_INPUT_TYPES.get(agent, "any")
+            print(f"  {agent} (input: {input_type})")
+        return 0
+
     # Create job ID for traceability
     job_id = str(uuid.uuid4())
     timestamp = int(time.time())
-    
-    # Ensure reports directory exists
-    reports_dir = Path("reports")
-    reports_dir.mkdir(exist_ok=True)
-    
+
+    # Get agent name and payload
+    name = args.agent_name
+    payload = args.payload
+
+    # Create output directories and report path
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(exist_ok=True)
+
     # Create agent-specific directory
-    agent_dir = reports_dir / name
+    agent_dir = output_dir / name
     agent_dir.mkdir(exist_ok=True)
-    
+
     # Define report path using agent name and timestamp
     report_path = agent_dir / f"{name}_{timestamp}.json"
-    
+
+    # Initialize the model manager
+    model_manager = ModelManager()
+
     # Validate input
     validation_result = validate_input(name, payload)
     if validation_result:
         # Input validation failed, write the error report
-        with open(report_path, "w") as f:
-            json.dump(validation_result, f, indent=2)
-        print(f"❌ Input validation failed: {validation_result.get('error', {}).get('message', 'Unknown error')}")
+        safe_file_write(report_path, json.dumps(validation_result, indent=2))
+        print(
+            f"❌ Input validation failed: {validation_result.get('error', {}).get('message', 'Unknown error')}"
+        )
         return 1
-    
+
     # Check if agent exists in registry
     if name not in AGENT_REGISTRY:
         error_result = {
             "agent": name,
             "status": "error",
-            "error": {
-                "message": f"Unknown agent: {name}",
-                "type": "ImportError"
-            },
+            "error": {"message": f"Unknown agent: {name}", "type": "ImportError"},
             "timestamp": timestamp,
             "payload": payload,
             "metadata": {
@@ -352,25 +440,30 @@ def main():
                 "timestamp": timestamp,
                 "job_id": job_id,
                 "system_info": get_system_info(),
-                "model_info": get_model_info()
-            }
+                "model_info": get_model_info(),
+            },
         }
-        with open(report_path, "w") as f:
-            json.dump(error_result, f, indent=2)
+        safe_file_write(report_path, json.dumps(error_result, indent=2))
         print(f"❌ Unknown agent: {name}")
         return 1
-    
-    # Check if Ollama is running for LLM-dependent agents
-    llm_agents = ["TestGeneratorAgent", "ceo", "executor", "summarizer"]
-    if name in llm_agents:
-        model_name = os.environ.get("OLLAMA_MODEL", "phi3.5:latest")
-        if not check_model_availability(model_name):
+
+    # Check model availability for LLM-dependent agents
+    if name in model_manager.get_llm_dependent_agents():
+        # Get the model for this agent (either from registry or default)
+        model_name = (
+            args.model
+            or model_manager.get_agent_model(name)
+            or os.environ.get("OLLAMA_MODEL", "phi3.5:latest")
+        )
+
+        # Try to ensure the model is available (with auto-pull if configured)
+        if not model_manager.ensure_model_available(model_name):
             error_result = {
                 "agent": name,
                 "status": "error",
                 "error": {
                     "message": f"Required model not available: {model_name}",
-                    "type": "ModelUnavailableError"
+                    "type": "ModelUnavailableError",
                 },
                 "timestamp": timestamp,
                 "payload": payload,
@@ -379,14 +472,34 @@ def main():
                     "timestamp": timestamp,
                     "job_id": job_id,
                     "system_info": get_system_info(),
-                    "model_info": {"name": model_name}
-                }
+                    "model_info": {"name": model_name},
+                },
+            }
+            safe_file_write(report_path, json.dumps(error_result, indent=2))
+            print(f"❌ Model not available: {model_name}")
+            return 1
+            error_result = {
+                "agent": name,
+                "status": "error",
+                "error": {
+                    "message": f"Required model not available: {model_name}",
+                    "type": "ModelUnavailableError",
+                },
+                "timestamp": timestamp,
+                "payload": payload,
+                "metadata": {
+                    "agent": name,
+                    "timestamp": timestamp,
+                    "job_id": job_id,
+                    "system_info": get_system_info(),
+                    "model_info": {"name": model_name},
+                },
             }
             with open(report_path, "w") as f:
                 json.dump(error_result, f, indent=2)
             print(f"❌ Model not available: {model_name}")
             return 1
-    
+
     # Create the agent
     try:
         creator = AGENT_REGISTRY[name]
@@ -401,7 +514,7 @@ def main():
             "status": "error",
             "error": {
                 "message": f"Failed to create agent {name}: {str(e)}",
-                "type": e.__class__.__name__
+                "type": e.__class__.__name__,
             },
             "timestamp": timestamp,
             "payload": payload,
@@ -410,94 +523,135 @@ def main():
                 "timestamp": timestamp,
                 "job_id": job_id,
                 "system_info": get_system_info(),
-                "model_info": get_model_info()
-            }
+                "model_info": get_model_info(),
+            },
         }
         with open(report_path, "w") as f:
             json.dump(error_result, f, indent=2)
         print(f"❌ Failed to create agent: {e}")
         return 1
 
-    # Execute the agent with timing
+    # Execute the agent with timing and transaction support
     start_time = time.time()
-    try:
-        # If this is the dependency_agent, call analyze_deps directly
-        if hasattr(agent, 'analyze_deps') and name == "dependency_agent":
-            verbose = "--verbose" in sys.argv
-            result = agent.analyze_deps(payload, verbose)
-        elif hasattr(agent, 'run'):
-            try:
-                result = agent.run(payload)
-            except TypeError:
-                result = agent.run()
-        else:
-            result = agent(payload) if callable(agent) else agent
-    except Exception as e:
-        # Handle execution error
-        end_time = time.time()
-        runtime_seconds = end_time - start_time
-        error_message = str(e)
-        error_type = e.__class__.__name__
-        
-        # Include traceback for more detailed error info
-        error_details = traceback.format_exc()
-        
-        error_result = {
-            "agent": name,
-            "status": "error",
-            "error": {
-                "message": error_message,
-                "type": error_type,
-                "details": error_details
-            },
-            "timestamp": timestamp,
-            "payload": payload,
-            "runtime_seconds": runtime_seconds,
-            "metadata": {
+
+    # Create a transaction for atomic operations
+    with Transaction(name=f"agent_execution_{name}") as transaction:
+        try:
+            # Define a function for executing agent with retry capabilities
+            @retry_on_llm_error(max_retries=3, delay=1.0, backoff_factor=2.0)
+            def execute_agent():
+                if hasattr(agent, "analyze_deps") and name == "dependency_agent":
+                    verbose = "--verbose" in sys.argv
+                    return agent.analyze_deps(payload, verbose)
+                elif hasattr(agent, "run"):
+                    try:
+                        return agent.run(payload)
+                    except TypeError:
+                        return agent.run()
+                else:
+                    return agent(payload) if callable(agent) else agent
+
+            # Execute the agent with retry capability
+            result = execute_agent()
+
+            # Register successful result with transaction
+            transaction.register_success(result)
+
+        except Exception as e:
+            # Handle execution error with improved error formatting
+            end_time = time.time()
+            runtime_seconds = end_time - start_time
+
+            # Format error for JSON output
+            error_data = format_error_for_json(e)
+
+            # Add agent-specific context
+            if not isinstance(e, MindMeldError):
+                error_data["agent"] = name
+
+            error_result = {
                 "agent": name,
+                "status": "error",
+                "error": error_data,
                 "timestamp": timestamp,
-                "job_id": job_id,
-                "system_info": get_system_info(),
-                "model_info": get_model_info()
+                "payload": payload,
+                "runtime_seconds": runtime_seconds,
+                "metadata": {
+                    "agent": name,
+                    "timestamp": timestamp,
+                    "job_id": job_id,
+                    "system_info": get_system_info(),
+                    "model_info": get_model_info(),
+                },
             }
-        }
-        
-        with open(report_path, "w") as f:
-            json.dump(error_result, f, indent=2)
-        
-        print(f"❌ Agent execution failed: {error_message}")
-        return 1
+
+            # Use safe_file_write to write the error report
+            safe_file_write(report_path, json.dumps(error_result, indent=2))
+
+            print(f"❌ Agent execution failed: {error_data.get('message', str(e))}")
+            return 1
 
     # Calculate runtime and normalize output
     end_time = time.time()
     runtime_seconds = end_time - start_time
-    
-    # Normalize the result to match schema
-    normalized_result = normalize_agent_output(
-        result, name, payload, timestamp, runtime_seconds, job_id
-    )
-    
+
+    # Normalize the result using schema validator
+    try:
+        from utils.schema_validator import (
+            normalize_agent_output as normalize_schema_output,
+        )
+
+        normalized_result = normalize_schema_output(
+            output=result,
+            agent_name=name,
+            payload=payload,
+            timestamp=timestamp,
+            runtime_seconds=runtime_seconds,
+            job_id=job_id,
+        )
+    except ImportError:
+        # Fall back to local normalization if module not available
+        normalized_result = normalize_agent_output(
+            result, name, payload, timestamp, runtime_seconds, job_id
+        )
+
     # Validate against schema
     try:
-        jsonschema.validate(instance=normalized_result, schema=REPORT_SCHEMA)
-        validation_success = True
-    except jsonschema.exceptions.ValidationError as e:
-        validation_success = False
-        # Add validation error but don't fail
-        if "metadata" not in normalized_result:
-            normalized_result["metadata"] = {}
-        normalized_result["metadata"]["validation_error"] = str(e)
-        print(f"⚠️ Warning: Schema validation failed: {e}")
-    
-    # Write the report file
-    with open(report_path, "w") as f:
-        json.dump(normalized_result, f, indent=2)
-    
+        # Use schema validator to validate output
+        from utils.schema_validator import validate_agent_output
+
+        validation_success, validation_error = validate_agent_output(
+            normalized_result, REPORT_SCHEMA
+        )
+
+        if not validation_success:
+            # Add validation error but don't fail
+            if "metadata" not in normalized_result:
+                normalized_result["metadata"] = {}
+            normalized_result["metadata"]["validation_error"] = validation_error
+            print(f"⚠️ Warning: Schema validation failed: {validation_error}")
+    except ImportError:
+        # Fall back to direct jsonschema validation
+        try:
+            jsonschema.validate(instance=normalized_result, schema=REPORT_SCHEMA)
+            validation_success = True
+        except jsonschema.exceptions.ValidationError as e:
+            validation_success = False
+            # Add validation error but don't fail
+            if "metadata" not in normalized_result:
+                normalized_result["metadata"] = {}
+            normalized_result["metadata"]["validation_error"] = str(e)
+            print(f"⚠️ Warning: Schema validation failed: {e}")
+
+    # Write the report file using safe file write
+    safe_file_write(report_path, json.dumps(normalized_result, indent=2))
+
     print(f"✅ Agent execution complete, report saved to {report_path}")
     if not validation_success:
         print("⚠️ Note: Output required schema normalization")
-    
+
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
@@ -1099,11 +1253,808 @@ async def get_task_status(task_id: str):
 
 ## utils/llm_client.py (Priority: High)
 
-**File not found**
+```python
+"""
+LLM client utility for MindMeld.
+
+This module provides standardized LLM interaction with retry logic,
+fallback models, and consistent error handling.
+"""
+
+import json
+import logging
+import os
+import time
+from functools import wraps
+from typing import Any, Dict, List, Optional, Union
+
+import requests
+import tenacity
+from tenacity import (
+    retry,
+    retry_if_exception_type,
+    stop_after_attempt,
+    wait_exponential,
+)
+from utils.error_handling import LLMCallError, ModelUnavailableError
+
+logger = logging.getLogger(__name__)
+
+# Default configuration
+DEFAULT_MODEL = "phi3.5:latest"
+DEFAULT_MAX_RETRIES = 3
+DEFAULT_BACKOFF_FACTOR = 1.5
+DEFAULT_MAX_BACKOFF = 10
+DEFAULT_TEMPERATURE = 0.7
+DEFAULT_MAX_TOKENS = 2048
+DEFAULT_TIMEOUT = 30  # seconds
+
+
+def get_default_model() -> str:
+    """
+    Get the default LLM model from environment variables.
+
+    Returns:
+        Model name string
+    """
+    return os.getenv("OLLAMA_MODEL", DEFAULT_MODEL)
+
+
+def get_model_config() -> Dict[str, Any]:
+    """
+    Get the model configuration from environment variables.
+
+    Returns:
+        Model configuration dictionary
+    """
+    return {
+        "temperature": float(os.getenv("TEMPERATURE", DEFAULT_TEMPERATURE)),
+        "max_tokens": int(os.getenv("MAX_TOKENS", DEFAULT_MAX_TOKENS)),
+        "timeout": int(os.getenv("TIMEOUT", DEFAULT_TIMEOUT)),
+    }
+
+
+def get_fallback_model() -> str:
+    """
+    Get the fallback LLM model from environment variables.
+
+    Returns:
+        Fallback model name string
+    """
+    return os.getenv("FALLBACK_MODEL", "llama2")
+
+
+def call_llm_with_retry(
+    max_retries: int = DEFAULT_MAX_RETRIES,
+    backoff_factor: float = DEFAULT_BACKOFF_FACTOR,
+    max_backoff: float = DEFAULT_MAX_BACKOFF,
+):
+    """
+    Decorator to retry LLM calls with exponential backoff.
+
+    Args:
+        max_retries: Maximum number of retry attempts
+        backoff_factor: Factor to multiply delay on each retry
+        max_backoff: Maximum backoff time in seconds
+
+    Returns:
+        Decorated function
+    """
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            @retry(
+                stop=stop_after_attempt(max_retries),
+                wait=wait_exponential(multiplier=backoff_factor, max=max_backoff),
+                retry=retry_if_exception_type(
+                    (LLMCallError, requests.exceptions.RequestException)
+                ),
+                reraise=True,
+            )
+            def _retry_call():
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    if isinstance(e, LLMCallError):
+                        logger.warning(f"LLM call failed, retrying: {str(e)}")
+                        raise
+                    else:
+                        logger.warning(f"Error in LLM call, retrying: {str(e)}")
+                        raise LLMCallError(f"Error in LLM call: {str(e)}") from e
+
+            try:
+                return _retry_call()
+            except tenacity.RetryError as e:
+                if e.last_attempt.exception():
+                    logger.error(
+                        f"All retry attempts failed: {str(e.last_attempt.exception())}"
+                    )
+                    raise LLMCallError(
+                        f"All retry attempts failed: {str(e.last_attempt.exception())}"
+                    )
+                else:
+                    logger.error("All retry attempts failed")
+                    raise LLMCallError("All retry attempts failed")
+
+        return wrapper
+
+    return decorator
+
+
+def with_fallback_model(fallback_model: Optional[str] = None):
+    """
+    Decorator to try a fallback model if the primary model fails.
+
+    Args:
+        fallback_model: Name of the fallback model to use
+
+    Returns:
+        Decorated function
+    """
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            # Try with the primary model
+            try:
+                return func(*args, **kwargs)
+            except LLMCallError as e:
+                primary_model = kwargs.get("model_name") or get_default_model()
+                fallback = fallback_model or get_fallback_model()
+
+                if primary_model == fallback:
+                    # Don't fallback to the same model
+                    logger.error(
+                        f"LLM call failed with model {primary_model}, no different fallback available"
+                    )
+                    raise
+
+                logger.warning(
+                    f"LLM call failed with model {primary_model}, trying fallback model {fallback}"
+                )
+
+                # Try with the fallback model
+                kwargs["model_name"] = fallback
+                try:
+                    return func(*args, **kwargs)
+                except Exception as fallback_e:
+                    # Both primary and fallback failed
+                    logger.error(
+                        f"Fallback model {fallback} also failed: {str(fallback_e)}"
+                    )
+                    raise LLMCallError(
+                        f"Both primary model ({primary_model}) and fallback model ({fallback}) failed",
+                        model_name=primary_model,
+                    ) from e
+
+        return wrapper
+
+    return decorator
+
+
+def check_model_availability(model_name: str = None) -> bool:
+    """
+    Check if the specified model is available in Ollama.
+
+    Args:
+        model_name: Name of the model to check (default: get from environment)
+
+    Returns:
+        True if the model is available, False otherwise
+    """
+    if model_name is None:
+        model_name = get_default_model()
+
+    try:
+        # Set up the Ollama API URL
+        ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+        response = requests.get(f"{ollama_host}/api/tags")
+
+        if response.status_code == 200:
+            models = response.json().get("models", [])
+            # Check if the model is in the list of available models
+            for model in models:
+                if model.get("name") == model_name:
+                    logger.debug(f"Model {model_name} is available")
+                    return True
+
+            logger.warning(f"Model {model_name} is not available in Ollama")
+            return False
+        else:
+            logger.error(
+                f"Failed to get model list from Ollama: {response.status_code}"
+            )
+            return False
+    except Exception as e:
+        logger.error(f"Error checking model availability: {str(e)}")
+        return False
+
+
+retry_on_llm_error = retry(
+    retry=retry_if_exception_type((requests.RequestException, LLMCallError)),
+    stop=stop_after_attempt(DEFAULT_MAX_RETRIES),
+    wait=wait_exponential(multiplier=DEFAULT_BACKOFF_FACTOR, max=DEFAULT_MAX_BACKOFF),
+    before_sleep=lambda retry_state: logger.warning(
+        f"Retrying LLM call after error (attempt {retry_state.attempt_number}/{DEFAULT_MAX_RETRIES})"
+    ),
+)
+
+
+def with_fallback_model(func):
+    """
+    Decorator to retry with fallback model if primary model fails.
+
+    Args:
+        func: The function to decorate
+
+    Returns:
+        Wrapped function with fallback capability
+    """
+
+    @wraps(func)
+    def wrapper(prompt, model_name=None, *args, **kwargs):
+        try:
+            return func(prompt, model_name, *args, **kwargs)
+        except LLMCallError as e:
+            # Try with fallback model if available
+            fallback_model = get_fallback_model()
+            if fallback_model and fallback_model != model_name:
+                logger.warning(
+                    f"Primary model failed, trying with fallback model {fallback_model}"
+                )
+                kwargs["fallback_used"] = True
+                return func(prompt, fallback_model, *args, **kwargs)
+            else:
+                # Re-raise if no fallback or fallback is the same as primary
+                raise
+
+    return wrapper
+
+
+@retry_on_llm_error
+@with_fallback_model
+def call_llm(
+    prompt: str,
+    model_name: Optional[str] = None,
+    temperature: float = DEFAULT_TEMPERATURE,
+    max_tokens: int = DEFAULT_MAX_TOKENS,
+    timeout: int = DEFAULT_TIMEOUT,
+    system_prompt: Optional[str] = None,
+    fallback_used: bool = False,
+) -> Dict[str, Any]:
+    """
+    Call the LLM model with retry and fallback logic.
+
+    Args:
+        prompt: Input prompt for the model
+        model_name: Name of the model to use (default: get from environment)
+        temperature: Sampling temperature (default: 0.7)
+        max_tokens: Maximum tokens to generate (default: 2048)
+        timeout: Request timeout in seconds (default: 30)
+        system_prompt: Optional system prompt to use
+        fallback_used: Whether this is a fallback call
+
+    Returns:
+        Dictionary containing the model response
+
+    Raises:
+        LLMCallError: If the model call fails
+        ModelUnavailableError: If the model is not available
+    """
+    # Use default model if none specified
+    if model_name is None:
+        model_name = get_default_model()
+
+    # Check if model is available
+    if not check_model_availability(model_name):
+        raise ModelUnavailableError(
+            f"Model {model_name} is not available", model_name=model_name
+        )
+
+    try:
+        # Set up the Ollama API URL and payload
+        ollama_host = os.getenv("OLLAMA_HOST", "http://localhost:11434")
+        url = f"{ollama_host}/api/generate"
+
+        payload = {
+            "model": model_name,
+            "prompt": prompt,
+            "temperature": temperature,
+            "num_predict": max_tokens,
+        }
+
+        if system_prompt:
+            payload["system"] = system_prompt
+
+        # Log request details (excluding the prompt for brevity)
+        logger.debug(
+            f"Calling model {model_name} with temperature={temperature}, max_tokens={max_tokens}"
+        )
+
+        # Record start time for runtime calculation
+        start_time = time.time()
+
+        # Make the API call
+        response = requests.post(url, json=payload, timeout=timeout)
+
+        # Calculate runtime
+        runtime_seconds = time.time() - start_time
+
+        if response.status_code == 200:
+            result = response.json()
+
+            # Add metadata to the response
+            metadata = {
+                "model_info": {
+                    "name": model_name,
+                },
+                "runtime_seconds": runtime_seconds,
+                "temperature": temperature,
+                "max_tokens": max_tokens,
+            }
+
+            if fallback_used:
+                metadata["fallback_used"] = True
+                metadata["model_info"]["initial_model"] = get_default_model()
+
+            result["metadata"] = metadata
+
+            logger.debug(f"LLM call completed in {runtime_seconds:.2f} seconds")
+            return result
+        else:
+            error_msg = f"LLM API call failed with status {response.status_code}: {response.text}"
+            logger.error(error_msg)
+            raise LLMCallError(error_msg, model_name=model_name)
+
+    except requests.RequestException as e:
+        error_msg = f"LLM API request failed: {str(e)}"
+        logger.error(error_msg)
+        raise LLMCallError(error_msg, model_name=model_name) from e
+
+    except Exception as e:
+        error_msg = f"Unexpected error in LLM call: {str(e)}"
+        logger.error(error_msg)
+        raise LLMCallError(error_msg, model_name=model_name) from e
+
+
+def extract_llm_response(response: Dict[str, Any]) -> str:
+    """
+    Extract the text from an LLM response.
+
+    Args:
+        response: Response dictionary from call_llm
+
+    Returns:
+        Response text
+    """
+    if "response" in response:
+        return response["response"]
+    elif "choices" in response and len(response["choices"]) > 0:
+        return response["choices"][0]["text"]
+    else:
+        logger.warning("Could not extract response text from LLM response")
+        return ""
+
+
+def check_syntax(code_string: str, filename: str = "<string>") -> tuple:
+    """
+    Check Python code syntax without executing it.
+
+    Args:
+        code_string: Python code to check
+        filename: Filename to use in error messages
+
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    try:
+        compile(code_string, filename, "exec")
+        return True, None
+    except SyntaxError as e:
+        return False, str(e)
+    except Exception as e:
+        return False, str(e)
+
+```
 
 ## utils/error_handling.py (Priority: High)
 
-**File not found**
+```python
+"""
+Error handling utility for MindMeld.
+
+This module provides a hierarchical exception system for all MindMeld operations,
+enhanced error formatting, retry mechanisms, and transaction-like behavior.
+"""
+
+import functools
+import logging
+import os
+import sys
+import time
+import traceback
+from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
+
+logger = logging.getLogger(__name__)
+
+# Type variables for generic function types
+T = TypeVar("T")
+R = TypeVar("R")
+
+
+class MindMeldError(Exception):
+    """Base exception for all MindMeld-related errors."""
+
+    def __init__(self, message: str, *args, **kwargs):
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+        """
+        self.message = message
+        super().__init__(message, *args, **kwargs)
+        logger.error(f"{self.__class__.__name__}: {message}")
+
+
+class ValidationError(MindMeldError):
+    """Raised when input validation fails."""
+
+    pass
+
+
+class FileProcessingError(MindMeldError):
+    """Raised when file operations fail."""
+
+    pass
+
+
+class LLMCallError(MindMeldError):
+    """Raised when LLM call fails."""
+
+    def __init__(self, message: str, model_name: Optional[str] = None, *args, **kwargs):
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            model_name: Name of the LLM model that failed
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+        """
+        self.model_name = model_name
+        if model_name:
+            message = f"{message} (model: {model_name})"
+        super().__init__(message, *args, **kwargs)
+
+
+class ModelUnavailableError(LLMCallError):
+    """Raised when required LLM model is not available."""
+
+    pass
+
+
+class AnalysisError(MindMeldError):
+    """Raised when code analysis operations fail."""
+
+    pass
+
+
+class CompilationError(MindMeldError):
+    """Raised when code compilation fails."""
+
+    pass
+
+
+class RepairError(MindMeldError):
+    """Raised when code repair fails."""
+
+    pass
+
+
+class SchemaValidationError(MindMeldError):
+    """Raised when output schema validation fails."""
+
+    pass
+
+
+class TimeoutError(MindMeldError):
+    """Raised when an operation times out."""
+
+    pass
+
+
+class AgentExecutionError(MindMeldError):
+    """Raised when agent execution fails."""
+
+    def __init__(self, message: str, agent_name: Optional[str] = None, *args, **kwargs):
+        """
+        Initialize the exception.
+
+        Args:
+            message: Error message
+            agent_name: Name of the agent that failed
+            *args: Additional positional arguments
+            **kwargs: Additional keyword arguments
+        """
+        self.agent_name = agent_name
+        if agent_name:
+            message = f"{message} (agent: {agent_name})"
+        super().__init__(message, *args, **kwargs)
+
+
+class TransactionError(MindMeldError):
+    """Raised when a transaction fails."""
+
+    pass
+
+
+def format_error_for_json(error: Exception) -> dict:
+    """
+    Format an exception for inclusion in a JSON report.
+
+    Args:
+        error: The exception to format
+
+    Returns:
+        A dictionary containing error details
+    """
+    error_type = error.__class__.__name__
+    error_message = str(error)
+
+    result = {"message": error_message, "type": error_type}
+
+    # Add stack trace in non-production environments
+    if not is_production():
+        result["traceback"] = traceback.format_exc()
+
+    # Add additional context for specific error types
+    if isinstance(error, LLMCallError) and error.model_name:
+        result["model"] = error.model_name
+    elif isinstance(error, AgentExecutionError) and error.agent_name:
+        result["agent"] = error.agent_name
+
+    return result
+
+
+def is_production() -> bool:
+    """
+    Determine if we're running in a production environment.
+
+    Returns:
+        True if in production, False otherwise
+    """
+    return os.environ.get("MINDMELD_ENV", "").lower() == "production"
+
+
+def retry(
+    max_retries: int = 3,
+    delay: float = 1.0,
+    backoff_factor: float = 2.0,
+    exceptions: Union[Type[Exception], Tuple[Type[Exception], ...]] = Exception,
+    logger_func: Optional[Callable[[str], None]] = None,
+) -> Callable[[Callable[..., R]], Callable[..., R]]:
+    """
+    Retry decorator with exponential backoff.
+
+    Args:
+        max_retries: Maximum number of retries
+        delay: Initial delay between retries in seconds
+        backoff_factor: Multiplier for delay after each retry
+        exceptions: Exception or tuple of exceptions to catch
+        logger_func: Function to use for logging
+
+    Returns:
+        Decorated function
+    """
+
+    def decorator(func: Callable[..., R]) -> Callable[..., R]:
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> R:
+            log = logger_func or (lambda msg: logger.warning(msg))
+            retry_count = 0
+            current_delay = delay
+
+            while True:
+                try:
+                    return func(*args, **kwargs)
+                except exceptions as e:
+                    retry_count += 1
+                    if retry_count > max_retries:
+                        log(
+                            f"Maximum retries ({max_retries}) reached for {func.__name__}. Last error: {str(e)}"
+                        )
+                        raise
+
+                    log(
+                        f"Retry {retry_count}/{max_retries} for {func.__name__} after error: {str(e)}. Waiting {current_delay:.2f}s"
+                    )
+                    time.sleep(current_delay)
+                    current_delay *= backoff_factor
+
+        return wrapper
+
+    return decorator
+
+
+def retry_on_llm_error(func: Callable[..., R]) -> Callable[..., R]:
+    """
+    Retry decorator specifically designed for LLM API calls.
+
+    Args:
+        func: Function to decorate
+
+    Returns:
+        Decorated function
+    """
+
+    @functools.wraps(func)
+    def wrapper(*args: Any, **kwargs: Any) -> R:
+        retries = 3
+        delay = 2.0
+
+        for attempt in range(retries):
+            try:
+                return func(*args, **kwargs)
+            except Exception as e:
+                if attempt < retries - 1:
+                    logger.warning(
+                        f"LLM call failed (attempt {attempt+1}/{retries}): {str(e)}. Retrying in {delay}s..."
+                    )
+                    time.sleep(delay)
+                    delay *= 2
+                else:
+                    # On final attempt, wrap in LLMCallError
+                    model = kwargs.get("model_name", "unknown")
+                    raise LLMCallError(
+                        f"LLM call failed after {retries} attempts: {str(e)}",
+                        model_name=model,
+                    )
+
+        # This should never be reached, but just to be safe
+        raise LLMCallError("Unexpected error in LLM retry logic")
+
+    return wrapper
+
+
+class Transaction:
+    """
+    Context manager for transaction-like behavior in critical operations.
+    Provides rollback capabilities for file operations and other state changes.
+    """
+
+    def __init__(self, name: str = "unnamed_transaction"):
+        """
+        Initialize a new transaction.
+
+        Args:
+            name: Name of the transaction for logging
+        """
+        self.name = name
+        self.operations = []
+        self.completed = False
+
+    def __enter__(self):
+        """Enter the transaction context."""
+        logger.debug(f"Starting transaction: {self.name}")
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        """
+        Exit the transaction context.
+
+        Rolls back on exception, otherwise marks as completed.
+        """
+        if exc_type is not None:
+            logger.warning(f"Transaction {self.name} failed with error: {exc_val}")
+            self.rollback()
+            return False
+
+        self.completed = True
+        logger.debug(f"Transaction {self.name} completed successfully")
+        return True
+
+    def add_operation(
+        self, operation_type: str, undo_func: Callable[[], None], **metadata: Any
+    ) -> None:
+        """
+        Add an operation to the transaction.
+
+        Args:
+            operation_type: Type of operation (e.g., 'file_write', 'api_call')
+            undo_func: Function to call to undo this operation
+            **metadata: Additional metadata about the operation
+        """
+        self.operations.append(
+            {"type": operation_type, "undo": undo_func, "metadata": metadata}
+        )
+
+    def add_file_write(self, file_path: str, backup_path: Optional[str] = None) -> None:
+        """
+        Add a file write operation to the transaction.
+
+        Args:
+            file_path: Path to the file being written
+            backup_path: Path to backup of original file, if any
+        """
+
+        def undo_file_write():
+            import os
+            import shutil
+
+            if backup_path and os.path.exists(backup_path):
+                # Restore from backup
+                shutil.copy2(backup_path, file_path)
+                os.remove(backup_path)
+            elif os.path.exists(file_path):
+                # Just delete the file if there's no backup
+                os.remove(file_path)
+
+        self.add_operation(
+            "file_write", undo_file_write, file_path=file_path, backup_path=backup_path
+        )
+
+    def rollback(self) -> None:
+        """Roll back all operations in reverse order."""
+        if self.completed:
+            logger.warning(f"Cannot rollback completed transaction: {self.name}")
+            return
+
+        logger.info(f"Rolling back transaction: {self.name}")
+        for operation in reversed(self.operations):
+            try:
+                operation["undo"]()
+                logger.debug(
+                    f"Rolled back {operation['type']} operation: {operation['metadata']}"
+                )
+            except Exception as e:
+                logger.error(f"Error during rollback of {operation['type']}: {str(e)}")
+
+
+def safe_file_write(file_path: str, content: str, use_transaction: bool = True) -> None:
+    """
+    Safely write content to a file with backup and rollback capabilities.
+
+    Args:
+        file_path: Path to write to
+        content: Content to write
+        use_transaction: Whether to use transaction for rollback capability
+    """
+    import os
+    import shutil
+    from pathlib import Path
+
+    # Create parent directories if they don't exist
+    os.makedirs(os.path.dirname(os.path.abspath(file_path)), exist_ok=True)
+
+    # Create backup if file exists
+    backup_path = None
+    if os.path.exists(file_path):
+        backup_path = f"{file_path}.bak"
+        shutil.copy2(file_path, backup_path)
+
+    # Use transaction if requested
+    if use_transaction:
+        with Transaction(f"file_write_{Path(file_path).name}") as txn:
+            if backup_path:
+                txn.add_file_write(file_path, backup_path)
+
+            # Write the file
+            with open(file_path, "w") as f:
+                f.write(content)
+    else:
+        # Just write the file without transaction
+        with open(file_path, "w") as f:
+            f.write(content)
+
+        # Clean up backup on success
+        if backup_path and os.path.exists(backup_path):
+            os.remove(backup_path)
+
+```
 
 ## schema_validator.py (Priority: High)
 
