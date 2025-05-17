@@ -94,4 +94,11 @@ Icon?
 *.env.test.local
 *.env.production.local
 
+# Ignore logs and archive
+logs/
+archive/
+
+# Ignore temp markdown files
+*.temp.md
+
 # End of .gitignore

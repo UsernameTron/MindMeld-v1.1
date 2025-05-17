@@ -82,7 +82,13 @@ settings = get_settings()
 # Redis connection (async)
 import redis.asyncio as redis_async
 
-try:
-    redis = redis_async.from_url(settings.REDIS_URL, decode_responses=True)
-except Exception:
-    redis = None
+_redis = None
+
+async def get_redis():
+    global _redis
+    if _redis is None:
+        try:
+            _redis = await redis_async.from_url(settings.REDIS_URL, decode_responses=True)
+        except Exception:
+            _redis = None
+    return _redis

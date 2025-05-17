@@ -1,8 +1,0 @@
-Found component at: ./frontend/src/components/ui/organisms/FeatureErrorBoundary
-✅ Implementation file exists
-✅ Test file exists
-✅ Storybook file exists
-✅ Index file exists
-✅ TypeScript props interface found
-ℹ️ Found 10 tests
-Component verification complete

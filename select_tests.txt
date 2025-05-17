@@ -1,2 +1,0 @@
-./frontend/src/components/atoms/Select.test.tsx
-./frontend/src/components/Select/Select.test.tsx

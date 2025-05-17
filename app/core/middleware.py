@@ -19,7 +19,7 @@ from fastapi import HTTPException, Request, Response, status
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from app.core.config import redis
+from app.core.config import get_redis
 from app.core.logging import get_logger, set_request_id
 from opentelemetry import trace
 
@@ -116,9 +116,6 @@ class MemoryRateLimiter:
             self.counters.pop(key, None)
             self.expiry.pop(key, None)
 
-if redis is None:
-    redis = MemoryRateLimiter()
-
 # Example tier config (could be loaded from DB/config)
 TIERS: Dict[str, Dict[str, int]] = {
     "basic": {"requests": 100, "window": 3600},
@@ -196,9 +193,10 @@ class RateLimiter:
     Args:
         requests (int): Maximum requests allowed in the window.
         window (int): Time window in seconds.
+        backend (optional): Injected backend for testing (MemoryRateLimiter or mock Redis).
     """
 
-    def __init__(self, requests: int = 100, window: int = 3600) -> None:
+    def __init__(self, requests: int = 100, window: int = 3600, backend=None) -> None:
         """
         Initialize the rate limiter with default limits.
 
@@ -209,6 +207,15 @@ class RateLimiter:
         self.default_requests = requests
         self.default_window = window
         self.tracer = trace.get_tracer(__name__)
+        self._backend = backend  # For test injection
+
+    async def _get_backend(self):
+        if self._backend is not None:
+            return self._backend
+        redis = await get_redis()
+        if redis is None:
+            redis = MemoryRateLimiter()
+        return redis
 
     async def __call__(self, request: Request) -> None:
         """
@@ -242,6 +249,8 @@ class RateLimiter:
                 window = self.default_window
             key = f"ratelimit:{identifier}:{request.url.path}"
             
+            redis = await self._get_backend()
+
             # Safe check if key exists before incrementing
             try:
                 key_exists = await redis.exists(key)

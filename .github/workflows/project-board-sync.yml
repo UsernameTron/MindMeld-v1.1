@@ -17,13 +17,13 @@ jobs:
         uses: actions/add-to-project@v0.5.0
         with:
           project-url: https://github.com/users/UsernameTron/projects/1
-          github-token: ${{ secrets.PROJECT_ACCESS_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update Project
         id: update-project
         uses: actions/github-script@v6
         with:
-          github-token: ${{ secrets.PROJECT_ACCESS_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const issue = context.payload.issue || context.payload.pull_request;
 

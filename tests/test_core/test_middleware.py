@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 import pytest
 from fastapi import Request, HTTPException, Response
-from app.core.middleware import RateLimiter, redis, RequestIdMiddleware, RateLimitHeaderMiddleware
+from app.core.middleware import RateLimiter, RequestIdMiddleware, RateLimitHeaderMiddleware
 import asyncio
 import uuid
 from starlette.types import ASGIApp
@@ -29,18 +29,22 @@ def test_custom_request_id():
 
 @pytest.mark.asyncio
 async def test_rate_limiter_allows_within_limit(monkeypatch):
-    limiter = RateLimiter(requests=3, window=10)
+    from app.core.middleware import MemoryRateLimiter
+    backend = MemoryRateLimiter()
+    limiter = RateLimiter(requests=3, window=10, backend=backend)
     request = Request(scope={"type": "http", "method": "GET", "path": "/test", "headers": []})
     # Reset counter for test
-    await redis.expire("ratelimit:unknown:/test", 0)
+    await backend.expire("ratelimit:unknown:/test", 0)
     for _ in range(3):
         await limiter(request)  # Should not raise
 
 @pytest.mark.asyncio
 async def test_rate_limiter_warns_at_threshold(monkeypatch):
-    limiter = RateLimiter(requests=5, window=10)
+    from app.core.middleware import MemoryRateLimiter
+    backend = MemoryRateLimiter()
+    limiter = RateLimiter(requests=5, window=10, backend=backend)
     request = Request(scope={"type": "http", "method": "GET", "path": "/warn", "headers": []})
-    await redis.expire("ratelimit:unknown:/warn", 0)
+    await backend.expire("ratelimit:unknown:/warn", 0)
     for _ in range(4):
         await limiter(request)
     # 4/5 is 80%, should set warning
@@ -49,9 +53,11 @@ async def test_rate_limiter_warns_at_threshold(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_rate_limiter_blocks_over_limit(monkeypatch):
-    limiter = RateLimiter(requests=2, window=10)
+    from app.core.middleware import MemoryRateLimiter
+    backend = MemoryRateLimiter()
+    limiter = RateLimiter(requests=2, window=10, backend=backend)
     request = Request(scope={"type": "http", "method": "GET", "path": "/block", "headers": []})
-    await redis.expire("ratelimit:unknown:/block", 0)
+    await backend.expire("ratelimit:unknown:/block", 0)
     await limiter(request)
     await limiter(request)
     with pytest.raises(HTTPException) as exc:

@@ -1,6 +1,0 @@
-./frontend/src/components/ui/Select.tsx
-./frontend/src/components/atoms/Select.test.tsx
-./frontend/src/components/atoms/Select.tsx
-./frontend/src/components/Select/Select.stories.tsx
-./frontend/src/components/Select/Select.test.tsx
-./frontend/src/components/Select/Select.tsx
