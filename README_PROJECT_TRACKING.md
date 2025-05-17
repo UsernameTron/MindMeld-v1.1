@@ -59,3 +59,11 @@ Recalculates the project completion header in PROJECT_STATUS.md.
 If --commit is passed, stages and commits the change.
 Exit codes: 0 = success, 1 = parse error, 2 = file not found.
 
+## Projectctl Command Checklist
+
+- [ ] report-failures
+- [ ] verify-sprint
+- [ ] next-action
+- [ ] status
+- [ ] update-status
+
