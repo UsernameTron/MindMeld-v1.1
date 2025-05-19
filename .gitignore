@@ -203,3 +203,7 @@ generated_tests/test_generator_1747468766.json
 reports/Agent/Agent_1747467290.json
 reports/Agent/Agent_1747494352.bak-1747499294
 reports/Agent/Agent_1747494352.json
+
+# Cache and test storage
+.cache/
+data/test_storage/

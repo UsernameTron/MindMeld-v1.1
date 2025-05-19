@@ -1,25 +1,24 @@
 import ast
-import inspect
-import os
-import re
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from ..core.base import Agent
-from ..core.registry import register_agent
 
 
-@register_agent("test_generator")
 class TestGeneratorAgent(Agent):
-    """
-    Agent for automatically generating test cases for Python code.
+    """Agent for automatically generating test cases for Python code.
 
     This agent analyzes Python code to generate comprehensive test cases,
     identify edge conditions, and create appropriate fixtures and mocks.
     """
 
     def __init__(self, **kwargs):
-        """Initialize the test generator agent."""
+        """Initialize the test generator agent.
+
+        Args:
+            test_framework: Testing framework to use (default: pytest)
+            mock_framework: Mocking framework to use (default: pytest-mock)
+            **kwargs: Additional arguments to pass to the base Agent
+        """
         super().__init__(**kwargs)
         self.test_framework = kwargs.get("test_framework", "pytest")
         self.mock_framework = kwargs.get("mock_framework", "pytest-mock")
@@ -77,7 +76,9 @@ class TestGeneratorAgent(Agent):
 
         return result
 
-    def _analyze_code(self, code: str, file_path: str = "") -> Dict[str, Any]:
+    def _analyze_code(
+        self, code: str, file_path: str = ""
+    ) -> Dict[str, Any]:  # noqa: C901
         """
         Analyze Python code to extract testable components.
 
@@ -223,7 +224,7 @@ class TestGeneratorAgent(Agent):
         for func in analyzed_code.get("functions", []):
             if func["name"].startswith("_") and not func["name"].startswith("__"):
                 untested_paths.append(
-                    f"Private function '{func['name']}' at line {func['line']}"
+                    f"Private function {func['name']!r} at line {func['line']}"
                 )
 
         # Identify private methods in classes
@@ -238,7 +239,7 @@ class TestGeneratorAgent(Agent):
 
         return untested_paths
 
-    def _extract_function_info(
+    def _extract_function_info(  # noqa: C901
         self, node: ast.FunctionDef, code: str
     ) -> Dict[str, Any]:
         """Extract detailed information about a function."""
@@ -353,7 +354,9 @@ class TestGeneratorAgent(Agent):
             "class_variables": class_variables,
         }
 
-    def _generate_pytest_tests(self, analyzed_code: Dict[str, Any]) -> str:
+    def _generate_pytest_tests(
+        self, analyzed_code: Dict[str, Any]
+    ) -> str:  # noqa: C901
         """Generate pytest-style test cases."""
         test_code = []
 
@@ -417,7 +420,7 @@ class TestGeneratorAgent(Agent):
                         args_setup.append(f'    {arg["name"]} = {{}}')
                     else:
                         args_setup.append(
-                            f'    {arg["name"]} = None  # TODO: Set appropriate value for {arg["annotation"]}'
+                            f'    {arg["name"]} = None  # TODO: Value for {arg["annotation"]}'
                         )
                 else:
                     args_setup.append(
@@ -526,7 +529,7 @@ class TestGeneratorAgent(Agent):
                             args_setup.append(f'        {arg["name"]} = {{}}')
                         else:
                             args_setup.append(
-                                f'        {arg["name"]} = None  # TODO: Set appropriate value for {arg["annotation"]}'
+                                f'        {arg["name"]} = None  # TODO: Value for {arg["annotation"]}'
                             )
                     else:
                         args_setup.append(
@@ -558,8 +561,9 @@ class TestGeneratorAgent(Agent):
                     and method["args"][0]["name"] == "self"
                 ):
                     if arg_list:
+                        instance_name = f'{cls["name"].lower()}_instance'
                         test_code.append(
-                            f'        result = {cls["name"].lower()}_instance.{method["name"]}({", ".join(arg_list)})'
+                            f'        result = {instance_name}.{method["name"]}({", ".join(arg_list)})'
                         )
                     else:
                         test_code.append(
@@ -599,7 +603,9 @@ class TestGeneratorAgent(Agent):
 
         return "\n".join(fixtures)
 
-    def _generate_unittest_tests(self, analyzed_code: Dict[str, Any]) -> str:
+    def _generate_unittest_tests(
+        self, analyzed_code: Dict[str, Any]
+    ) -> str:  # noqa: C901
         """Generate unittest-style test cases."""
         # Similar implementation to pytest but for unittest
         test_code = ["import unittest"]
@@ -652,7 +658,7 @@ class TestGeneratorAgent(Agent):
                             args_setup.append(f'        {arg["name"]} = {{}}')
                         else:
                             args_setup.append(
-                                f'        {arg["name"]} = None  # TODO: Set appropriate value for {arg["annotation"]}'
+                                f'        {arg["name"]} = None  # TODO: Value for {arg["annotation"]}'
                             )
                     else:
                         args_setup.append(
@@ -685,7 +691,7 @@ class TestGeneratorAgent(Agent):
 
             # Add setup method
             test_code.append("    def setUp(self):")
-            test_code.append(f'        """Set up test fixtures."""')
+            test_code.append('        """Set up test fixtures."""')
             test_code.append(f"        self.instance = {cls['name']}()")
             test_code.append("")
 
@@ -732,7 +738,7 @@ class TestGeneratorAgent(Agent):
                             args_setup.append(f'        {arg["name"]} = {{}}')
                         else:
                             args_setup.append(
-                                f'        {arg["name"]} = None  # TODO: Set appropriate value for {arg["annotation"]}'
+                                f'        {arg["name"]} = None  # TODO: Value for {arg["annotation"]}'
                             )
                     else:
                         args_setup.append(

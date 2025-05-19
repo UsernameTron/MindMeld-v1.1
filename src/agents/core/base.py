@@ -4,9 +4,19 @@ from typing import Any, Dict, List, Optional
 
 
 class Agent(ABC):
-    """Abstract base class for all agents in the system."""
+    """Abstract base class for all agents in the system.
 
-    def __init__(self, name: str = None, max_history_length: int = 100, **kwargs):
+    This class defines the common interface and functionality that all
+    agents in the MindMeld system should implement.
+    """
+
+    def __init__(self, name: Optional[str] = None, max_history_length: int = 100):
+        """Initialize the agent with a name and history settings.
+
+        Args:
+            name: Custom name for the agent (defaults to class name)
+            max_history_length: Maximum number of history entries to keep
+        """
         self.name = name or self.__class__.__name__
         self.max_history_length = max_history_length
         self.history: List[Dict[str, Any]] = []
@@ -24,7 +34,7 @@ class Agent(ABC):
         }
         self.history.append(message)
         if len(self.history) > self.max_history_length:
-            self.history = self.history[-self.max_history_length:]
+            self.history = self.history[-self.max_history_length :]
 
     def get_history(
         self, max_entries: Optional[int] = None, role_filter: Optional[str] = None

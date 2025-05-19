@@ -1,6 +1,7 @@
-import { defineConfig } from 'eslint/config';
+// eslint configuration file
+import eslint from '@eslint/js';
 
-export default defineConfig([
+export default [
   {
     ignores: ['node_modules/**', 'dist/**'],
     languageOptions: {
@@ -16,4 +17,4 @@ export default defineConfig([
       'prefer-const': 'error'
     }
   }
-]);
+];
