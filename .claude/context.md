@@ -1,6 +1,6 @@
 # MindMeld Repository Context for Claude
 
-Last updated: 2025-05-17 21:24:42
+Last updated: 2025-05-19 22:58:10
 
 ## File Index
 
@@ -43,6 +43,8 @@ from typing import Any, Dict, List, Optional, Union
 
 import jsonschema
 import requests
+
+from packages.agents.AgentFactory import AGENT_INPUT_TYPES, AGENT_REGISTRY
 from utils.error_handling import (
     FileProcessingError,
     LLMCallError,
@@ -56,8 +58,6 @@ from utils.file_operations import path_exists, read_file, safe_file_write, write
 from utils.llm_client import get_default_model, get_model_config
 from utils.model_manager import ModelManager
 from utils.schema_validator import normalize_agent_output, validate_agent_output
-
-from packages.agents.AgentFactory import AGENT_INPUT_TYPES, AGENT_REGISTRY
 
 
 # load the schema once
@@ -661,8 +661,26 @@ if __name__ == "__main__":
 ## packages/agents/AgentFactory.py (Priority: Highest)
 
 ```python
-from .advanced_reasoning.agents import create_ceo, create_executor, create_summarizer, create_test_generator, create_dependency_agent
-from .advanced_reasoning.agents import Agent, TestGeneratorAgent, DependencyAgent, CodeAnalyzerAgent, CodeDebuggerAgent, CodeRepairAgent, PerformanceProfilerAgent, OptimizationSuggesterAgent, BenchmarkingTool, IntegratedCodebaseOptimizer, pipeline_coordinator, CodeEmbeddingIndex, SemanticCodeSearch
+from .advanced_reasoning.agents import (
+    Agent,
+    BenchmarkingTool,
+    CodeAnalyzerAgent,
+    CodeDebuggerAgent,
+    CodeEmbeddingIndex,
+    CodeRepairAgent,
+    DependencyAgent,
+    IntegratedCodebaseOptimizer,
+    OptimizationSuggesterAgent,
+    PerformanceProfilerAgent,
+    SemanticCodeSearch,
+    TestGeneratorAgent,
+    create_ceo,
+    create_dependency_agent,
+    create_executor,
+    create_summarizer,
+    create_test_generator,
+    pipeline_coordinator,
+)
 
 # Input type definitions
 AGENT_INPUT_TYPES = {
@@ -897,33 +915,40 @@ AGENT_REGISTRY = get_registry()
 ## app.py (Priority: Highest)
 
 ```python
-from fastapi import FastAPI, File, UploadFile, HTTPException, BackgroundTasks
-from fastapi.responses import JSONResponse
-import tempfile
-import os
-import uuid
-import shutil
-from pathlib import Path
-from typing import Dict, Any, List, Optional
-import json
 import asyncio
+import json
 import logging
+import os
+import shutil
+import tempfile
 import time
-from schema_validator import validate_agent_output, normalize_agent_output
+import uuid
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+from fastapi import BackgroundTasks, FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import JSONResponse
 
 # Import agents
 from packages.agents.advanced_reasoning.agents import (
-    TestGeneratorAgent, DependencyAgent, CodeAnalyzerAgent,
-    CodeDebuggerAgent, CodeRepairAgent, IntegratedCodebaseOptimizer
+    CodeAnalyzerAgent,
+    CodeDebuggerAgent,
+    CodeRepairAgent,
+    DependencyAgent,
+    IntegratedCodebaseOptimizer,
+    TestGeneratorAgent,
 )
+
 # Import agent input types
 from packages.agents.AgentFactory import AGENT_INPUT_TYPES
+from schema_validator import normalize_agent_output, validate_agent_output
 
 app = FastAPI(title="MindMeld API", version="1.0.0")
 logger = logging.getLogger("mindmeld")
 
 # Storage for background tasks
 TASK_RESULTS = {}
+
 
 @app.post("/api/analyze_file")
 async def analyze_file(file: UploadFile):
@@ -934,18 +959,20 @@ async def analyze_file(file: UploadFile):
             status_code=400,
             content={
                 "status": "error",
-                "error": {"message": "No file provided", "type": "ValidationError"}
-            }
+                "error": {"message": "No file provided", "type": "ValidationError"},
+            },
         )
-    
+
     # Create a job ID for tracing
     job_id = str(uuid.uuid4())
     start_time = time.time()
-    
-    with tempfile.NamedTemporaryFile(delete=False, suffix=Path(file.filename).suffix) as tmp:
+
+    with tempfile.NamedTemporaryFile(
+        delete=False, suffix=Path(file.filename).suffix
+    ) as tmp:
         shutil.copyfileobj(file.file, tmp)
         tmp_path = tmp.name
-    
+
     try:
         # Validate that the file exists and is not a directory
         file_path = Path(tmp_path)
@@ -953,64 +980,65 @@ async def analyze_file(file: UploadFile):
             return JSONResponse(
                 status_code=400,
                 content=normalize_agent_output(
-                    {"error": f"File not found: {tmp_path}"}, 
-                    "CodeAnalyzerAgent", 
-                    file.filename, 
+                    {"error": f"File not found: {tmp_path}"},
+                    "CodeAnalyzerAgent",
+                    file.filename,
                     int(time.time()),
                     time.time() - start_time,
-                    job_id
-                )
+                    job_id,
+                ),
             )
         if file_path.is_dir():
             return JSONResponse(
                 status_code=400,
                 content=normalize_agent_output(
-                    {"error": f"Expected file but received directory: {tmp_path}"}, 
-                    "CodeAnalyzerAgent", 
-                    file.filename, 
+                    {"error": f"Expected file but received directory: {tmp_path}"},
+                    "CodeAnalyzerAgent",
+                    file.filename,
                     int(time.time()),
                     time.time() - start_time,
-                    job_id
-                )
+                    job_id,
+                ),
             )
-        
+
         # Execute the analysis
         analyzer = CodeAnalyzerAgent(os.path.dirname(tmp_path))
         content = analyzer.analyze().get(tmp_path)
         debugger = CodeDebuggerAgent()
         diagnostics = debugger.locate_bugs(content)
-        
+
         # Normalize the response
         result = {
             "filename": file.filename,
             "diagnostics": diagnostics,
-            "has_issues": "SyntaxError" in diagnostics
+            "has_issues": "SyntaxError" in diagnostics,
         }
-        
+
         # Return normalized response
         normalized = normalize_agent_output(
-            result, 
-            "CodeAnalyzerAgent", 
-            file.filename, 
+            result,
+            "CodeAnalyzerAgent",
+            file.filename,
             int(time.time()),
             time.time() - start_time,
-            job_id
+            job_id,
         )
         return normalized
-        
+
     except Exception as e:
         logger.exception(f"Error analyzing file {file.filename}")
         error_result = normalize_agent_output(
-            {"error": str(e), "type": e.__class__.__name__}, 
-            "CodeAnalyzerAgent", 
-            file.filename, 
+            {"error": str(e), "type": e.__class__.__name__},
+            "CodeAnalyzerAgent",
+            file.filename,
             int(time.time()),
             time.time() - start_time,
-            job_id
+            job_id,
         )
         return JSONResponse(status_code=500, content=error_result)
     finally:
         os.unlink(tmp_path)
+
 
 @app.post("/api/repair_file")
 async def repair_file(file: UploadFile):
@@ -1021,18 +1049,20 @@ async def repair_file(file: UploadFile):
             status_code=400,
             content={
                 "status": "error",
-                "error": {"message": "No file provided", "type": "ValidationError"}
-            }
+                "error": {"message": "No file provided", "type": "ValidationError"},
+            },
         )
-    
+
     # Create a job ID for tracing
     job_id = str(uuid.uuid4())
     start_time = time.time()
-    
-    with tempfile.NamedTemporaryFile(delete=False, suffix=Path(file.filename).suffix) as tmp:
+
+    with tempfile.NamedTemporaryFile(
+        delete=False, suffix=Path(file.filename).suffix
+    ) as tmp:
         shutil.copyfileobj(file.file, tmp)
         tmp_path = tmp.name
-    
+
     try:
         # Validate that the file exists and is not a directory
         file_path = Path(tmp_path)
@@ -1040,75 +1070,76 @@ async def repair_file(file: UploadFile):
             return JSONResponse(
                 status_code=400,
                 content=normalize_agent_output(
-                    {"error": f"File not found: {tmp_path}"}, 
-                    "CodeRepairAgent", 
-                    file.filename, 
+                    {"error": f"File not found: {tmp_path}"},
+                    "CodeRepairAgent",
+                    file.filename,
                     int(time.time()),
                     time.time() - start_time,
-                    job_id
-                )
+                    job_id,
+                ),
             )
         if file_path.is_dir():
             return JSONResponse(
                 status_code=400,
                 content=normalize_agent_output(
-                    {"error": f"Expected file but received directory: {tmp_path}"}, 
-                    "CodeRepairAgent", 
-                    file.filename, 
+                    {"error": f"Expected file but received directory: {tmp_path}"},
+                    "CodeRepairAgent",
+                    file.filename,
                     int(time.time()),
                     time.time() - start_time,
-                    job_id
-                )
+                    job_id,
+                ),
             )
-        
+
         analyzer = CodeAnalyzerAgent(os.path.dirname(tmp_path))
         content = analyzer.analyze().get(tmp_path)
         debugger = CodeDebuggerAgent()
         diagnostics = debugger.locate_bugs(content)
         repairer = CodeRepairAgent()
         fixed_content = repairer.generate_fix(content, diagnostics)
-        
+
         # Write fixed content to a new file for testing
         with tempfile.NamedTemporaryFile(delete=False, suffix="_fixed.py") as fixed_tmp:
-            fixed_tmp.write(fixed_content.encode('utf-8'))
+            fixed_tmp.write(fixed_content.encode("utf-8"))
             fixed_path = fixed_tmp.name
-        
+
         # Test if the fix works
         fix_successful = repairer.test_solution(fixed_path)
         os.unlink(fixed_path)
-        
+
         # Normalize the response
         result = {
             "filename": file.filename,
             "original_diagnostics": diagnostics,
             "fixed_content": fixed_content,
-            "fix_successful": fix_successful
+            "fix_successful": fix_successful,
         }
-        
+
         # Return normalized response
         normalized = normalize_agent_output(
-            result, 
-            "CodeRepairAgent", 
-            file.filename, 
+            result,
+            "CodeRepairAgent",
+            file.filename,
             int(time.time()),
             time.time() - start_time,
-            job_id
+            job_id,
         )
         return normalized
-        
+
     except Exception as e:
         logger.exception(f"Error repairing file {file.filename}")
         error_result = normalize_agent_output(
-            {"error": str(e), "type": e.__class__.__name__}, 
-            "CodeRepairAgent", 
-            file.filename, 
+            {"error": str(e), "type": e.__class__.__name__},
+            "CodeRepairAgent",
+            file.filename,
             int(time.time()),
             time.time() - start_time,
-            job_id
+            job_id,
         )
         return JSONResponse(status_code=500, content=error_result)
     finally:
         os.unlink(tmp_path)
+
 
 @app.post("/api/generate_tests")
 async def generate_tests(file: UploadFile, background_tasks: BackgroundTasks):
@@ -1119,111 +1150,115 @@ async def generate_tests(file: UploadFile, background_tasks: BackgroundTasks):
             status_code=400,
             content={
                 "status": "error",
-                "error": {"message": "No file provided", "type": "ValidationError"}
-            }
+                "error": {"message": "No file provided", "type": "ValidationError"},
+            },
         )
-    
+
     # Create task ID and job ID for tracing
     task_id = str(uuid.uuid4())
     job_id = str(uuid.uuid4())
     timestamp = int(time.time())
-    
+
     # Initialize the task status
     TASK_RESULTS[task_id] = normalize_agent_output(
-        {"status": "processing"}, 
-        "TestGeneratorAgent", 
-        file.filename, 
+        {"status": "processing"},
+        "TestGeneratorAgent",
+        file.filename,
         timestamp,
         0.0,
-        job_id
+        job_id,
     )
-    
-    with tempfile.NamedTemporaryFile(delete=False, suffix=Path(file.filename).suffix) as tmp:
+
+    with tempfile.NamedTemporaryFile(
+        delete=False, suffix=Path(file.filename).suffix
+    ) as tmp:
         shutil.copyfileobj(file.file, tmp)
         tmp_path = tmp.name
-    
+
     # Validate that the file exists and is not a directory
     file_path = Path(tmp_path)
     if not file_path.exists():
         error_result = normalize_agent_output(
-            {"error": f"File not found: {tmp_path}"}, 
-            "TestGeneratorAgent", 
-            file.filename, 
+            {"error": f"File not found: {tmp_path}"},
+            "TestGeneratorAgent",
+            file.filename,
             timestamp,
             0.0,
-            job_id
+            job_id,
         )
         TASK_RESULTS[task_id] = error_result
         return {"task_id": task_id, "status": "error"}
-        
+
     if file_path.is_dir():
         error_result = normalize_agent_output(
-            {"error": f"Expected file but received directory: {tmp_path}"}, 
-            "TestGeneratorAgent", 
-            file.filename, 
+            {"error": f"Expected file but received directory: {tmp_path}"},
+            "TestGeneratorAgent",
+            file.filename,
             timestamp,
             0.0,
-            job_id
+            job_id,
         )
         TASK_RESULTS[task_id] = error_result
         return {"task_id": task_id, "status": "error"}
-    
+
     # Start background task with validated input
     background_tasks.add_task(
         _generate_tests_background, task_id, tmp_path, file.filename, job_id
     )
-    
+
     return {"task_id": task_id, "status": "processing"}
 
-async def _generate_tests_background(task_id: str, file_path: str, filename: str, job_id: str):
+
+async def _generate_tests_background(
+    task_id: str, file_path: str, filename: str, job_id: str
+):
     """Background task for test generation."""
     start_time = time.time()
     timestamp = int(start_time)
-    
+
     try:
         # Check if file type is supported
-        if not any(file_path.endswith(ext) for ext in ['.py', '.js', '.ts', '.jsx', '.tsx']):
+        if not any(
+            file_path.endswith(ext) for ext in [".py", ".js", ".ts", ".jsx", ".tsx"]
+        ):
             error_result = normalize_agent_output(
-                {"error": f"Unsupported file type: {file_path}"}, 
-                "TestGeneratorAgent", 
-                filename, 
+                {"error": f"Unsupported file type: {file_path}"},
+                "TestGeneratorAgent",
+                filename,
                 timestamp,
                 time.time() - start_time,
-                job_id
+                job_id,
             )
             TASK_RESULTS[task_id] = error_result
             return
-        
+
         # Execute the generator
         generator = TestGeneratorAgent()
         tests = generator.generate_tests(file_path)
-        
+
         # Normalize the result
-        result = {
-            "filename": filename,
-            "tests": tests
-        }
-        
+        result = {"filename": filename, "tests": tests}
+
         normalized = normalize_agent_output(
-            result, 
-            "TestGeneratorAgent", 
-            filename, 
+            result,
+            "TestGeneratorAgent",
+            filename,
             timestamp,
             time.time() - start_time,
-            job_id
+            job_id,
         )
         normalized["status"] = "completed"
         TASK_RESULTS[task_id] = normalized
-        
+
     except Exception as e:
         logger.exception(f"Error generating tests for {filename}")
         error_result = normalize_agent_output(
-            {"error": str(e), "type": e.__class__.__name__}, 
-            "TestGeneratorAgent", 
-            filename, 
+            {"error": str(e), "type": e.__class__.__name__},
+            "TestGeneratorAgent",
+            filename,
             timestamp,
             time.time() - start_time,
-            job_id
+            job_id,
         )
         TASK_RESULTS[task_id] = error_result
     finally:
@@ -1233,20 +1268,21 @@ async def _generate_tests_background(task_id: str, file_path: str, filename: str
         except Exception as e:
             logger.warning(f"Could not remove temporary file {file_path}: {e}")
 
+
 @app.get("/api/task/{task_id}")
 async def get_task_status(task_id: str):
     """Get the status of a background task."""
     if task_id not in TASK_RESULTS:
         error_result = normalize_agent_output(
-            {"error": "Task not found", "type": "NotFoundError"}, 
-            "TaskService", 
-            task_id, 
+            {"error": "Task not found", "type": "NotFoundError"},
+            "TaskService",
+            task_id,
             int(time.time()),
             0.0,
-            str(uuid.uuid4())
+            str(uuid.uuid4()),
         )
         return JSONResponse(status_code=404, content=error_result)
-    
+
     return TASK_RESULTS[task_id]
 
 ```
@@ -1276,6 +1312,7 @@ from tenacity import (
     stop_after_attempt,
     wait_exponential,
 )
+
 from utils.error_handling import LLMCallError, ModelUnavailableError
 
 logger = logging.getLogger(__name__)
@@ -2066,19 +2103,21 @@ This module provides functions to validate and normalize agent outputs.
 """
 
 import json
-import jsonschema
-import time
-import sys
 import os
+import sys
+import time
 import uuid
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
+
+import jsonschema
+
 
 def load_schema(schema_path: Optional[str] = None) -> Dict[str, Any]:
     """Load the agent report schema."""
     if schema_path is None:
         schema_path = str(Path(__file__).parent / "agent_report_schema.json")
-    
+
     try:
         with open(schema_path) as f:
             return json.load(f)
@@ -2086,14 +2125,17 @@ def load_schema(schema_path: Optional[str] = None) -> Dict[str, Any]:
         print(f"Error loading schema: {e}")
         sys.exit(1)
 
-def validate_agent_output(report: Dict[str, Any], schema_path: Optional[str] = None) -> Tuple[bool, Optional[str]]:
+
+def validate_agent_output(
+    report: Dict[str, Any], schema_path: Optional[str] = None
+) -> Tuple[bool, Optional[str]]:
     """
     Validate agent output against schema.
-    
+
     Args:
         report: The agent report to validate
         schema_path: Optional path to schema file
-        
+
     Returns:
         Tuple[bool, Optional[str]]: (is_valid, error_message)
     """
@@ -2104,15 +2146,17 @@ def validate_agent_output(report: Dict[str, Any], schema_path: Optional[str] = N
     except jsonschema.exceptions.ValidationError as e:
         return False, str(e)
 
+
 def get_system_info() -> Dict[str, Any]:
     """Get system information for metadata."""
     import platform
-    
+
     return {
         "os": platform.system(),
         "python_version": platform.python_version(),
-        "cpu_count": os.cpu_count()
+        "cpu_count": os.cpu_count(),
     }
+
 
 def get_model_info() -> Dict[str, Any]:
     """Get model information for metadata."""
@@ -2120,21 +2164,22 @@ def get_model_info() -> Dict[str, Any]:
         "name": os.getenv("OLLAMA_MODEL", "phi3.5:latest"),
         "config": {
             "temperature": float(os.getenv("TEMPERATURE", "0.7")),
-            "max_tokens": int(os.getenv("MAX_TOKENS", "2048"))
-        }
+            "max_tokens": int(os.getenv("MAX_TOKENS", "2048")),
+        },
     }
 
+
 def normalize_agent_output(
-    result: Any, 
-    agent_name: str, 
-    payload: str, 
-    timestamp: Optional[int] = None, 
+    result: Any,
+    agent_name: str,
+    payload: str,
+    timestamp: Optional[int] = None,
     runtime_seconds: float = 0.0,
-    job_id: Optional[str] = None
+    job_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Normalize agent output to conform to schema.
-    
+
     Args:
         result: The original agent output
         agent_name: Name of the agent
@@ -2142,16 +2187,16 @@ def normalize_agent_output(
         timestamp: Execution timestamp (defaults to current time)
         runtime_seconds: Execution duration
         job_id: Unique execution ID
-        
+
     Returns:
         Dict[str, Any]: Normalized report conforming to schema
     """
     if timestamp is None:
         timestamp = int(time.time())
-    
+
     if job_id is None:
         job_id = str(uuid.uuid4())
-    
+
     # Create base metadata
     metadata = {
         "agent": agent_name,
@@ -2160,23 +2205,20 @@ def normalize_agent_output(
         "runtime_seconds": runtime_seconds,
         "job_id": job_id,
         "system_info": get_system_info(),
-        "model_info": get_model_info()
+        "model_info": get_model_info(),
     }
-    
+
     # For string results (likely errors)
     if isinstance(result, str):
         if "[ERROR]" in result:
             return {
                 "agent": agent_name,
                 "status": "error",
-                "error": {
-                    "message": result,
-                    "type": "AgentError"
-                },
+                "error": {"message": result, "type": "AgentError"},
                 "timestamp": timestamp,
                 "payload": payload,
                 "runtime_seconds": runtime_seconds,
-                "metadata": metadata
+                "metadata": metadata,
             }
         else:
             return {
@@ -2186,24 +2228,24 @@ def normalize_agent_output(
                 "timestamp": timestamp,
                 "payload": payload,
                 "runtime_seconds": runtime_seconds,
-                "metadata": metadata
+                "metadata": metadata,
             }
-    
+
     # For dictionary results
     if isinstance(result, dict):
         normalized = {
             "agent": agent_name,
             "timestamp": timestamp,
             "payload": payload,
-            "runtime_seconds": runtime_seconds
+            "runtime_seconds": runtime_seconds,
         }
-        
+
         # Copy over metadata if it exists, merge with our metadata
         if "metadata" in result:
             result_metadata = result.pop("metadata", {})
             metadata.update(result_metadata)
         normalized["metadata"] = metadata
-        
+
         # Determine status
         if "status" in result:
             normalized["status"] = result["status"]
@@ -2220,26 +2262,36 @@ def normalize_agent_output(
                 normalized["data"]["diagnostics"] = result["diagnostics"]
         else:
             normalized["status"] = "success"
-        
+
         # For error status, ensure error object exists
         if normalized.get("status") == "error" and "error" not in normalized:
             error_msg = result.get("error", "Unknown error")
-            normalized["error"] = {
-                "message": str(error_msg),
-                "type": "AgentError"
-            }
-        
+            normalized["error"] = {"message": str(error_msg), "type": "AgentError"}
+
         # Copy all other fields to data
-        data_fields = {k: v for k, v in result.items() 
-                      if k not in ["agent", "status", "timestamp", "payload", 
-                                  "runtime_seconds", "metadata", "error"]}
+        data_fields = {
+            k: v
+            for k, v in result.items()
+            if k
+            not in [
+                "agent",
+                "status",
+                "timestamp",
+                "payload",
+                "runtime_seconds",
+                "metadata",
+                "error",
+            ]
+        }
         if data_fields:
             normalized["data"] = data_fields
         elif "data" not in normalized and normalized.get("status") == "success":
-            normalized["data"] = {"result": "Agent executed without specific data output"}
-        
+            normalized["data"] = {
+                "result": "Agent executed without specific data output"
+            }
+
         return normalized
-    
+
     # For list or other objects
     return {
         "agent": agent_name,
@@ -2248,8 +2300,9 @@ def normalize_agent_output(
         "timestamp": timestamp,
         "payload": payload,
         "runtime_seconds": runtime_seconds,
-        "metadata": metadata
+        "metadata": metadata,
     }
+
 
 def update_app_routes_with_validation(app_path: str) -> None:
     """
@@ -2257,25 +2310,27 @@ def update_app_routes_with_validation(app_path: str) -> None:
     This is a helper for migration purposes.
     """
     import re
-    with open(app_path, 'r') as f:
+
+    with open(app_path, "r") as f:
         content = f.read()
-    
+
     # Pattern to find API route handlers
     route_pattern = r'@app\.(\w+)\("([^"]+)"\)\s+async def (\w+)\('
-    
+
     def add_validation(match):
         method = match.group(1)
         path = match.group(2)
         func_name = match.group(3)
-        
+
         # Add validation code after the route definition
         return f'@app.{method}("{path}")\nasync def {func_name}('
-    
+
     # Replace route handlers with versions that include validation
     updated_content = re.sub(route_pattern, add_validation, content)
-    
-    with open(app_path, 'w') as f:
+
+    with open(app_path, "w") as f:
         f.write(updated_content)
+
 
 if __name__ == "__main__":
     # Example usage
@@ -2295,8 +2350,17 @@ if __name__ == "__main__":
 
 ```python
 #!/usr/bin/env python3
-import json, subprocess, sys, os, logging, time, argparse, requests
+import argparse
+import json
+import logging
+import os
+import subprocess
+import sys
+import time
 from pathlib import Path
+
+import requests
+
 from packages.agents.AgentFactory import AGENT_REGISTRY
 
 # Parse arguments
