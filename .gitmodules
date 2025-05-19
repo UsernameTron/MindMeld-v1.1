@@ -1,0 +1,3 @@
+[submodule "packages/agents/advanced_reasoning"]
+  path = packages/agents/advanced_reasoning
+  url = https://github.com/YourOrganization/advanced_reasoning.git
