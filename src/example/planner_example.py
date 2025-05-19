@@ -1,7 +1,6 @@
 import json
 import logging
 import os
-from typing import Dict
 
 from src.agents.core.registry import AgentRegistry
 from src.agents.implementations.code_organizer import CodeOrganizerAgent
@@ -76,7 +75,10 @@ def main():
             "metadata": {"type": "best_practice", "language": "general"},
         },
         {
-            "content": "Classes should be designed to be open for extension but closed for modification (Open-Closed Principle).",
+            "content": (
+                "Classes should be designed to be open for extension "
+                "but closed for modification (Open-Closed Principle)."
+            ),
             "metadata": {"type": "best_practice", "language": "general"},
         },
         {
@@ -124,9 +126,9 @@ def calculate(x, y):
     logger.info(
         f"Analysis metrics: {json.dumps(analysis_result.get('metrics', {}), indent=2)}"
     )
-    logger.info(
-        f"Found {len(analysis_result.get('issues', []))} issues and {len(analysis_result.get('suggestions', []))} suggestions"
-    )
+    issues_count = len(analysis_result.get("issues", []))
+    suggestions_count = len(analysis_result.get("suggestions", []))
+    logger.info(f"Found {issues_count} issues and {suggestions_count} suggestions")
 
     # Create a comprehensive plan using PlannerAgent
     logger.info("\nCreating comprehensive plan with PlannerAgent:")
@@ -189,9 +191,9 @@ def calculate(x, y):
         )
 
         logger.info("\nFinal plan completion:")
-        logger.info(
-            f"Completed: {final_status.get('completion', {}).get('completed')}/{final_status.get('completion', {}).get('total')} tasks"
-        )
+        completed = final_status.get("completion", {}).get("completed")
+        total = final_status.get("completion", {}).get("total")
+        logger.info(f"Completed: {completed}/{total} tasks")
 
         # Extract the refactored code from the task results
         refactored_code = None
