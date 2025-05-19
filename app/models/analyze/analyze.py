@@ -8,9 +8,8 @@ sentiment analysis and other text analysis features.
 
 from typing import Dict, List, Optional
 
-from pydantic import ConfigDict, Field, field_validator
-
 from app.models.common import BaseModel
+from pydantic import ConfigDict, Field, field_validator
 
 
 class AnalyzeRequest(BaseModel):

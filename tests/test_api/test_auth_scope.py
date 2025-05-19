@@ -1,9 +1,8 @@
 import pytest
-from fastapi.testclient import TestClient
-
 from app.main import app
 from app.services.auth.api_key_service import api_keys_db
 from app.services.auth.auth_service import create_access_token, create_refresh_token
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 

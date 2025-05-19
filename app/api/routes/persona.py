@@ -5,11 +5,10 @@ This module defines FastAPI routes for persona management,
 including listing available personas and retrieving persona details.
 """
 
-from fastapi import APIRouter, HTTPException
-
 from app.models.persona.persona import PersonaDefinition, PersonaListResponse
 from app.services.errors import ResourceNotFoundError
 from app.services.persona.persona_service import persona_service
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter(
     tags=["personas"],

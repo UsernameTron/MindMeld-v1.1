@@ -3,14 +3,15 @@ API service for MindMeld agents.
 
 This module provides a FastAPI REST API for interacting with MindMeld agents.
 """
-import os
-import time
 import json
 import logging
-from typing import Dict, List, Optional, Any, Union
+import os
+import time
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
-from fastapi import FastAPI, HTTPException, Depends, Header, Request, BackgroundTasks
+import requests
+from fastapi import BackgroundTasks, Depends, FastAPI, Header, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
@@ -18,7 +19,6 @@ from starlette.status import HTTP_503_SERVICE_UNAVAILABLE
 
 # Import agent factory
 from packages.agents.AgentFactory import AGENT_REGISTRY
-import requests
 
 # Configure logging
 logging.basicConfig(
@@ -269,7 +269,7 @@ async def get_job_status(job_id: str):
 
 if __name__ == "__main__":
     import uvicorn
-    
+
     # Ensure logs directory exists
     Path("logs").mkdir(exist_ok=True)
     

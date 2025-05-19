@@ -1,14 +1,16 @@
 """
 Tests for the MindMeld API service.
 """
-import os
+
 import json
+import os
+import sys
 import time
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 import pytest
 from fastapi.testclient import TestClient
-from unittest.mock import patch, MagicMock
-import sys
-from pathlib import Path
 
 # Add parent directory to system path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -35,16 +37,18 @@ def mock_agent_factory():
         # Set up the mock registry
         mock_registry.__contains__.side_effect = lambda key: key == "test_agent"
         mock_registry.keys.return_value = ["test_agent", "other_agent"]
-        
+
         # Create a mock agent creator function
         mock_creator = MagicMock()
         mock_agent = MagicMock()
         mock_agent.run.return_value = "Test agent response"
         mock_creator.return_value = mock_agent
-        
+
         # Configure the registry to return the mock creator
-        mock_registry.__getitem__.side_effect = lambda key: mock_creator if key == "test_agent" else None
-        
+        mock_registry.__getitem__.side_effect = lambda key: (
+            mock_creator if key == "test_agent" else None
+        )
+
         yield mock_registry
 
 
@@ -61,7 +65,7 @@ class TestAPI:
     def test_health_check_healthy(self, mock_ollama_available):
         """Test health check when Ollama is available."""
         response = client.get("/health")
-        
+
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "healthy"
@@ -72,7 +76,7 @@ class TestAPI:
     def test_health_check_degraded(self, mock_available):
         """Test health check when Ollama is not available."""
         response = client.get("/health")
-        
+
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "degraded"
@@ -82,7 +86,7 @@ class TestAPI:
     def test_list_agents(self, mock_agent_factory):
         """Test listing available agents."""
         response = client.get("/agents")
-        
+
         assert response.status_code == 200
         data = response.json()
         assert data["agents"] == ["test_agent", "other_agent"]
@@ -91,10 +95,9 @@ class TestAPI:
     def test_run_agent_success(self, mock_agent_factory, mock_ollama_available):
         """Test successfully running an agent."""
         response = client.post(
-            "/agents/run",
-            json={"prompt": "Test prompt", "agent_name": "test_agent"}
+            "/agents/run", json={"prompt": "Test prompt", "agent_name": "test_agent"}
         )
-        
+
         assert response.status_code == 200
         data = response.json()
         assert data["agent"] == "test_agent"
@@ -106,9 +109,9 @@ class TestAPI:
         """Test running a non-existent agent."""
         response = client.post(
             "/agents/run",
-            json={"prompt": "Test prompt", "agent_name": "nonexistent_agent"}
+            json={"prompt": "Test prompt", "agent_name": "nonexistent_agent"},
         )
-        
+
         assert response.status_code == 404
         data = response.json()
         assert "not found" in data["detail"]
@@ -117,10 +120,9 @@ class TestAPI:
     def test_run_agent_ollama_unavailable(self, mock_available, mock_agent_factory):
         """Test running an agent when Ollama is not available."""
         response = client.post(
-            "/agents/run",
-            json={"prompt": "Test prompt", "agent_name": "test_agent"}
+            "/agents/run", json={"prompt": "Test prompt", "agent_name": "test_agent"}
         )
-        
+
         assert response.status_code == 503
         data = response.json()
         assert "Ollama service is not available" in data["detail"]
@@ -130,13 +132,15 @@ class TestAPI:
         # Configure the mock agent to return an error
         mock_creator = mock_agent_factory.__getitem__.return_value
         mock_agent = mock_creator.return_value
-        mock_agent.run.return_value = {"error": "Test error", "details": "Error details"}
-        
+        mock_agent.run.return_value = {
+            "error": "Test error",
+            "details": "Error details",
+        }
+
         response = client.post(
-            "/agents/run",
-            json={"prompt": "Test prompt", "agent_name": "test_agent"}
+            "/agents/run", json={"prompt": "Test prompt", "agent_name": "test_agent"}
         )
-        
+
         assert response.status_code == 200
         data = response.json()
         assert data["agent"] == "test_agent"
@@ -149,21 +153,21 @@ class TestAPI:
         with patch("api.background_tasks.add_task") as mock_add_task:
             response = client.post(
                 "/agents/async-run",
-                json={"prompt": "Test prompt", "agent_name": "test_agent"}
+                json={"prompt": "Test prompt", "agent_name": "test_agent"},
             )
-            
+
             assert response.status_code == 200
             data = response.json()
             assert "job_id" in data
             assert data["status"] == "submitted"
-            
+
             # Verify the background task was added
             mock_add_task.assert_called_once()
 
     def test_get_job_nonexistent(self):
         """Test getting status of a non-existent job."""
         response = client.get("/jobs/nonexistent_job")
-        
+
         assert response.status_code == 404
         data = response.json()
         assert "not found" in data["detail"]

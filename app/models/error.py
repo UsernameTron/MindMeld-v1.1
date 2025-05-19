@@ -1,8 +1,7 @@
 from typing import Any, Dict, Optional
 
-from pydantic import ConfigDict, Field
-
 from app.models.common import BaseModel
+from pydantic import ConfigDict, Field
 
 
 class ErrorResponse(BaseModel):

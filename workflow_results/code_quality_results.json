@@ -1,0 +1,43 @@
+{
+  "workflow_completed": true,
+  "completed_steps": [
+    "debug",
+    "dependency",
+    "test_gen",
+    "results_aggregation"
+  ],
+  "results": {
+    "debug": {
+      "has_errors": false,
+      "issues": []
+    },
+    "dependency": {
+      "missing_dependencies": [],
+      "required_dependencies": [],
+      "version_conflicts": [],
+      "installation_commands": [],
+      "vulnerabilities": [],
+      "invalid_requirements": []
+    },
+    "test_gen": {
+      "test_code": "",
+      "fixtures": {},
+      "coverage_estimate": 0.0,
+      "untested_paths": []
+    },
+    "results_aggregation": {
+      "has_errors": false,
+      "issues": [],
+      "missing_dependencies": [],
+      "required_dependencies": [],
+      "version_conflicts": [],
+      "installation_commands": [],
+      "vulnerabilities": [],
+      "invalid_requirements": [],
+      "test_code": "",
+      "fixtures": {},
+      "coverage_estimate": 0.0,
+      "untested_paths": []
+    }
+  }
+}

@@ -1,14 +1,14 @@
+import logging
 import os
 import time
-import logging
-from typing import Dict, Any, Optional, List, Union
+from typing import Any, Dict, List, Optional, Union
 
 import anthropic
 from anthropic import Anthropic
 from anthropic.types import Message, MessageParam
 
-from ..utils.token_optimizer import TokenOptimizer
 from ..utils.token_counter import TokenCounter
+from ..utils.token_optimizer import TokenOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ class OptimizedClaudeClient:
         """Generate a cache key from request parameters."""
         import hashlib
         import json
-        
+
         # Create a simplified version of the params for hashing
         cache_params = {
             "model": params.get("model", ""),

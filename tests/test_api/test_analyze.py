@@ -1,12 +1,11 @@
 from unittest.mock import patch
 
 import pytest
-from fastapi.testclient import TestClient
-
 from app.main import app
 from app.models.analyze.analyze import AnalysisResult, AnalyzeResponse
 from app.services.auth.auth_service import create_access_token
 from app.services.errors import InferenceError, ValidationError
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
@@ -17,7 +16,9 @@ AUTH_HEADER = {"Authorization": f"Bearer {ANALYZE_JWT}"}
 class TestAnalyzeEndpoint:
     def test_analyze_positive_sentiment(self):
         response = client.post(
-            "/api/v1/analyze/", json={"text": "I love this product!"}, headers=AUTH_HEADER
+            "/api/v1/analyze/",
+            json={"text": "I love this product!"},
+            headers=AUTH_HEADER,
         )
         assert response.status_code == 200
         data = response.json()
@@ -50,7 +51,9 @@ class TestAnalyzeEndpoint:
         ), "Expected NEGATIVE sentiment"
 
     def test_empty_text(self):
-        response = client.post("/api/v1/analyze/", json={"text": ""}, headers=AUTH_HEADER)
+        response = client.post(
+            "/api/v1/analyze/", json={"text": ""}, headers=AUTH_HEADER
+        )
         assert response.status_code == 422  # Validation error
         data = response.json()
         # StandardResponse structure for errors
@@ -114,7 +117,9 @@ def test_analyze_success(mock_analyze):
 @patch("app.services.analyze.analyze_service.AnalyzeService.analyze_sentiment")
 def test_analyze_inference_error(mock_analyze):
     mock_analyze.side_effect = InferenceError("Test inference error")
-    response = client.post("/api/v1/analyze/", json={"text": "test text"}, headers=AUTH_HEADER)
+    response = client.post(
+        "/api/v1/analyze/", json={"text": "test text"}, headers=AUTH_HEADER
+    )
     assert response.status_code == 500
     data = response.json()
     # StandardResponse structure for errors

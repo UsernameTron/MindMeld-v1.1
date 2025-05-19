@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 import json
-import jsonschema
 from pathlib import Path
+
+import jsonschema
 
 # Load our schema
 schema_path = Path(__file__).parent / "agent_report_schema.json"

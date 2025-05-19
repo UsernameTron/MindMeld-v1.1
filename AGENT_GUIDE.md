@@ -34,7 +34,7 @@ Based on the agent analysis, the following agents have training capabilities:
 # Run TestGeneratorAgent training
 python3 -c 'from packages.agents.advanced_reasoning.agents import TestGeneratorAgent; agent = TestGeneratorAgent(); agent.train()'
 
-# Run DependencyAgent training 
+# Run DependencyAgent training
 python3 -c 'from packages.agents.advanced_reasoning.agents import DependencyAgent; agent = DependencyAgent(); agent.train()'
 ```
 
@@ -52,6 +52,12 @@ python3 run_agent.py ceo src/ --output-dir=reports/ceo
 
 # Run code optimization
 python3 run_agent.py IntegratedCodebaseOptimizer src/ --output-dir=reports/IntegratedCodebaseOptimizer
+
+# Run comprehensive analysis of the codebase using agents
+python3 -m src.example.analyze_codebase
+
+# Run quick analysis of key codebase components
+python3 -m src.example.quick_analyze_codebase
 ```
 
 ## 5. Batch Run All Agents

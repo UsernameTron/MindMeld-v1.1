@@ -1,0 +1,24 @@
+{
+  "workflow_completed": true,
+  "completed_steps": [
+    "dependency",
+    "check_security",
+    "check_missing_deps"
+  ],
+  "results": {
+    "dependency": {
+      "missing_dependencies": [],
+      "required_dependencies": [],
+      "version_conflicts": [],
+      "installation_commands": [],
+      "vulnerabilities": [],
+      "invalid_requirements": []
+    },
+    "check_security": {
+      "condition_result": false
+    },
+    "check_missing_deps": {
+      "condition_result": false
+    }
+  }
+}

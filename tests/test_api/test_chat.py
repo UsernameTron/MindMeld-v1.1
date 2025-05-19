@@ -1,11 +1,10 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from fastapi.testclient import TestClient
-
 from app.main import app
 from app.models.chat.chat import ChatCompletionResponse, ChatMessage
 from app.services.errors import OpenAIServiceError
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 
@@ -15,9 +14,11 @@ def mock_chat_service():
     with patch("app.api.routes.chat.chat_service") as mock_service:
         yield mock_service
 
+
 @pytest.fixture
 def valid_api_key():
     return "valid-chat-key"
+
 
 @pytest.fixture
 def chat_request_payload():

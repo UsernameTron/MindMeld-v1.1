@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-import os
-import json
 import argparse
 import fnmatch
+import json
+import os
+
 
 def is_ignored(path, ignore_patterns):
     for pat in ignore_patterns:

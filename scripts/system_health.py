@@ -3,7 +3,6 @@ import sys
 from pathlib import Path
 
 import httpx
-
 from app.core.config import redis, settings
 
 

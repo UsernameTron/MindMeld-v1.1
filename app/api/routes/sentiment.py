@@ -1,6 +1,6 @@
-from fastapi import APIRouter, HTTPException
 from app.models.analyze.sentiment import SentimentRequest, SentimentResponse
 from app.services.analyze.sentiment_analyzer import SentimentAnalyzer
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
 

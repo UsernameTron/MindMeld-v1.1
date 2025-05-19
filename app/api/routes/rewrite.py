@@ -5,11 +5,10 @@ This module defines FastAPI routes for content rewriting,
 providing endpoints to transform content using personas.
 """
 
-from fastapi import APIRouter, HTTPException
-
 from app.models.rewrite.rewrite import RewriteRequest, RewriteResponse
 from app.services.errors import OpenAIServiceError, ResourceNotFoundError
 from app.services.rewrite.rewrite_service import rewrite_service
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter(
     tags=["rewrite"],

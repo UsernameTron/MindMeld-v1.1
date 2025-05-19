@@ -1,14 +1,14 @@
-import { defineConfig } from 'eslint/config';
+// eslint configuration file
 
-export default defineConfig([
+export default [
   {
-    ignores: ['node_modules/**', 'dist/**'],
+    ignores: ['node_modules\\**', 'dist\\**'],
     languageOptions: {
+      // Using ES2021 for compatibility with modern JavaScript features like logical assignment operators and String.prototype.replaceAll
       ecmaVersion: 2021,
       sourceType: 'module'
     },
     rules: {
-      'no-console': 'off',
       'comma-dangle': ['error', 'always-multiline'],
       'quotes': ['error', 'single'],
       'semi': ['error', 'always'],
@@ -16,4 +16,4 @@ export default defineConfig([
       'prefer-const': 'error'
     }
   }
-]);
+];

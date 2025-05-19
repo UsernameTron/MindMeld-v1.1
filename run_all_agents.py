@@ -1,6 +1,15 @@
 #!/usr/bin/env python3
-import json, subprocess, sys, os, logging, time, argparse, requests
+import argparse
+import json
+import logging
+import os
+import subprocess
+import sys
+import time
 from pathlib import Path
+
+import requests
+
 from packages.agents.AgentFactory import AGENT_REGISTRY
 
 # Parse arguments

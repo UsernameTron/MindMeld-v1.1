@@ -1,0 +1,28 @@
+{
+  "workflow_completed": true,
+  "completed_steps": [
+    "test_gen",
+    "debug_tests",
+    "results_aggregation"
+  ],
+  "results": {
+    "test_gen": {
+      "test_code": "",
+      "fixtures": {},
+      "coverage_estimate": 0.0,
+      "untested_paths": []
+    },
+    "debug_tests": {
+      "has_errors": false,
+      "issues": []
+    },
+    "results_aggregation": {
+      "test_code": "",
+      "fixtures": {},
+      "coverage_estimate": 0.0,
+      "untested_paths": [],
+      "has_errors": false,
+      "issues": []
+    }
+  }
+}

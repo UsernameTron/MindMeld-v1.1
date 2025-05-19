@@ -1,10 +1,9 @@
 import pytest
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
-
 from app.core.errors import register_exception_handlers
 from app.main import app
 from app.services.errors import ModelLoadError, ResourceNotFoundError, ValidationError
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 client = TestClient(app)
 

@@ -17,7 +17,9 @@ Usage:
 This pattern enables dependency injection and easier testing/mocking of authentication logic.
 """
 from abc import ABC, abstractmethod
+
 from fastapi import Request
+
 
 class AuthInterface(ABC):
     """

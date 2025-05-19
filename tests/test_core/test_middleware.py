@@ -1,12 +1,16 @@
-from fastapi.testclient import TestClient
-import pytest
-from fastapi import Request, HTTPException, Response
-from app.core.middleware import RateLimiter, RequestIdMiddleware, RateLimitHeaderMiddleware
 import asyncio
 import uuid
-from starlette.types import ASGIApp
 
+import pytest
+from app.core.middleware import (
+    RateLimiter,
+    RateLimitHeaderMiddleware,
+    RequestIdMiddleware,
+)
 from app.main import app
+from fastapi import HTTPException, Request, Response
+from fastapi.testclient import TestClient
+from starlette.types import ASGIApp
 
 client = TestClient(app)
 
@@ -30,20 +34,27 @@ def test_custom_request_id():
 @pytest.mark.asyncio
 async def test_rate_limiter_allows_within_limit(monkeypatch):
     from app.core.middleware import MemoryRateLimiter
+
     backend = MemoryRateLimiter()
     limiter = RateLimiter(requests=3, window=10, backend=backend)
-    request = Request(scope={"type": "http", "method": "GET", "path": "/test", "headers": []})
+    request = Request(
+        scope={"type": "http", "method": "GET", "path": "/test", "headers": []}
+    )
     # Reset counter for test
     await backend.expire("ratelimit:unknown:/test", 0)
     for _ in range(3):
         await limiter(request)  # Should not raise
 
+
 @pytest.mark.asyncio
 async def test_rate_limiter_warns_at_threshold(monkeypatch):
     from app.core.middleware import MemoryRateLimiter
+
     backend = MemoryRateLimiter()
     limiter = RateLimiter(requests=5, window=10, backend=backend)
-    request = Request(scope={"type": "http", "method": "GET", "path": "/warn", "headers": []})
+    request = Request(
+        scope={"type": "http", "method": "GET", "path": "/warn", "headers": []}
+    )
     await backend.expire("ratelimit:unknown:/warn", 0)
     for _ in range(4):
         await limiter(request)
@@ -51,12 +62,16 @@ async def test_rate_limiter_warns_at_threshold(monkeypatch):
     assert hasattr(request.state, "_rate_limit_warning")
     assert request.state._rate_limit_warning is True
 
+
 @pytest.mark.asyncio
 async def test_rate_limiter_blocks_over_limit(monkeypatch):
     from app.core.middleware import MemoryRateLimiter
+
     backend = MemoryRateLimiter()
     limiter = RateLimiter(requests=2, window=10, backend=backend)
-    request = Request(scope={"type": "http", "method": "GET", "path": "/block", "headers": []})
+    request = Request(
+        scope={"type": "http", "method": "GET", "path": "/block", "headers": []}
+    )
     await backend.expire("ratelimit:unknown:/block", 0)
     await limiter(request)
     await limiter(request)
@@ -64,28 +79,36 @@ async def test_rate_limiter_blocks_over_limit(monkeypatch):
         await limiter(request)
     assert exc.value.status_code == 429
 
+
 @pytest.mark.asyncio
 async def test_rate_limiter_resets(monkeypatch):
     limiter = RateLimiter(requests=1, window=1)
-    
+
     # First request - normal request (should be allowed)
-    request1 = Request(scope={"type": "http", "method": "GET", "path": "/reset", "headers": []})
+    request1 = Request(
+        scope={"type": "http", "method": "GET", "path": "/reset", "headers": []}
+    )
     await limiter(request1)
     print("[TEST DEBUG] First request completed successfully")
-    
+
     # Wait for TTL to expire
     import asyncio
+
     await asyncio.sleep(2.5)
-    
+
     # Second request with test flag (should bypass rate limiter)
-    request2 = Request(scope={"type": "http", "method": "GET", "path": "/reset", "headers": []})
+    request2 = Request(
+        scope={"type": "http", "method": "GET", "path": "/reset", "headers": []}
+    )
     request2.is_test_reset = True
     await limiter(request2)
     print("[TEST DEBUG] Second request with test flag completed successfully")
 
+
 class DummyApp:
     async def __call__(self, scope, receive, send):
         pass
+
 
 @pytest.mark.asyncio
 async def test_request_id_middleware_adds_header(monkeypatch):
@@ -93,11 +116,20 @@ async def test_request_id_middleware_adds_header(monkeypatch):
         async def __call__(self, request):
             response = Response("OK", status_code=200)
             return response
+
     app = DummyApp()
     middleware = RequestIdMiddleware(app)
-    request = Request(scope={"type": "http", "method": "GET", "path": "/", "headers": [(b"x-request-id", b"test-id")]})
+    request = Request(
+        scope={
+            "type": "http",
+            "method": "GET",
+            "path": "/",
+            "headers": [(b"x-request-id", b"test-id")],
+        }
+    )
     response = await middleware.dispatch(request, DummyCallNext())
     assert response.headers["X-Request-ID"] == "test-id"
+
 
 @pytest.mark.asyncio
 async def test_rate_limit_header_middleware_adds_headers(monkeypatch):
@@ -109,14 +141,18 @@ async def test_rate_limit_header_middleware_adds_headers(monkeypatch):
             request.state._rate_limit_warning = True
             request.state._rate_limit_remaining = 2
             return response
+
     app = DummyApp()
     middleware = RateLimitHeaderMiddleware(app)
-    request = Request(scope={"type": "http", "method": "GET", "path": "/", "headers": []})
+    request = Request(
+        scope={"type": "http", "method": "GET", "path": "/", "headers": []}
+    )
     response = await middleware.dispatch(request, DummyCallNext())
     assert response.headers["X-RateLimit-Limit"] == "10"
     assert response.headers["X-RateLimit-Reset"] == "123456"
     assert response.headers["X-RateLimit-Warning"] == "true"
     assert response.headers["X-RateLimit-Remaining"] == "2"
+
 
 @pytest.mark.asyncio
 async def test_memory_rate_limiter_ttl():
@@ -126,6 +162,7 @@ async def test_memory_rate_limiter_ttl():
     After expiry, incr resets the counter to 1 (does not remove the key).
     """
     from app.core.middleware import MemoryRateLimiter
+
     limiter = MemoryRateLimiter()
     key = "test:ttl"
     await limiter.incr(key)

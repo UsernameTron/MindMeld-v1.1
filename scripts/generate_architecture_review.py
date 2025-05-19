@@ -6,12 +6,12 @@ MindMeld Architecture & Code Quality Review Script
 - Multi-pass: structure, function, contradiction, cleanup, risk
 - Output: JSON file (mindmeld_architecture_review.json)
 """
-import os
-import sys
 import json
+import os
 import re
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).parent.parent
 SCHEMA_PATH = PROJECT_ROOT / "architecture" / "JSON Schema Template.json"

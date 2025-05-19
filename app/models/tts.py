@@ -1,5 +1,7 @@
-from pydantic import BaseModel, Field
 from typing import Optional
+
+from pydantic import BaseModel, Field
+
 
 class TTSRequest(BaseModel):
     text: str = Field(..., description="The text to convert to speech")

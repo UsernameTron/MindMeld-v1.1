@@ -1,9 +1,9 @@
-from typing import Dict, Any, Optional, List, Union
 import json
 import logging
+from typing import Any, Dict, List, Optional, Union
 
-from .base import Agent
 from ..api.client import ClaudeAPIClient
+from .base import Agent
 
 logger = logging.getLogger(__name__)
 

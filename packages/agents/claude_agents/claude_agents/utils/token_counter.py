@@ -1,5 +1,7 @@
+from typing import Any, Dict, List, Optional, Union
+
 import tiktoken
-from typing import List, Dict, Any, Union, Optional
+
 
 class TokenCounter:
     """Utility class for more accurate token counting."""

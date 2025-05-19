@@ -1,7 +1,7 @@
 from .base import Memory
+from .conversation import ConversationMemory
 from .simple import SimpleMemory
 from .vector import VectorMemory
-from .conversation import ConversationMemory
 
 __all__ = [
     'Memory',

@@ -1,8 +1,8 @@
-from typing import Dict, Any, Optional, List, Union, Tuple
 import logging
 import time
 import uuid
 from collections import OrderedDict
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from .base import Memory
 

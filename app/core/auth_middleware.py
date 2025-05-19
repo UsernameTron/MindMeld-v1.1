@@ -5,14 +5,15 @@ This module implements middleware for API key and JWT authentication with scope 
 allowing different routes to require different permissions.
 """
 
-from fastapi import HTTPException, Request, status, Depends
-from fastapi.responses import JSONResponse
-from fastapi.security import APIKeyHeader, HTTPBearer, HTTPAuthorizationCredentials
-from starlette.middleware.base import BaseHTTPMiddleware
+from typing import Optional
+
 from app.core.auth_interface import AuthInterface
 from app.core.config import settings
-from app.services.auth.auth_service import AuthService, AuthResult
-from typing import Optional
+from app.services.auth.auth_service import AuthResult, AuthService
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.responses import JSONResponse
+from fastapi.security import APIKeyHeader, HTTPAuthorizationCredentials, HTTPBearer
+from starlette.middleware.base import BaseHTTPMiddleware
 
 api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
@@ -86,6 +87,7 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
             Response: The processed response, or an error response if authentication fails.
         """
         from app.core import test_config
+
         # Dynamically check test and auth flags
         if getattr(test_config, "IS_TESTING", False):
             return await call_next(request)
