@@ -14,7 +14,13 @@ import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union  # Removed unused BinaryIO, Iterator, TextIO, Tuple
+from typing import (  # Removed unused BinaryIO, Iterator, TextIO, Tuple
+    Any,
+    Dict,
+    List,
+    Optional,
+    Union,
+)
 
 from src.utils.error_handling import FileProcessingError
 

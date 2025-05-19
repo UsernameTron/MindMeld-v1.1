@@ -1,12 +1,12 @@
-import os
-import logging
-import json
-import time
 import datetime
-from typing import Dict, Any, Optional, List, Union
-import threading
-import socket
+import json
+import logging
+import os
 import platform
+import socket
+import threading
+import time
+from typing import Any, Dict, List, Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +71,7 @@ class PrometheusExporter(MetricsExporter):
         
         # Initialize Prometheus client if available
         try:
-            from prometheus_client import start_http_server, Counter, Gauge, Summary
+            from prometheus_client import Counter, Gauge, Summary, start_http_server
             self.prometheus_available = True
             
             # API metrics

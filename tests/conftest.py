@@ -11,11 +11,10 @@ import os
 from unittest.mock import AsyncMock, patch
 
 import pytest
-from fastapi import FastAPI
-from fastapi.testclient import TestClient
-
 from app.core.auth_middleware import APIKeyMiddleware
 from app.main import app as main_app
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
 
 
 @pytest.fixture(scope="session")

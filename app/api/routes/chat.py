@@ -5,12 +5,11 @@ This module defines the FastAPI routes for chat-based interactions
 and completions using LLMs.
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Request
-
 from app.core.middleware import RateLimiter
 from app.models.chat.chat import ChatCompletionRequest, ChatCompletionResponse
 from app.services.chat.chat_service import chat_service
 from app.services.errors import OpenAIServiceError
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 router = APIRouter(
     # Remove prefix here; it will be set in main.py

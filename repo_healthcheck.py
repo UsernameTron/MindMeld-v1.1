@@ -8,12 +8,12 @@ Performs:
  4. Dependency Auditor (Python/Node)
  5. Large-File Detector (>10MB)
 """
+import importlib.util
+import json
 import os
 import re
-import sys
-import json
 import subprocess
-import importlib.util
+import sys
 from pathlib import Path
 
 # --- CONFIG ---

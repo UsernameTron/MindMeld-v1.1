@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
-import sys
-from pathlib import Path
 import json
-import jsonschema
-import time
 import os
-import requests
 import platform
+import sys
+import time
 import traceback
 import uuid
-from typing import Dict, Any, Optional, Union
-from packages.agents.AgentFactory import AGENT_REGISTRY, AGENT_INPUT_TYPES
+from pathlib import Path
+from typing import Any, Dict, Optional, Union
+
+import jsonschema
+import requests
+
+from packages.agents.AgentFactory import AGENT_INPUT_TYPES, AGENT_REGISTRY
 
 # load the schema once
 schema_path = Path(__file__).parent / "agent_report_schema.json"

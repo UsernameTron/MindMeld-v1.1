@@ -14,14 +14,14 @@ This module defines custom middleware for request ID management and rate limitin
 import time
 from typing import Any, Awaitable, Callable, Dict, Optional, Union
 
+from app.core.config import get_redis
+from app.core.logging import get_logger, set_request_id
 from cachetools import TTLCache
 from fastapi import HTTPException, Request, Response, status
+from opentelemetry import trace
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
-from app.core.config import get_redis
-from app.core.logging import get_logger, set_request_id
-from opentelemetry import trace
 
 class MemoryRateLimiter:
     """

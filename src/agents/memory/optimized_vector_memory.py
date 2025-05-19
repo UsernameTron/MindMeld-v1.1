@@ -10,9 +10,9 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
-from ...ai.client import BaseLLMClient, LLMClientFactory
-from ...ai.embeddings import EmbeddingService, EmbeddingVector
-from ..core.base import Agent
+from src.agents.core.base import Agent
+from src.ai.client import BaseLLMClient, LLMClientFactory
+from src.ai.embeddings import EmbeddingService, EmbeddingVector
 
 # Try to import vector database libraries
 try:
@@ -20,6 +20,10 @@ try:
 
     FAISS_AVAILABLE = True
 except ImportError:
+    # Log warning instead of raising an exception, allowing fallback to non-FAISS implementation
+    logging.warning(
+        "faiss is not installed. For better performance, install it with 'pip install faiss-cpu' or 'pip install faiss-gpu'."
+    )
     FAISS_AVAILABLE = False
 
 
@@ -98,6 +102,11 @@ class OptimizedVectorMemoryAgent(Agent):
         self.lock = threading.RLock()
 
         # FAISS index for fast similarity search
+        if not FAISS_AVAILABLE and use_faiss:
+            self.logger.warning(
+                "FAISS library not available - falling back to brute force search"
+            )
+
         self.use_faiss = use_faiss and FAISS_AVAILABLE
         self.faiss_index = None
         self.faiss_id_map = {}  # Maps FAISS index positions to entry_ids
@@ -127,7 +136,14 @@ class OptimizedVectorMemoryAgent(Agent):
 
     def _initialize_faiss(self):
         """Initialize FAISS index with existing embeddings"""
-        if not FAISS_AVAILABLE or not self._memory_entries:
+        if not FAISS_AVAILABLE:
+            self.logger.warning(
+                "FAISS library not available - falling back to brute force search"
+            )
+            self.use_faiss = False
+            return
+
+        if not self._memory_entries:
             return
 
         try:
@@ -217,6 +233,9 @@ class OptimizedVectorMemoryAgent(Agent):
 
     def _add_to_faiss(self, entry_id, embedding):
         """Add embedding to FAISS index"""
+        if not FAISS_AVAILABLE:
+            return
+
         if not self.use_faiss or not self.faiss_index:
             return
 
@@ -362,6 +381,10 @@ class OptimizedVectorMemoryAgent(Agent):
         Returns:
             List of (entry, similarity) tuples
         """
+        if not FAISS_AVAILABLE:
+            self.logger.debug("FAISS library not available for search")
+            return []
+
         if not self.use_faiss or not self.faiss_index:
             return []
 
@@ -723,8 +746,12 @@ class OptimizedVectorMemoryAgent(Agent):
         This is useful when many entries have been added/removed and
         the index needs to be optimized.
         """
-        if not self.use_faiss or not FAISS_AVAILABLE:
-            self.logger.warning("FAISS is not available, can't rebuild index")
+        if not FAISS_AVAILABLE:
+            self.logger.warning("FAISS library not available - cannot rebuild index")
+            self.use_faiss = False
+            return
+
+        if not self.use_faiss:
             return
 
         try:

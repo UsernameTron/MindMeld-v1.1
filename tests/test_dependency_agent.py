@@ -1,13 +1,17 @@
-import pytest
-from packages.agents import DependencyAgent
-import tempfile
 import os
+import tempfile
+
+import pytest
+
+from packages.agents import DependencyAgent
+
 
 def test_analyze_deps_empty_directory():
     with tempfile.TemporaryDirectory() as tmpdir:
         agent = DependencyAgent()
         result = agent.analyze_deps(tmpdir)
         assert result == {}
+
 
 def test_analyze_deps_with_imports():
     with tempfile.TemporaryDirectory() as tmpdir:

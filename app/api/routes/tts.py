@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
 from app.core.auth_middleware import require_auth
-from app.models.tts import TTSRequest, TTSResponse
 from app.models.common import ErrorResponse
+from app.models.tts import TTSRequest, TTSResponse
 from app.services.tts.tts_service import generate_speech, save_audio_file
+from fastapi import APIRouter, Depends, HTTPException
 from mutagen.mp3 import MP3
 
 router = APIRouter(prefix="/tts", tags=["text-to-speech"])

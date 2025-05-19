@@ -9,9 +9,6 @@ and response processing for chat-based operations.
 import logging
 from typing import Any, Dict
 
-from openai import AsyncOpenAI
-from opentelemetry import trace
-
 from app.core.config import settings
 from app.models.chat.chat import (
     ChatCompletionRequest,
@@ -19,6 +16,8 @@ from app.models.chat.chat import (
     ChatMessage,
 )
 from app.services.errors import ConfigurationError, ServiceError
+from openai import AsyncOpenAI
+from opentelemetry import trace
 
 logger = logging.getLogger(__name__)
 tracer = trace.get_tracer(__name__)

@@ -1,21 +1,21 @@
-import time
-import logging
-import json
-import os
 import datetime
-from typing import Dict, Any, List, Optional, Union
-from collections import defaultdict
+import json
+import logging
+import os
 import threading
+import time
+from collections import defaultdict
+from typing import Any, Dict, List, Optional, Union
 
 # Optional dependencies for web dashboard
 try:
     import dash
     import dash_core_components as dcc
     import dash_html_components as html
-    from dash.dependencies import Input, Output
+    import pandas as pd
     import plotly.express as px
     import plotly.graph_objects as go
-    import pandas as pd
+    from dash.dependencies import Input, Output
     DASH_AVAILABLE = True
 except ImportError:
     DASH_AVAILABLE = False

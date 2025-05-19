@@ -1,9 +1,11 @@
-import unittest
 import importlib.util
 import re
+import unittest
 from typing import Any, Dict, List, Set, Tuple
+
 from core.base import Agent
 from core.registry import register_agent
+
 
 class TestDependencyManagementAgent(unittest.TestCase):
     """Test suite for DependencyManagementAgent class."""
@@ -20,5 +22,6 @@ class TestDependencyManagementAgent(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

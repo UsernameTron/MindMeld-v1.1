@@ -215,7 +215,7 @@ class AgentTestCase:
 
 
 def patch_llm_calls(
-    responses: Dict[str, Union[str, Dict[str, Any]]] = None
+    responses: Dict[str, Union[str, Dict[str, Any]]] = None,
 ) -> Callable:
     """
     Decorator to patch LLM API calls.

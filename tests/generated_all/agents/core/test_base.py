@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+
 class TestAgent(unittest.TestCase):
     """Test suite for Agent class."""
 
@@ -51,5 +52,6 @@ class TestAgent(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

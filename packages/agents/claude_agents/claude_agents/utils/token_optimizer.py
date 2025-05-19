@@ -1,7 +1,7 @@
-import re
 import json
 import logging
-from typing import Dict, Any, List, Optional, Tuple, Union
+import re
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 logger = logging.getLogger(__name__)
 

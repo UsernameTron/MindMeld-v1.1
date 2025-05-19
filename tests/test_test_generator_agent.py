@@ -9,10 +9,9 @@ import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+from packages.agents.AgentFactory import AGENT_REGISTRY
 from utils.error_handling import FileProcessingError, LLMCallError
 from utils.file_operations import read_file, write_file
-
-from packages.agents.AgentFactory import AGENT_REGISTRY
 
 
 class TestGeneratorAgentTests(unittest.TestCase):

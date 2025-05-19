@@ -11,9 +11,6 @@ from datetime import datetime, timedelta
 from functools import lru_cache
 from typing import Any, ClassVar, Dict, List, Optional
 
-from transformers import pipeline
-from opentelemetry import trace
-
 from app.core.config import settings
 from app.models.analyze.analyze import (
     BatchSentimentRequest,
@@ -23,6 +20,8 @@ from app.models.analyze.analyze import (
     SentimentResponse,
 )
 from app.services.errors import InferenceError, ValidationError
+from opentelemetry import trace
+from transformers import pipeline
 
 tracer = trace.get_tracer(__name__)
 

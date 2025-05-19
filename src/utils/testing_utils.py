@@ -213,8 +213,7 @@ class AgentTestCase:
 
 
 def patch_llm_calls(
-    test_responses: Dict[str, Any] = None,
-    simulation_mode: str = "fixed"
+    test_responses: Dict[str, Any] = None, simulation_mode: str = "fixed"
 ) -> Callable:
     """
     Decorator to patch LLM API calls for testing with predetermined responses.
@@ -222,10 +221,11 @@ def patch_llm_calls(
     Args:
         test_responses: Dictionary mapping prompts or request IDs to mock responses
         simulation_mode: Mode for response simulation ("fixed", "random", or "deterministic")
-        
+
     Returns:
         A decorator that can be applied to test functions
     """
+
     def decorator(func):
         @mock.patch("src.utils.llm_provider.OllamaProvider.generate")
         def wrapper(*args, **kwargs):
@@ -233,14 +233,19 @@ def patch_llm_calls(
 
             # Configure the mock based on the responses
             if test_responses:
-                def side_effect(prompt: str, model: str = "phi3.5:latest", **inner_kwargs):
+
+                def side_effect(
+                    prompt: str, model: str = "phi3.5:latest", **inner_kwargs
+                ):
                     for prefix, response_data in test_responses.items():
                         if prompt.startswith(prefix):
                             if isinstance(response_data, str):
                                 return MockLLMResponse(response_data)
                             elif isinstance(response_data, dict):
                                 return MockLLMResponse(**response_data)
-                    return MockLLMResponse(f"Default mock response for: {prompt[:30]}...")
+                    return MockLLMResponse(
+                        f"Default mock response for: {prompt[:30]}..."
+                    )
 
                 mock_generate.side_effect = side_effect
             else:
@@ -249,6 +254,7 @@ def patch_llm_calls(
             return func(*args[1:], **kwargs)  # Skip mock argument
 
         return wrapper
+
     return decorator
 
 

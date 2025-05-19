@@ -239,10 +239,19 @@ def main():
 
     # Generate installation commands if --install flag is set
     if args.install and combined_results["missing_dependencies"]:
-        agent._generate_install_commands(combined_results)
+        # Use the public method to generate installation commands
+        if hasattr(agent, "generate_install_commands") and callable(
+            getattr(agent, "generate_install_commands", None)
+        ):
+            combined_results["installation_commands"] = agent.generate_install_commands(
+                combined_results
+            )
+        else:
+            print(
+                "Installation command generation is not available via the public API. Please implement a public method in DependencyManagementAgent for this functionality."
+            )
 
     # Print combined results
-    format_results(combined_results, args.verbose)
 
 
 if __name__ == "__main__":

@@ -5,8 +5,6 @@ This module defines the FastAPI routes for analyzing text sentiment,
 including single and batch sentiment analysis endpoints.
 """
 
-from fastapi import APIRouter, Depends
-
 from app.core.middleware import RateLimiter
 from app.models.analyze.analyze import (
     AnalysisResult,
@@ -19,6 +17,7 @@ from app.models.analyze.analyze import (
 )
 from app.models.common import StandardResponse
 from app.services.analyze.analyze_service import AnalyzeService
+from fastapi import APIRouter, Depends
 
 router = APIRouter(tags=["Sentiment Analysis"])
 

@@ -1,7 +1,13 @@
-import os, httpx, uuid, tempfile, asyncio
+import asyncio
+import os
+import tempfile
+import uuid
 from io import BytesIO
+
+import httpx
 from app.core.config import get_settings
 from app.core.errors import ServiceError
+
 
 async def generate_speech(text: str, voice: str = "nova", model: str = "tts-1", speed: float = 1.0) -> BytesIO:
     settings = get_settings()

@@ -1,11 +1,12 @@
-from typing import Dict, Any, Optional, List, Union, Tuple, Callable
+import json
 import logging
 import time
 import uuid
-import numpy as np
-import faiss
-import json
 from collections import defaultdict
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
+
+import faiss
+import numpy as np
 
 from .base import Memory
 

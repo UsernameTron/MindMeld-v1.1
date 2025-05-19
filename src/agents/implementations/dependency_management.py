@@ -58,6 +58,15 @@ class DependencyManagementAgent(Agent):
             )
         return result
 
+    def generate_install_commands(self, results: dict) -> list:
+        """
+        Public method to generate installation commands for missing dependencies.
+        """
+        missing = results.get("missing_dependencies", [])
+        if missing:
+            return ["pip install " + " ".join(missing)]
+        return []
+
     def _analyze_code(self, code: str) -> Dict[str, Any]:
         """
         Analyze Python code to extract imports and check for missing dependencies.

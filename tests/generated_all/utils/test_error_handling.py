@@ -1,10 +1,11 @@
-import unittest
 import functools
 import logging
 import os
 import time
 import traceback
+import unittest
 from typing import Any, Callable, Dict, Optional, Tuple, Type, TypeVar, Union
+
 
 class TestFunctions(unittest.TestCase):
     def test_format_error_for_json(self):
@@ -51,12 +52,14 @@ class TestFunctions(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
+
 class TestMindMeldError(unittest.TestCase):
     """Test suite for MindMeldError class."""
 
     def setUp(self):
         """Set up test fixtures."""
         self.instance = MindMeldError()
+
 
 class TestValidationError(unittest.TestCase):
     """Test suite for ValidationError class."""
@@ -65,12 +68,14 @@ class TestValidationError(unittest.TestCase):
         """Set up test fixtures."""
         self.instance = ValidationError()
 
+
 class TestFileProcessingError(unittest.TestCase):
     """Test suite for FileProcessingError class."""
 
     def setUp(self):
         """Set up test fixtures."""
         self.instance = FileProcessingError()
+
 
 class TestLLMCallError(unittest.TestCase):
     """Test suite for LLMCallError class."""
@@ -79,12 +84,14 @@ class TestLLMCallError(unittest.TestCase):
         """Set up test fixtures."""
         self.instance = LLMCallError()
 
+
 class TestModelUnavailableError(unittest.TestCase):
     """Test suite for ModelUnavailableError class."""
 
     def setUp(self):
         """Set up test fixtures."""
         self.instance = ModelUnavailableError()
+
 
 class TestAnalysisError(unittest.TestCase):
     """Test suite for AnalysisError class."""
@@ -93,12 +100,14 @@ class TestAnalysisError(unittest.TestCase):
         """Set up test fixtures."""
         self.instance = AnalysisError()
 
+
 class TestCompilationError(unittest.TestCase):
     """Test suite for CompilationError class."""
 
     def setUp(self):
         """Set up test fixtures."""
         self.instance = CompilationError()
+
 
 class TestRepairError(unittest.TestCase):
     """Test suite for RepairError class."""
@@ -107,12 +116,14 @@ class TestRepairError(unittest.TestCase):
         """Set up test fixtures."""
         self.instance = RepairError()
 
+
 class TestSchemaValidationError(unittest.TestCase):
     """Test suite for SchemaValidationError class."""
 
     def setUp(self):
         """Set up test fixtures."""
         self.instance = SchemaValidationError()
+
 
 class TestTimeoutError(unittest.TestCase):
     """Test suite for TimeoutError class."""
@@ -121,6 +132,7 @@ class TestTimeoutError(unittest.TestCase):
         """Set up test fixtures."""
         self.instance = TimeoutError()
 
+
 class TestAgentExecutionError(unittest.TestCase):
     """Test suite for AgentExecutionError class."""
 
@@ -128,12 +140,14 @@ class TestAgentExecutionError(unittest.TestCase):
         """Set up test fixtures."""
         self.instance = AgentExecutionError()
 
+
 class TestTransactionError(unittest.TestCase):
     """Test suite for TransactionError class."""
 
     def setUp(self):
         """Set up test fixtures."""
         self.instance = TransactionError()
+
 
 class TestTransaction(unittest.TestCase):
     """Test suite for Transaction class."""
@@ -182,5 +196,6 @@ class TestTransaction(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

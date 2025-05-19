@@ -1,6 +1,6 @@
-import logging
-from typing import Dict, Any, List, Optional, Union
 import json
+import logging
+from typing import Any, Dict, List, Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ class ChainOfThoughtPattern(ReasoningPattern):
         """Parse a Chain-of-Thought response."""
         # Find steps in the response
         import re
-        
+
         # Look for numbered steps or step-by-step sections
         steps = []
         
@@ -221,7 +221,7 @@ class TreeOfThoughtsPattern(ReasoningPattern):
     def parse_response(self, response: str) -> Dict[str, Any]:
         """Parse a Tree of Thoughts response."""
         import re
-        
+
         # Try to identify the different approaches/paths
         paths = []
         
@@ -315,7 +315,7 @@ class SelfReflectionPattern(ReasoningPattern):
     def parse_response(self, response: str) -> Dict[str, Any]:
         """Parse a Self-Reflection response."""
         import re
-        
+
         # Extract initial solution, reflections, and refined solution
         initial_solution = ""
         init_match = re.search(r"(?:^|\n)(?:Initial solution:|First attempt:|Initial answer:)(.*?)(?=\n(?:Reflection:|Self-critique:|Evaluation:))", response, re.IGNORECASE | re.DOTALL)
@@ -412,7 +412,7 @@ class ScientificMethodPattern(ReasoningPattern):
     def parse_response(self, response: str) -> Dict[str, Any]:
         """Parse a Scientific Method response."""
         import re
-        
+
         # Extract each section of the scientific method
         observation = ""
         obs_match = re.search(r"(?:^|\n)(?:1\.|Observation:|Observations:)(.*?)(?=(?:\n(?:2\.|Question:|Questions:)))", response, re.IGNORECASE | re.DOTALL)
@@ -525,7 +525,7 @@ class DebatePattern(ReasoningPattern):
     def parse_response(self, response: str) -> Dict[str, Any]:
         """Parse a Debate response."""
         import re
-        
+
         # Extract different perspectives and the synthesis
         perspectives = []
         
@@ -613,7 +613,7 @@ class FirstPrinciplesPattern(ReasoningPattern):
     def parse_response(self, response: str) -> Dict[str, Any]:
         """Parse a First Principles response."""
         import re
-        
+
         # Extract the different sections
         fundamentals = ""
         fund_match = re.search(r"(?:^|\n)(?:1\.|Fundamental truths:|Basic principles:|Foundational elements:)(.*?)(?=(?:\n(?:2\.|Challenge assumptions:|Assumptions:|Challenging conventions:)))", response, re.IGNORECASE | re.DOTALL)

@@ -1,9 +1,11 @@
-import unittest
 import logging
 import time
+import unittest
 from typing import Any, Dict, List, Optional, Tuple
+
 import requests
 from requests.exceptions import RequestException
+
 
 class TestFunctions(unittest.TestCase):
     def test_check_model_availability(self):
@@ -21,6 +23,7 @@ class TestFunctions(unittest.TestCase):
         result = ensure_model_available(model_name)
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
+
 
 class TestModelManager(unittest.TestCase):
     """Test suite for ModelManager class."""
@@ -80,5 +83,6 @@ class TestModelManager(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

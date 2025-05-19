@@ -6,10 +6,9 @@ import subprocess
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
+from packages.agents.AgentFactory import AGENT_REGISTRY
 from utils.file_operations import safe_file_write
 from utils.model_manager import ModelManager
-
-from packages.agents.AgentFactory import AGENT_REGISTRY
 
 # Configure logging
 logging.basicConfig(

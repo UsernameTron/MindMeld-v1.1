@@ -1,9 +1,11 @@
-import unittest
 import os
 import shutil
 import tempfile
-import mock
+import unittest
 from typing import Any, Callable, Dict, List, Optional, TypeVar, Union
+
+import mock
+
 
 class TestFunctions(unittest.TestCase):
     def test_patch_llm_calls(self):
@@ -23,6 +25,7 @@ class TestFunctions(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
+
 class TestMockLLMResponse(unittest.TestCase):
     """Test suite for MockLLMResponse class."""
 
@@ -41,6 +44,7 @@ class TestMockLLMResponse(unittest.TestCase):
         result = self.instance.__str__()
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
+
 
 class TestMockOllamaClient(unittest.TestCase):
     """Test suite for MockOllamaClient class."""
@@ -79,6 +83,7 @@ class TestMockOllamaClient(unittest.TestCase):
         result = self.instance.remove_model(model_name)
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
+
 
 class TestAgentTestCase(unittest.TestCase):
     """Test suite for AgentTestCase class."""
@@ -139,5 +144,6 @@ class TestAgentTestCase(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

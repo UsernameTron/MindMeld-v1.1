@@ -4,7 +4,6 @@ import os
 from typing import Dict, List, Optional
 
 import yaml
-
 from app.models.persona.persona import PersonaDefinition, PersonaListResponse
 from app.services.errors import ConfigurationError, ResourceNotFoundError
 

@@ -1,15 +1,16 @@
+import logging
+import re
+import time
+from typing import Any, Dict, List
+from urllib.parse import urlparse
+
 import requests
 from bs4 import BeautifulSoup
-import re
-from typing import Dict, Any, List
-from urllib.parse import urlparse
-import time
-import logging
 
 # For sentiment and emotion analysis, use textblob and NRCLex (or fallback to simple rules if not available)
 try:
-    from textblob import TextBlob
     from nrclex import NRCLex
+    from textblob import TextBlob
 except ImportError:
     TextBlob = None
     NRCLex = None

@@ -1,7 +1,6 @@
 import os
 
 import pytest
-
 from app.services.errors import ResourceNotFoundError
 from app.services.persona.persona_service import PersonaService
 

@@ -8,6 +8,7 @@ with a more focused scope for quicker results.
 import json
 import logging
 import os
+import sys
 import time
 
 from src.agents.core.registry import AgentRegistry
@@ -16,9 +17,12 @@ from src.agents.implementations.dependency_management import DependencyManagemen
 from src.agents.memory.optimized_vector_memory import OptimizedVectorMemoryAgent
 from src.ai.client import LLMClientFactory
 
+# Add project root to sys.path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
+
 # Set up logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(name=s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -43,19 +47,23 @@ def setup_agent_system():
         llm_client=llm_client,
         similarity_threshold=0.6,
     )
-
     code_debugger = CodeDebugAgent(llm_client=llm_client)
-
     dependency_manager = DependencyManagementAgent(llm_client=llm_client)
 
-    # Register agents
-    registry.register(vector_memory)
-    registry.register(code_debugger)
-    registry.register(dependency_manager)
+    # Register agents with explicit names matching dispatch calls
+    registry.register(vector_memory, name="vector_memory")
+    registry.register(code_debugger, name="code_debug")
+    registry.register(dependency_manager, name="dependency_management")
 
-    logger.info(
-        f"Quick analysis agent system initialized with {len(registry.list_agents())} agents"
-    )
+    # Check for missing agents
+    required_agents = ["vector_memory", "code_debug", "dependency_management"]
+    missing = [a for a in required_agents if a not in registry.list_agents()]
+    if missing:
+        logger.warning(f"Missing required agents: {missing}")
+    else:
+        logger.info(
+            f"Quick analysis agent system initialized with {len(registry.list_agents())} agents: {registry.list_agents()}"
+        )
 
     return registry
 

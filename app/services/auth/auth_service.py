@@ -6,18 +6,17 @@ and user authentication.
 
 import os
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional, Union
 from enum import Enum
+from typing import Any, Dict, List, Optional, Union
 
-from fastapi import Depends, HTTPException, status, Request
+from app.core.auth_interface import AuthInterface
+from app.core.config import settings
+from app.models.auth.auth import TokenData, User, UserInDB
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import ValidationError
-
-from app.core.config import settings
-from app.models.auth.auth import TokenData, User, UserInDB
-from app.core.auth_interface import AuthInterface
 
 # Configuration
 SECRET_KEY: str = getattr(settings, "JWT_SECRET_KEY", "changeme")

@@ -1,22 +1,25 @@
 """
 Unit tests for Agent retry and fallback mechanisms.
 """
-import os
-import pytest
-import time
-from unittest.mock import patch, MagicMock
+
 import json
+import os
 import sys
+import time
 from pathlib import Path
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 # Add parent directory to system path for module imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from packages.agents.advanced_reasoning.agents import Agent
 
+
 class TestAgentRetry:
     """Tests for the Agent class retry and fallback mechanisms (live API calls)."""
-    
+
     def setup_method(self):
         """Setup test environment before each test."""
         self.original_env = os.environ.copy()
@@ -51,7 +54,13 @@ class TestAgentRetry:
 
     def test_agent_fallback_model(self):
         # To test fallback, use a non-existent model as primary.
-        agent = Agent(name="test_agent", model="nonexistent-model", fallback_model="mistral", max_retries=1, base_timeout=1)
+        agent = Agent(
+            name="test_agent",
+            model="nonexistent-model",
+            fallback_model="mistral",
+            max_retries=1,
+            base_timeout=1,
+        )
         result = agent.run("Say hello.")
         assert isinstance(result, str) or isinstance(result, dict)
         if isinstance(result, dict):
@@ -62,7 +71,13 @@ class TestAgentRetry:
 
     def test_agent_all_attempts_fail(self):
         # Use non-existent models for both primary and fallback
-        agent = Agent(name="test_agent", model="nonexistent-model", fallback_model="nonexistent-fallback", max_retries=1, base_timeout=1)
+        agent = Agent(
+            name="test_agent",
+            model="nonexistent-model",
+            fallback_model="nonexistent-fallback",
+            max_retries=1,
+            base_timeout=1,
+        )
         result = agent.run("Say hello.")
         assert isinstance(result, dict)
         assert "error" in result

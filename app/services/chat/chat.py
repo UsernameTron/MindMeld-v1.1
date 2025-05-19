@@ -1,8 +1,7 @@
-from fastapi import APIRouter, HTTPException
-
 from app.models.chat.chat import ChatCompletionRequest, ChatCompletionResponse
 from app.services.chat.chat_service import chat_service
 from app.services.errors import OpenAIServiceError
+from fastapi import APIRouter, HTTPException
 
 router = APIRouter(
     prefix="/chat",

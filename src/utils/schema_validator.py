@@ -73,7 +73,9 @@ def validate_against_schema(schema: Dict[str, Any], data: Dict[str, Any]) -> boo
         return False
 
 
-def validate_agent_output(agent_output: Dict[str, Any], schema_path: Optional[Union[str, Path]] = None) -> Tuple[bool, Optional[str]]:
+def validate_agent_output(
+    agent_output: Dict[str, Any], schema_path: Optional[Union[str, Path]] = None
+) -> Tuple[bool, Optional[str]]:
     """
     Validate agent output against the agent report schema.
 
@@ -95,8 +97,7 @@ def validate_agent_output(agent_output: Dict[str, Any], schema_path: Optional[Un
 
 
 def ensure_valid_agent_output(
-    agent_output: Dict[str, Any], 
-    schema_name: str = "agent_output"
+    agent_output: Dict[str, Any], schema_name: str = "agent_output"
 ) -> Dict[str, Any]:
     """
     Validates agent output against a schema and returns the validated output.
@@ -114,7 +115,7 @@ def ensure_valid_agent_output(
     is_valid, error = validate_agent_output(agent_output, None)
     if not is_valid:
         raise SchemaValidationError(f"Agent output validation failed: {error}")
-    
+
     # Return the validated output
     return agent_output
 
