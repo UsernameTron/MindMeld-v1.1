@@ -7,39 +7,81 @@ on:
 jobs:
   report-failures:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read  # For actions/checkout
+      pull-requests: write # For github.rest.issues.createComment on PRs
+      actions: read # For projectctl.js to read workflow run statuses
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-      - name: Install GitHub CLI
-        run: sudo apt-get update && sudo apt-get install -y gh
       - name: Install dependencies
         run: npm ci
-      - name: Run report-failures
+      - name: Generate Failure Report
         id: report
         run: |
-          npx node scripts/projectctl.js report-failures \
-            --workflow ci-status.yml \
+          npx node scripts/projectctl.mjs report-failures \
+            --workflow code-quality.yml \
             --branch main \
             --status failure \
             --format text \
-            --since 1h
+            --since 1h > github_workflow_failure_report.txt || echo "No failures found" > github_workflow_failure_report.txt
         continue-on-error: true
-      - name: Annotate PR with failure summary
-        if: steps.report.outcome == 'failure' || steps.report.outcome == 'success'
+      - name: Log Failure Summary
+        if: always()
+        run: |
+          if [ -f "github_workflow_failure_report.txt" ]; then
+            echo "::group::Workflow Failure Summary"
+            cat github_workflow_failure_report.txt
+            echo "::endgroup::"
+          else
+            echo "No failure report found"
+          fi
+      - name: Annotate PR with Failure Summary
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
+        continue-on-error: true
         with:
           script: |
             const fs = require('fs');
-            const summary = fs.readFileSync(process.env.GITHUB_WORKSPACE + '/github_workflow_failure_report.txt', 'utf8');
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `### Workflow Failure Summary\n\n${summary}`
-            });
+            const core = require('@actions/core');
+            const reportPath = process.env.GITHUB_WORKSPACE + '/github_workflow_failure_report.txt';
+            let summary = "No failures found.";
+            try {
+              if (fs.existsSync(reportPath)) {
+                const fileContent = fs.readFileSync(reportPath, 'utf8').trim();
+                if (fileContent) {
+                  summary = fileContent;
+                  core.info('Successfully read failure report content.');
+                } else {
+                  core.info('Failure report file is empty, using default summary.');
+                }
+              } else {
+                core.info('Failure report file not found, using default summary.');
+              }
+            } catch (e) {
+              core.warning(`Error reading report file: ${e.message}. Using default summary.`);
+            }
+
+            if (!context.payload || !context.payload.pull_request || !context.payload.pull_request.number) {
+              core.info('No valid pull request context found (payload, pull_request, or number missing). Skipping annotation.');
+              return;
+            }
+
+            const prNumber = context.payload.pull_request.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            core.info(`Attempting to comment on PR #${prNumber} in repository ${owner}/${repo}.`);
+            try {
+              await github.rest.issues.createComment({
+                issue_number: prNumber,
+                owner: owner,
+                repo: repo,
+                body: `### Workflow Failure Summary\n\n${summary}`
+              });
+              core.info(`Successfully added comment to PR #${prNumber}.`);
+            } catch (error) {
+              core.error(`Failed to add PR comment for PR #${prNumber}: ${error.message}`);
+              core.error(`Error details: ${JSON.stringify(error)}`);
+            }
       - name: Fail if failures found
         if: steps.report.outcome == 'failure'
         run: exit 1

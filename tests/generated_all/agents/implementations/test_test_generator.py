@@ -1,12 +1,14 @@
-import unittest
-from typing import Any, Dict, List, Optional
 import ast
 import inspect
 import os
 import re
+import unittest
 from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 from core.base import Agent
 from core.registry import register_agent
+
 
 class TestTestGeneratorAgent(unittest.TestCase):
     """Test suite for TestGeneratorAgent class."""
@@ -23,5 +25,6 @@ class TestTestGeneratorAgent(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

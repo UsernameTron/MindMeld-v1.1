@@ -19,7 +19,10 @@ jobs:
   lint-and-type-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: false  # Avoid submodule errors
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -60,7 +63,10 @@ jobs:
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: false  # Avoid submodule errors
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -75,8 +81,16 @@ jobs:
       - name: Pull Ollama models
         run: |
           curl -fsSL https://ollama.ai/install.sh | sh
-          ollama pull phi3.5:latest
-          ollama pull codellama:latest
+                echo "Attempting to pull phi3.5:latest..."
+                if ! ollama pull phi3.5:latest; then
+                  echo "ERROR: Failed to pull phi3.5:latest"
+                  exit 1
+                fi
+                echo "Attempting to pull codellama:latest..."
+                if ! ollama pull codellama:latest; then
+                  echo "ERROR: Failed to pull codellama:latest"
+                  exit 1
+                fi
 
       - name: Test ${{ matrix.agent }}
         id: test-agent
@@ -100,7 +114,10 @@ jobs:
   docstring-coverage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: false  # Avoid submodule errors
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -120,7 +137,10 @@ jobs:
     needs: [test-agents-matrix]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: false  # Avoid submodule errors
 
       - name: Set up Python
         uses: actions/setup-python@v4

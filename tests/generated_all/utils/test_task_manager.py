@@ -1,9 +1,10 @@
-import unittest
 import json
 import logging
+import unittest
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+
 
 class TestFunctions(unittest.TestCase):
     def test_store_task_result(self):
@@ -40,5 +41,6 @@ class TestFunctions(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

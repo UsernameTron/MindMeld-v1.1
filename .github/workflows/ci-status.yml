@@ -1,30 +1,57 @@
 name: CI Status Checks
+
 on:
   pull_request:
     branches: [ main ]
+
 jobs:
   report-failures:
-    name: Report GH Actions Failures
+    name: Report GitHub Actions Failures
     runs-on: ubuntu-latest
     steps:
+      # Step 1: Checkout the repository
       - uses: actions/checkout@v3
+
+      # Step 2: Setup Node.js environment
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+          cache: 'npm' # Speeds up dependency installation by caching npm modules
+
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: npm ci
+
+      # Step 4: Run ESLint to Check Code Quality
       - name: Run ESLint
         run: npm run lint
-      - name: Enforce auto-fix
+
+      # Step 5: Enforce Auto-Fix for Code Issues
+      - name: Enforce Auto-Fix
         run: npm run lint:fix -- --check
-      - name: Run verify-sprint
+
+      # Step 6: Verify Sprint using Projectctl
+      - name: Verify Sprint
         run: npx projectctl verify-sprint --format text
-      - name: Run report-failures
-        run: npx projectctl report-failures --workflow ci-status.yml --branch main --format text --since 1h
-      - name: Run next-action
+
+      # Step 7: Report Failures in CI Workflows
+      - name: Report Failures
+        run: |
+          npx projectctl report-failures \
+            --workflow ci-status.yml \
+            --branch main \
+            --format text \
+            --since 1h
+
+      # Step 8: Determine Next Action
+      - name: Determine Next Action
         run: npx projectctl next-action --format text
-      - name: Run status
+
+      # Step 9: Check Overall Project Status
+      - name: Check Project Status
         run: npx projectctl status --format text
-      - name: Update project status
+
+      # Step 10: Update Project Status
+      - name: Update Project Status
         run: npx projectctl update-status --commit

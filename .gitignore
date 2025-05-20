@@ -207,3 +207,5 @@ reports/Agent/Agent_1747494352.json
 # Cache and test storage
 .cache/
 data/test_storage/
+packages/agents/hr_llm/
+packages/agents/advanced_reasoning/

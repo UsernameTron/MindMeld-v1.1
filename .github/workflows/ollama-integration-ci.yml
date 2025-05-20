@@ -1,0 +1,216 @@
+name: Ollama Integration CI
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - '**.py'
+      - 'requirements.txt'
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Cache Python Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install flake8 black pytest
+          pip install -r requirements.txt
+
+      - name: Check Formatting
+        run: black --check .
+
+      - name: Lint with flake8
+        run: |
+          # Critical checks only
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+      - name: Run Unit Tests
+        run: |
+          pytest tests/ -v
+
+  agent-standards:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Enforce context-managed file access
+        run: |
+          grep -r --include='*.py' 'open(' . | grep -v 'with open' && exit 1 || echo 'All file access is context-managed.'
+
+      - name: Standardize model selection logic
+        run: |
+          grep -r --include='*.py' 'os.getenv("OLLAMA_MODEL"' . || (echo 'Missing OLLAMA_MODEL usage.' && exit 1)
+
+      - name: Verify error handling
+        run: |
+          grep -r --include='*.py' 'class AgentError' . && grep -r --include='*.py' 'class ModelError' . || (echo 'Missing AgentError/ModelError.' && exit 1)
+
+  ollama-integration:
+    runs-on: ubuntu-latest
+    needs: [lint-and-test, agent-standards]
+    steps:
+      - name: Set job start time
+        run: echo "JOB_START_TIME=$(date +%s)" >> $GITHUB_ENV
+        
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Cache Python Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Cache Ollama models
+        uses: actions/cache@v3
+        with:
+          path: ~/.ollama/models
+          key: ${{ runner.os }}-ollama-models-phi3.5-latest
+          restore-keys: |
+            ${{ runner.os }}-ollama-models-
+
+      - name: Install Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+          ollama serve &
+          echo "Waiting for Ollama service to start..."
+          
+          # Health check to ensure Ollama is running properly
+          max_retries=10
+          retry_count=0
+          while ! curl -s http://localhost:11434/api/version &>/dev/null && [ $retry_count -lt $max_retries ]; do
+            echo "Waiting for Ollama API to become available... ($(( retry_count + 1 ))/$max_retries)"
+            sleep 2
+            retry_count=$((retry_count + 1))
+          done
+          
+          if curl -s http://localhost:11434/api/version &>/dev/null; then
+            echo "Ollama service is running and responding"
+          else
+            echo "Ollama service failed to start properly"
+            exit 1
+          fi
+
+      - name: Pull Ollama model
+        run: |
+          MODEL_NAME="phi3.5:latest"
+          if ! ollama list | grep -q "$MODEL_NAME"; then
+            echo "Model $MODEL_NAME not found locally, pulling..."
+            ollama pull "$MODEL_NAME"
+          else
+            echo "Model $MODEL_NAME found locally (possibly from cache)."
+          fi
+          ollama list # to confirm
+          
+          # Log the outcome for cache analysis
+          if ! ollama list | grep -q "$MODEL_NAME"; then
+            echo "Model $MODEL_NAME not found locally, pulling..." >> /tmp/ollama_pull.log
+          else  
+            echo "Model $MODEL_NAME found locally (possibly from cache)." >> /tmp/ollama_pull.log
+          fi
+
+      - name: Test Ollama Integration
+        run: |
+          # Run basic integration tests
+          python -m pytest tests/ai/test_client.py tests/ai/test_cache.py -v
+          
+      - name: Calculate and report execution time
+        run: |
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - $JOB_START_TIME))
+          MINUTES=$((DURATION / 60))
+          SECONDS=$((DURATION % 60))
+          
+          echo "::notice::Ollama integration job completed in ${MINUTES}m ${SECONDS}s"
+          
+          # Create a timing report for tracking over time
+          mkdir -p timing_reports
+          echo "$(date -u +"%Y-%m-%d %H:%M:%S"), ${DURATION}" >> timing_reports/ollama_integration_timing.csv
+          
+          # Report cache effectiveness
+          CACHE_HIT=$(grep -c "Model .* found locally" /tmp/ollama_pull.log || echo "0")
+          CACHE_MISS=$(grep -c "Model .* not found locally" /tmp/ollama_pull.log || echo "0")
+          echo "::notice::Cache effectiveness - Hits: ${CACHE_HIT}, Misses: ${CACHE_MISS}"
+          
+      - name: Upload timing metrics
+        uses: actions/upload-artifact@v4
+        with:
+          name: execution-metrics
+          path: timing_reports/
+
+  # Self-hosted runner job for GPU-accelerated model testing
+  ollama-gpu-testing:
+    runs-on: self-hosted
+    needs: [lint-and-test, agent-standards]
+    # This job only runs when manually triggered via workflow_dispatch
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up environment
+        run: |
+          echo "Using self-hosted runner with pre-installed Ollama and models"
+          ollama list # Verify models exist
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run GPU-accelerated integration tests
+        run: |
+          # Set environment variable to use GPU
+          export OLLAMA_USE_GPU=true
+          # Run extended integration tests that benefit from GPU
+          python -m pytest tests/ai/test_client.py tests/ai/test_cache.py tests/ai/test_performance.py -v
+
+      - name: Generate performance report
+        run: |
+          python -m scripts.analyze_performance_metrics > gpu_performance_report.json
+
+      - name: Upload performance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpu-performance-report
+          path: gpu_performance_report.json

@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: false  # Avoid submodule errors
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:

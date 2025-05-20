@@ -1,9 +1,11 @@
-import unittest
 import ast
 import re
+import unittest
 from typing import Any, Dict, List
+
 from core.base import Agent
 from core.registry import register_agent
+
 
 class TestCodeDebugAgent(unittest.TestCase):
     """Test suite for CodeDebugAgent class."""
@@ -20,5 +22,6 @@ class TestCodeDebugAgent(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

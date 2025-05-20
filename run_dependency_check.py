@@ -102,7 +102,11 @@ def print_conflicts(conflicts: List[Dict[str, Any]]) -> None:
         for conflict in conflicts:
             package = conflict["package"]
             specs = conflict.get("specifications", [])
-            print(f"  - {package}: {' vs '.join(specs)}")
+            if specs:
+                print(f"  - {package}: {' vs '.join(specs)}")
+            else:
+                conflict_text = conflict.get("conflict", "conflicting versions")
+                print(f"  - {package}: {conflict_text}")
 
 
 def print_vulnerabilities(vulnerabilities: List[Dict[str, Any]]) -> None:
@@ -111,9 +115,26 @@ def print_vulnerabilities(vulnerabilities: List[Dict[str, Any]]) -> None:
         print("\nSecurity Vulnerabilities:")
         for vuln in vulnerabilities:
             package = vuln["package"]
-            version = vuln.get("version", "unknown")
+            version = vuln.get("version", "current version")
+            min_safe = vuln.get("min_safe_version", "unknown")
             cve_ids = vuln.get("cve_ids", [])
-            print(f"  - {package} {version}: {', '.join(cve_ids)}")
+            cve_text = ", ".join(cve_ids) if cve_ids else "security vulnerability"
+            current_specs = vuln.get("current_specs", [])
+
+            if current_specs:
+                print(
+                    f"  - {package} {', '.join(current_specs)} -> {min_safe}+ required ({cve_text})"
+                )
+            else:
+                print(f"  - {package} {version} -> {min_safe}+ required ({cve_text})")
+
+
+def print_invalid_requirements(invalid_entries: List[str]) -> None:
+    """Print invalid requirement entries."""
+    if invalid_entries:
+        print("\nInvalid Requirements Entries:")
+        for entry in invalid_entries:
+            print(f"  - '{entry}'")
 
 
 def print_commands(commands: List[str]) -> None:
@@ -138,6 +159,7 @@ def format_results(result: Dict[str, Any], verbose: bool = False) -> None:
     print_dependencies(result.get("missing_dependencies", []), "Missing Dependencies")
     print_conflicts(result.get("version_conflicts", []))
     print_vulnerabilities(result.get("vulnerabilities", []))
+    print_invalid_requirements(result.get("invalid_requirements", []))
     print_commands(result.get("installation_commands", []))
 
     if verbose:

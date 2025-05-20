@@ -1,8 +1,9 @@
-import unittest
 import logging
 import os
+import unittest
 from enum import Enum
 from typing import Any, Dict, Optional
+
 
 class TestLLMProvider(unittest.TestCase):
     """Test suite for LLMProvider class."""
@@ -10,6 +11,7 @@ class TestLLMProvider(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.instance = LLMProvider()
+
 
 class TestLLMClient(unittest.TestCase):
     """Test suite for LLMClient class."""
@@ -26,5 +28,6 @@ class TestLLMClient(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

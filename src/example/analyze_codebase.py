@@ -47,9 +47,7 @@ def setup_agent_system():
         similarity_threshold=0.6,  # Lower threshold for more results
     )
 
-    code_organizer = CodeOrganizerAgent(
-        llm_client=llm_client, output_dir="./data/outputs/analysis"
-    )
+    code_organizer = CodeOrganizerAgent(llm_client=llm_client)
 
     test_generator = TestGeneratorAgent(
         llm_client=llm_client, output_dir="./data/outputs/analysis"
@@ -112,11 +110,14 @@ def analyze_codebase():
         "planner",
         {
             "command": "create_plan",
-            "description": "Analyze the MindMeld codebase architecture and identify key components and their relationships",
+            "description": (
+                "Analyze the MindMeld codebase architecture "
+                "and identify key components and their relationships"
+            ),
             "context": {
                 "project_root": project_root,
                 "file_count": len(python_files),
-                "directories": set(os.path.dirname(f) for f in python_files),
+                "directories": {os.path.dirname(f) for f in python_files},
             },
         },
     )
@@ -219,7 +220,10 @@ def analyze_codebase():
         "planner",
         {
             "command": "create_plan",
-            "description": "Generate a comprehensive report on the MindMeld codebase with recommendations for improvements",
+            "description": (
+                "Generate a comprehensive report on the MindMeld codebase "
+                "with recommendations for improvements"
+            ),
             "context": {
                 "project_root": project_root,
                 "architecture_analysis": "architecture_analysis.json",

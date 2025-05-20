@@ -1,11 +1,14 @@
-import unittest
 import json
 import logging
 import os
+import unittest
 from pathlib import Path
 from typing import Any, Dict, Optional, Tuple, Union
+
 import jsonschema
+
 from src.utils.error_handling import SchemaValidationError
+
 
 class TestFunctions(unittest.TestCase):
     def test_load_schema(self):
@@ -52,7 +55,9 @@ class TestFunctions(unittest.TestCase):
         runtime_seconds = 3.14
         job_id = "test_job_id"
 
-        result = normalize_agent_output(output, agent_name, payload, timestamp, runtime_seconds, job_id)
+        result = normalize_agent_output(
+            output, agent_name, payload, timestamp, runtime_seconds, job_id
+        )
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
@@ -66,5 +71,6 @@ class TestFunctions(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

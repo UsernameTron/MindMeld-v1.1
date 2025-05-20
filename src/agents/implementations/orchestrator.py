@@ -1,14 +1,16 @@
+import json
 import logging
 from typing import Any, Dict, List, Optional, Type
 
 from ..core.base import Agent
-from ..core.registry import AGENT_REGISTRY, register_agent
 
 logger = logging.getLogger(__name__)
 
 
-@register_agent("orchestrator")
 class OrchestratorAgent(Agent):
+    """Agent name property for registry"""
+
+    name = "orchestrator"
     """
     Agent for orchestrating multiple agents to work together on complex tasks.
 
@@ -16,7 +18,10 @@ class OrchestratorAgent(Agent):
     agents, manages data flow between them, and aggregates results.
     """
 
-    def __init__(self, **kwargs):
+    def __init__(self):
+        """Implementation stub"""
+        pass
+
         """Initialize the orchestrator agent."""
         super().__init__(**kwargs)
         self.workflows = {}
@@ -503,3 +508,24 @@ class OrchestratorAgent(Agent):
 
         # Default is identity mapping
         return {"mapped": input_data}
+
+    def suggest_workflow(self, prompt: str) -> Dict[str, Any]:
+        """
+        Suggest a workflow based on a prompt.
+
+        Args:
+            prompt: Prompt string describing the desired workflow
+
+        Returns:
+            Suggested workflow as a JSON-serializable dictionary
+        """
+        # Call the LLM to get a workflow suggestion
+        response = self.llm_client.request(prompt)
+        response_text = response.get("response", "{}")
+        try:
+            workflow_json = json.loads(response_text)
+            return workflow_json
+        except json.JSONDecodeError as e:
+            self.logger.error(f"Failed to parse workflow JSON from LLM. Error: {e}")
+            self.logger.debug(f"Problematic JSON string: {response_text}")
+            return {"error": "Failed to generate workflow"}

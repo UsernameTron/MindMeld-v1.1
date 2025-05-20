@@ -795,3 +795,64 @@ class TestGeneratorAgent(Agent):
         test_code.append("    unittest.main()")
 
         return "\n".join(test_code)
+
+    def _format_using_templates(self, generated_tests, module_info):
+        """Format generated tests using consistent templates"""
+        try:
+            # Extract main components from generated tests
+            import re
+
+            # Extract imports
+            imports = re.search(r"(import [^\\n]+\\\\n)+", generated_tests)
+            import_section = imports.group(0) if imports else ""
+
+            # Extract fixtures
+            fixtures = re.findall(
+                r"(@pytest\\\\.fixture[^\\\\n]*\\\\n[^@]+)", generated_tests
+            )
+            fixture_section = "\\n".join(fixtures) if fixtures else ""
+
+            # Format header
+            header = self.templates["test_file_header"].format(
+                imports=import_section, fixtures=fixture_section
+            )
+
+            # Extract test functions and classes
+            test_functions = re.findall(
+                r"(def test_[^\\\\n]+\\\\n(?:[ ]{4}[^\\\\n]+\\\\n)+)", generated_tests
+            )
+            test_classes = re.findall(
+                r"(class Test[^\\\\n]+\\\\n(?:.+?\\\\n)+?(?=\\\\n\\\\w|$))",
+                generated_tests,
+                re.DOTALL,
+            )
+
+            # Combine all test components
+            test_body = "\\n".join(test_functions + test_classes)
+
+            # Create final formatted tests
+            formatted_tests = f"{header}\\n{test_body}"
+
+            # Ensure proper spacing and indentation
+            formatted_tests = re.sub(r"\\n{3,}", "\\n\\n", formatted_tests)
+
+            return formatted_tests
+        except Exception as e:
+            self.logger.warning(f"Error formatting tests using templates: {e}")
+            # Fall back to original generated tests
+            return generated_tests
+
+    def _send_test_request(self, module_info, existing_tests=None, bug_trace=None):
+        """Send request to LLM to generate tests"""
+
+        prompt = self._create_test_generation_prompt(
+            module_info, existing_tests, bug_trace
+        )
+
+        # Send the prompt to the LLM and get the response
+        response = self.llm.generate(prompt=prompt, max_tokens=4096)
+
+        # Parse the response to extract test code
+        generated_tests = self._parse_test_response(response)
+
+        return generated_tests

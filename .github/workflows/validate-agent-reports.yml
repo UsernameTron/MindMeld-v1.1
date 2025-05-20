@@ -29,6 +29,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
+      - name: Install Ollama
+        run: |
+          curl -fsSL https://ollama.com/install.sh | sh
+
+      - name: Start Ollama service
+        run: |
+          ollama serve &
+          for i in {1..10}; do
+            ollama list && break
+            sleep 1
+          done
+
       - name: Check Ollama models
         id: check-models
         run: |

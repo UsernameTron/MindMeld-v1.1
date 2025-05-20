@@ -1,3 +1,5 @@
+import logging
+import time
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Any, Dict, List, Optional
@@ -19,9 +21,18 @@ class Agent(ABC):
         """
         self.name = name or self.__class__.__name__
         self.max_history_length = max_history_length
-        self.history: List[Dict[str, Any]] = []
-        self.state: Dict[str, Any] = {}
-        self.created_at = datetime.now()
+        self.logger = logging.getLogger(f"{self.__class__.__name__}")
+        self.state = {}
+        self.history = []
+        self._initialize_state()
+
+    def _initialize_state(self):
+        """Initialize agent state with default values"""
+        self.state = {
+            "created_at": time.time(),
+            "processed_count": 0,
+            "last_processed": None,
+        }
 
     def add_to_history(
         self, role: str, content: Any, metadata: Optional[Dict[str, Any]] = None

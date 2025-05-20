@@ -1,15 +1,17 @@
-import unittest
 import hashlib
 import json
 import logging
 import os
 import shutil
 import tempfile
+import unittest
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
+
 from src.utils.error_handling import FileProcessingError
+
 
 class TestFunctions(unittest.TestCase):
     def test_read_file(self):
@@ -113,6 +115,7 @@ class TestFunctions(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
+
 class TestASTCache(unittest.TestCase):
     """Test suite for ASTCache class."""
 
@@ -134,5 +137,6 @@ class TestASTCache(unittest.TestCase):
         # TODO: Add appropriate assertions
         self.assertIsNotNone(result)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()

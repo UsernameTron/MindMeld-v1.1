@@ -169,10 +169,33 @@ class VectorMemoryAgent(Agent):
             # Save to disk
             self._save_memories()
 
+            self.logger.info(f"Memory entry added with ID: {entry.entry_id}")
             return entry.entry_id
         except Exception as e:
             self.logger.error(f"Failed to add memory: {str(e)}")
             raise VectorMemoryException(f"Failed to add memory: {str(e)}") from e
+
+    def batch_add_memories(
+        self, contents: List[str], metadatas: Optional[List[Dict[str, Any]]] = None
+    ) -> List[str]:
+        """Add multiple memories at once for better performance
+
+        Args:
+            contents: List of text contents to store
+            metadatas: List of metadata dictionaries, one per content
+
+        Returns:
+            List of entry IDs for the stored memories
+        """
+        if metadatas is None:
+            metadatas = [{}] * len(contents)
+
+        entry_ids = []
+        for content, metadata in zip(contents, metadatas):
+            entry_id = self.add_memory(content, metadata)
+            entry_ids.append(entry_id)
+
+        return entry_ids
 
     def get_memory(self, entry_id: str) -> Optional[MemoryEntry]:
         """Retrieve a specific memory by ID
@@ -239,11 +262,14 @@ class VectorMemoryAgent(Agent):
         Returns:
             True if deleted, False if not found
         """
-        if entry_id in self._memory_entries:
-            del self._memory_entries[entry_id]
-            self._save_memories()
-            return True
-        return False
+        try:
+            if entry_id in self._memory_entries:
+                del self._memory_entries[entry_id]
+                self._save_memories()
+                return True
+            return False
+        except Exception as e:
+            raise VectorStorageError(f"Failed to delete memory: {str(e)}") from e
 
     def clear_memories(self) -> int:
         """Clear all memories

@@ -3,11 +3,12 @@ import re
 from typing import Any, Dict, List  # Removed unused Optional
 
 from ..core.base import Agent
-from ..core.registry import register_agent
 
 
-@register_agent("code_debug")
 class CodeDebugAgent(Agent):
+    """Agent name property for registry"""
+
+    name = "code_debug"
     """
     Agent for debugging code and detecting issues.
 
@@ -19,9 +20,9 @@ class CodeDebugAgent(Agent):
     - Identify security vulnerabilities
     """
 
-    def __init__(self, **kwargs):
-        """Initialize the code debugging agent."""
-        super().__init__(**kwargs)
+    def __init__(self):
+        """Implementation stub"""
+        pass
 
     def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """

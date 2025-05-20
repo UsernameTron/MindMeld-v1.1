@@ -286,45 +286,153 @@ class OptimizedVectorMemoryAgent(Agent):
             self.logger.error(f"Failed to add memory: {str(e)}")
             raise VectorMemoryException(f"Failed to add memory: {str(e)}") from e
 
-    def batch_add_memories(self, items: List[Dict[str, Any]]) -> List[str]:
-        """Add multiple memories in batch
+    def prune_memories(
+        self,
+        max_count: Optional[int] = None,
+        min_access_count: int = 0,
+        max_age_days: Optional[float] = None,
+        strategy: str = "least_accessed",
+    ) -> int:
+        """Prune memories based on specified criteria
 
         Args:
-            items: List of items with "content" and optional "metadata"
+            max_count: Maximum number of memories to keep (None for no limit)
+            min_access_count: Remove memories with fewer accesses
+            max_age_days: Remove memories older than this many days
+            strategy: Pruning strategy: "least_accessed", "oldest", "least_recent"
 
         Returns:
-            List of memory entry IDs
+            Number of memories pruned
         """
+        with self.lock:
+            before_count = len(self._memory_entries)
+            if before_count == 0:
+                return 0
+            # Apply age filter
+            if max_age_days is not None:
+                max_age_seconds = max_age_days * 86400
+                current_time = time.time()
+                self._memory_entries = {
+                    entry_id: entry
+                    for entry_id, entry in self._memory_entries.items()
+                    if (current_time - entry.created_at) <= max_age_seconds
+                }
+            # Apply access count filter
+            if min_access_count > 0:
+                self._memory_entries = {
+                    entry_id: entry
+                    for entry_id, entry in self._memory_entries.items()
+                    if entry.access_count >= min_access_count
+                }
+            # Apply max count with strategy
+            if max_count is not None and len(self._memory_entries) > max_count:
+                if strategy == "least_accessed":
+                    sorted_entries = sorted(
+                        self._memory_entries.items(), key=lambda x: x[1].access_count
+                    )
+                elif strategy == "oldest":
+                    sorted_entries = sorted(
+                        self._memory_entries.items(), key=lambda x: x[1].created_at
+                    )
+                elif strategy == "least_recent":
+                    sorted_entries = sorted(
+                        self._memory_entries.items(),
+                        key=lambda x: x[1].last_accessed or 0,
+                    )
+                else:  # Default to least_accessed
+                    sorted_entries = sorted(
+                        self._memory_entries.items(), key=lambda x: x[1].access_count
+                    )
+                to_remove = len(sorted_entries) - max_count
+                entries_to_keep = sorted_entries[to_remove:]
+                self._memory_entries = dict(entries_to_keep)
+            pruned_count = before_count - len(self._memory_entries)
+            # Rebuild FAISS index if any pruning happened
+            if pruned_count > 0:
+                if self.use_faiss:
+                    self.faiss_index = None
+                    self.faiss_id_map.clear()
+                    self._initialize_faiss()
+                    # Add remaining entries to FAISS
+                    if self._memory_entries:
+                        entry_ids = list(self._memory_entries.keys())
+                        embeddings = [
+                            self._memory_entries[eid].embedding for eid in entry_ids
+                        ]
+                        self._batch_add_to_faiss(entry_ids, embeddings)
+                self.executor.submit(self._save_memories)
+            return pruned_count
+
+    def _batch_add_to_faiss(self, entry_ids: List[str], embeddings: List[List[float]]):
+        """Add multiple embeddings to FAISS index in a single batch"""
+        if not self.use_faiss or not self.faiss_index or not entry_ids:
+            return
         try:
-            # Extract contents for batched embedding
+            start_idx = len(self.faiss_id_map)
+            for i, entry_id in enumerate(entry_ids):
+                self.faiss_id_map[start_idx + i] = entry_id
+            embeddings_array = np.array(embeddings).astype("float32")
+            self.faiss_index.add(embeddings_array)
+            self.logger.debug(f"Added batch of {len(entry_ids)} embeddings to FAISS")
+        except Exception as e:
+            self.logger.error(f"Failed to batch add to FAISS: {str(e)}")
+
+    def maintain_memory(
+        self,
+        max_memories: int = 10000,
+        max_age_days: float = 30.0,
+        min_access_count: int = 1,
+        strategy: str = "least_accessed",
+    ) -> Dict[str, int]:
+        """Perform maintenance on memory storage"""
+        stats = {}
+        start_count = len(self._memory_entries)
+        stats["before_count"] = start_count
+        pruned = self.prune_memories(
+            max_count=max_memories,
+            min_access_count=min_access_count,
+            max_age_days=max_age_days,
+            strategy=strategy,
+        )
+        stats["pruned_count"] = pruned
+        stats["after_count"] = len(self._memory_entries)
+        self.logger.info(f"Memory maintenance complete: {pruned} memories pruned")
+        return stats
+
+    def batch_add_memories(
+        self,
+        items: List[Dict[str, Any]],
+        auto_prune: bool = True,
+        max_memories: int = 10000,
+    ) -> List[str]:
+        """Add multiple memories in batch, with optional pruning and FAISS batch update"""
+        try:
+            if not items:
+                return []
             contents = [item["content"] for item in items]
-
-            # Generate embeddings in parallel batches
             embedding_results = self._batch_embed(contents)
-
-            # Create memory entries
             entry_ids = []
-
-            for i, embedding_result in enumerate(embedding_results):
-                entry = MemoryEntry(
-                    content=items[i]["content"],
-                    embedding=embedding_result.vector,
-                    metadata=items[i].get("metadata", {}),
-                )
-
-                # Store entry
-                with self.lock:
+            embeddings = []
+            with self.lock:
+                for i, embedding_result in enumerate(embedding_results):
+                    entry = MemoryEntry(
+                        content=items[i]["content"],
+                        embedding=embedding_result.vector,
+                        metadata=items[i].get("metadata", {}),
+                    )
                     self._memory_entries[entry.entry_id] = entry
-
-                    # Add to FAISS if enabled
-                    if self.use_faiss:
-                        self._add_to_faiss(entry.entry_id, entry.embedding)
-
-                entry_ids.append(entry.entry_id)
-
-            # Save to disk (non-blocking)
+                    entry_ids.append(entry.entry_id)
+                    embeddings.append(entry.embedding)
+                if self.use_faiss and entry_ids:
+                    self._batch_add_to_faiss(entry_ids, embeddings)
+                if auto_prune and len(self._memory_entries) > max_memories:
+                    self.logger.info(
+                        f"Auto-pruning memories: {len(self._memory_entries)} > {max_memories}"
+                    )
+                    self.prune_memories(
+                        max_count=max_memories, strategy="least_accessed"
+                    )
             self.executor.submit(self._save_memories)
-
             return entry_ids
         except Exception as e:
             self.logger.error(f"Failed to batch add memories: {str(e)}")
@@ -693,6 +801,41 @@ class OptimizedVectorMemoryAgent(Agent):
                     "message": f"Could not process task: {description}",
                 }
 
+            elif command == "prune":
+                max_count = message.get("max_count")
+                min_access = message.get("min_access_count", 0)
+                max_age_days = message.get("max_age_days")
+                strategy = message.get("strategy", "least_accessed")
+                pruned = self.prune_memories(
+                    max_count=max_count,
+                    min_access_count=min_access,
+                    max_age_days=max_age_days,
+                    strategy=strategy,
+                )
+                return {
+                    "status": "success",
+                    "action": "prune",
+                    "count": pruned,
+                    "message": f"Pruned {pruned} memories",
+                }
+            elif command == "maintain":
+                max_memories = message.get("max_memories", 10000)
+                max_age_days = message.get("max_age_days", 30.0)
+                min_access = message.get("min_access_count", 1)
+                strategy = message.get("strategy", "least_accessed")
+                stats = self.maintain_memory(
+                    max_memories=max_memories,
+                    max_age_days=max_age_days,
+                    min_access_count=min_access,
+                    strategy=strategy,
+                )
+                return {
+                    "status": "success",
+                    "action": "maintain",
+                    "stats": stats,
+                    "message": f"Maintenance complete: {stats['pruned_count']} memories pruned",
+                }
+
             else:
                 return {"status": "error", "message": f"Unknown command: {command}"}
 
@@ -718,44 +861,42 @@ class OptimizedVectorMemoryAgent(Agent):
         return self.search_memories_faiss(query_vector, limit)
 
     def _rebuild_faiss_index(self):
-        """Rebuild the FAISS index from scratch
-
-        This is useful when many entries have been added/removed and
-        the index needs to be optimized.
-        """
-        if not self.use_faiss or not FAISS_AVAILABLE:
-            self.logger.warning("FAISS is not available, can't rebuild index")
+        """Rebuild FAISS index after deletions"""
+        if not FAISS_AVAILABLE or not self.use_faiss:
             return
 
         try:
+            # Lock during rebuilding to prevent concurrent access issues
             with self.lock:
-                # Get dimension from the first embedding
-                if not self._memory_entries:
-                    self.logger.warning("No memories to build index from")
-                    return
+                # Get embedding dimension
+                if self._memory_entries:
+                    first_entry = next(iter(self._memory_entries.values()))
+                    dimension = len(first_entry.embedding)
+                else:
+                    dimension = 1536  # Default
 
-                first_entry = next(iter(self._memory_entries.values()))
-                dim = len(first_entry.embedding)
+                # Create new index
+                self._faiss_index = faiss.IndexFlatL2(dimension)
+                self._faiss_id_map = (
+                    {
+                        i: entry.entry_id
+                        for i, entry in enumerate(self._memory_entries.values())
+                    }
+                    if self._memory_entries
+                    else {}
+                )
 
-                # Create new FAISS index
-                self.faiss_index = faiss.IndexFlatL2(dim)
-                self.faiss_id_map = {}
-
-                # Add all embeddings to the index
-                embeddings = []
-                ids = []
-
-                for i, (entry_id, entry) in enumerate(self._memory_entries.items()):
-                    embeddings.append(np.array(entry.embedding).astype("float32"))
-                    ids.append(i)
-                    self.faiss_id_map[i] = entry_id
-
-                if embeddings:
-                    self.faiss_index.add(np.vstack(embeddings))
-
-                self.logger.info(f"Rebuilt FAISS index with {len(embeddings)} entries")
-
+                # Add all entries
+                if len(self._memory_entries) > 0:
+                    vectors = np.zeros(
+                        (len(self._memory_entries), dimension), dtype=np.float32
+                    )
+                    for i, entry in enumerate(self._memory_entries.values()):
+                        vectors[i] = entry.embedding
+                    self._faiss_index.add(vectors)
+                    self.logger.info(
+                        f"Rebuilt FAISS index with {len(self._memory_entries)} entries"
+                    )
         except Exception as e:
             self.logger.error(f"Failed to rebuild FAISS index: {str(e)}")
             self.use_faiss = False
-            self.logger.warning("Falling back to in-memory search")

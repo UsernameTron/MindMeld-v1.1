@@ -1,9 +1,11 @@
 """Application configuration and environment settings."""
 
-from typing import Optional
-from pydantic_settings import BaseSettings
-from pydantic import Field
 from functools import lru_cache
+from typing import Optional
+
+from pydantic import Field
+from pydantic_settings import BaseSettings
+
 
 class Settings(BaseSettings):
     """
@@ -59,6 +61,13 @@ class Settings(BaseSettings):
     # API settings
     api_base_url: str = Field("http://localhost:8000", env="API_BASE_URL")
 
+    # Ollama client settings
+    ollama_host: str = Field("http://localhost:11434", env="OLLAMA_HOST")
+    max_retries: int = Field(3, env="MAX_RETRIES")
+    base_timeout: int = Field(30, env="BASE_TIMEOUT")
+    fallback_model: str = Field("llama2", env="FALLBACK_MODEL")
+    api_port: int = Field(8000, env="API_PORT")
+
     class Config:
         """
         Pydantic settings configuration.
@@ -73,9 +82,11 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
         case_sensitive = False
 
+
 @lru_cache()
 def get_settings() -> Settings:
     return Settings()
+
 
 settings = get_settings()
 
@@ -84,11 +95,14 @@ import redis.asyncio as redis_async
 
 _redis = None
 
+
 async def get_redis():
     global _redis
     if _redis is None:
         try:
-            _redis = await redis_async.from_url(settings.REDIS_URL, decode_responses=True)
+            _redis = await redis_async.from_url(
+                settings.REDIS_URL, decode_responses=True
+            )
         except Exception:
             _redis = None
     return _redis

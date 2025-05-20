@@ -143,17 +143,28 @@ curl http://localhost:8000/jobs/job_1234567890
 
 ## Testing
 
-Run the test suite:
+MindMeld includes a comprehensive test suite to ensure reliability and proper functioning of all components. The test suite uses pytest and covers:
+
+- Core agent functionality
+- LLM client interaction
+- Caching mechanisms
+- Knowledge storage
+- Workflow orchestration
+
+To run the tests:
 
 ```bash
 # Run all tests
-pytest tests/
+python -m pytest
 
-# Run specific test category
-pytest tests/test_agent/
-pytest tests/test_api/
-pytest tests/test_container/
+# Run specific test module
+python -m pytest tests/ai/test_cache.py
+
+# Run with verbose output
+python -m pytest -v
 ```
+
+See `tests/README.md` for detailed information about the test structure.
 
 ## Architecture
 

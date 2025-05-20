@@ -20,6 +20,7 @@ from tenacity import (
     stop_after_attempt,
     wait_exponential,
 )
+
 from utils.error_handling import LLMCallError, ModelUnavailableError
 
 logger = logging.getLogger(__name__)
@@ -399,3 +400,19 @@ def check_syntax(code_string: str, filename: str = "<string>") -> tuple:
         return False, str(e)
     except Exception as e:
         return False, str(e)
+
+
+def extract_code_blocks(text: str, language: str = "python") -> List[str]:
+    """
+    Extract code blocks from a text string.
+
+    Args:
+        text: Text containing code blocks
+        language: Programming language of the code blocks
+
+    Returns:
+        List of code blocks as strings
+    """
+    pattern = rf"```{language}\n(.*?)\n```"
+    matches = re.findall(pattern, text, re.DOTALL)
+    return matches
