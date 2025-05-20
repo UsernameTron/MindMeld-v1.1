@@ -26,31 +26,27 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install Linting and Type-Checking Tools
         run: |
           python -m pip install --upgrade pip
           pip install flake8 flake8-docstrings flake8-bugbear flake8-comprehensions flake8-quotes mypy black isort
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          pip install -r requirements.txt -r requirements-dev.txt
 
-      - name: Check formatting with Black
-        run: |
-          black --check .
+      - name: Check Formatting with Black
+        run: black --check .
 
-      - name: Check import order with isort
-        run: |
-          isort --check-only --profile black .
+      - name: Check Import Order with isort
+        run: isort --check-only --profile black .
 
       - name: Lint with flake8
         run: |
-          # First check for critical errors that should fail the build
+          # Critical checks that fail the build
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # Then run a more comprehensive but non-failing check
+          # Comprehensive linting without failing
           flake8 . --count --exit-zero --config=.flake8 --statistics
 
-      - name: Type checking with mypy
-        run: |
-          mypy --ignore-missing-imports --disallow-untyped-defs --disallow-incomplete-defs packages/agents
+      - name: Type Checking with mypy
+        run: mypy --ignore-missing-imports --disallow-untyped-defs --disallow-incomplete-defs packages/agents
 
   test-agents-matrix:
     runs-on: ubuntu-latest
@@ -67,18 +63,18 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Pull Ollama models
+      - name: Pull Ollama Models
         run: |
           curl -fsSL https://ollama.ai/install.sh | sh
           ollama pull phi3.5:latest
           ollama pull codellama:latest
 
-      - name: Test ${{ matrix.agent }}
+      - name: Test Agent: ${{ matrix.agent }}
         id: test-agent
         run: |
           mkdir -p test_outputs
@@ -87,11 +83,10 @@ jobs:
             --model "phi3.5:latest" \
             --verbose
 
-      - name: Validate output schema
-        run: |
-          python validate_schema_ci.py --reports-dir=test_outputs
+      - name: Validate Output Schema
+        run: python validate_schema_ci.py --reports-dir=test_outputs
 
-      - name: Upload agent output
+      - name: Upload Agent Output
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.agent }}-output
@@ -107,12 +102,12 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install Docstring Coverage Tool
         run: |
           python -m pip install --upgrade pip
           pip install interrogate
 
-      - name: Check docstring coverage
+      - name: Check Docstring Coverage
         run: |
           interrogate -v --ignore-init-method --ignore-module --ignore-nested-functions --ignore-regex "__.*__" -f 75 packages/
 
@@ -127,21 +122,20 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Download all artifacts
+      - name: Download All Artifacts
         uses: actions/download-artifact@v4
         with:
           path: combined_outputs
 
-      - name: Analyze agent reports
-        run: |
-          python -m scripts.analyze_agent_reports combined_outputs > combined_analysis.json
+      - name: Analyze Agent Reports
+        run: python -m scripts.analyze_agent_reports combined_outputs > combined_analysis.json
 
-      - name: Upload combined analysis
+      - name: Upload Combined Analysis
         uses: actions/upload-artifact@v4
         with:
           name: agent-analysis
