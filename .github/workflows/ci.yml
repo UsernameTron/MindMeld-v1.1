@@ -13,23 +13,46 @@ jobs:
       run:
         working-directory: frontend
     steps:
+      # Step 1: Checkout the repository
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+
+      # Step 2: Set up Node.js environment
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm' # Cache dependencies for faster builds
+
+      # Step 3: Install dependencies
       - name: Install dependencies
-        run: npm ci
+        run: |
+          npm ci
+
+      # Step 4: Lint the code
       - name: Lint
         run: npm run lint
+
+      # Step 5: Build the project
       - name: Build
         run: npm run build
+
+      # Step 6: Run tests with coverage
       - name: Run tests
         run: npm run test -- --coverage
+
+      # Step 7: Upload coverage artifact
       - name: Upload coverage artifact
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: frontend/coverage/
+          path: coverage/
+
+      # Step 8: Upload build artifact (optional for debugging builds)
+      - name: Upload build artifact
+        if: always() # Ensure this runs even if the build fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: dist/
