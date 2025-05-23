@@ -1,0 +1,67 @@
+/Users/cpconnor/projects/mindmeld-v1.1/packages
+└── agents
+    ├── __init__.py
+    ├── .gitkeep
+    ├── advanced_reasoning -> claude_agents
+    ├── AgentFactory.py
+    ├── claude_agents
+    │   ├── __init__.py
+    │   ├── agents
+    │   │   ├── __init__.py
+    │   │   ├── base.py
+    │   │   ├── create_ceo.py
+    │   │   ├── create_dependency_agent.py
+    │   │   ├── create_orchestrator.py
+    │   │   ├── create_planner.py
+    │   │   ├── create_summarizer.py
+    │   │   ├── create_test_generator.py
+    │   │   ├── critic.py
+    │   │   ├── dependency.py
+    │   │   ├── executor.py
+    │   │   ├── memory
+    │   │   ├── orchestrator.py
+    │   │   ├── pipeline_coordinator.py
+    │   │   └── planner.py
+    │   ├── agents.py
+    │   ├── api
+    │   │   ├── __init__.py
+    │   │   ├── client.py
+    │   │   ├── mock_client.py
+    │   │   └── optimized_client.py
+    │   ├── base.py
+    │   ├── core
+    │   │   ├── __init__.py
+    │   │   └── registry.py
+    │   ├── implementations
+    │   │   ├── code_debug.py
+    │   │   ├── dependency_management.py
+    │   │   └── test_generator.py
+    │   ├── memory
+    │   │   ├── __init__.py
+    │   │   ├── base.py
+    │   │   ├── conversation.py
+    │   │   ├── optimized_vector_memory.py
+    │   │   ├── simple.py
+    │   │   ├── vector_memory_agent.py
+    │   │   └── vector.py
+    │   ├── monitoring
+    │   │   ├── dashboard.py
+    │   │   └── integrations.py
+    │   ├── orchestration
+    │   │   ├── __init__.py
+    │   │   ├── pipeline.py
+    │   │   └── task_decomposition.py
+    │   ├── patterns
+    │   │   ├── reasoning_patterns.py
+    │   │   └── task_patterns.py
+    │   ├── registry.py
+    │   └── utils
+    │       ├── __init__.py
+    │       ├── token_counter.py
+    │       └── token_optimizer.py
+    ├── compatibility.py
+    ├── hr_llm
+    ├── hybrid_agents
+    └── sfa_agents
+
+17 directories, 48 files

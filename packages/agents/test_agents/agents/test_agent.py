@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""
+Test agent with outdated tool definitions.
+"""
+
+
+def create_tools():
+    """Create tools with outdated definitions."""
+    tools = [
+        {
+            "name": "execute_bash",
+            "description": "Execute a bash command",
+            "type": "custom",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "The bash command to execute",
+                    }
+                },
+                "required": ["command"],
+            },
+        },
+        {
+            "name": "search_web",
+            "description": "Search the web for information",
+            "type": "custom",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "query": {
+                        "type": "string",
+                        "description": "The query to search for",
+                    }
+                },
+                "required": ["query"],
+            },
+        },
+        {
+            "name": "custom_tool",
+            "description": "A custom tool",
+            "type": "custom",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "parameter": {"type": "string", "description": "A parameter"}
+                },
+                "required": ["parameter"],
+            },
+        },
+    ]
+    return tools
+
+
+def create_single_quoted_tools():
+    """Create tools with single quotes."""
+    tools = [
+        {
+            "name": "edit_text",
+            "description": "Edit text",
+            "type": "custom",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {"type": "string", "description": "The text to edit"}
+                },
+                "required": ["text"],
+            },
+        }
+    ]
+    return tools

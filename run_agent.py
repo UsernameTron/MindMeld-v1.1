@@ -20,7 +20,6 @@ from typing import Any, Dict, List, Optional, Union
 import jsonschema
 import requests
 
-from packages.agents.AgentFactory import AGENT_INPUT_TYPES, AGENT_REGISTRY
 from utils.error_handling import (
     FileProcessingError,
     LLMCallError,
@@ -34,6 +33,10 @@ from utils.file_operations import path_exists, read_file, safe_file_write, write
 from utils.llm_client import get_default_model, get_model_config
 from utils.model_manager import ModelManager
 from utils.schema_validator import normalize_agent_output, validate_agent_output
+
+# from packages.agents.AgentFactory import AGENT_INPUT_TYPES, AGENT_REGISTRY  # Removed legacy import
+# If needed, import agents directly:
+# from packages.agents.claude_agents.agents import PlannerAgent, ExecutorAgent
 
 
 # load the schema once

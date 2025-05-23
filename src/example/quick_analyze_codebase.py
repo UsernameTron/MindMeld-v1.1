@@ -11,10 +11,14 @@ import os
 import sys
 import time
 
+from packages.agents.claude_agents.agents.code_debug import CodeDebugAgent
+from packages.agents.claude_agents.agents.dependency_management import (
+    DependencyManagementAgent,
+)
+from packages.agents.claude_agents.memory.optimized_vector_memory import (
+    OptimizedVectorMemoryAgent,
+)
 from src.agents.core.registry import AgentRegistry
-from src.agents.implementations.code_debug import CodeDebugAgent
-from src.agents.implementations.dependency_management import DependencyManagementAgent
-from src.agents.memory.optimized_vector_memory import OptimizedVectorMemoryAgent
 from src.ai.client import LLMClientFactory
 
 # Add project root to sys.path

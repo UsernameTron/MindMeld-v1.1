@@ -1,18 +1,20 @@
 import json
 import logging
-from typing import Any, Callable, Dict, List, Optional, Union
+import os
+from typing import Any, Callable, Dict, List, Optional
 
 from ..api.client import ClaudeAPIClient
 from .base import Agent
 
 logger = logging.getLogger(__name__)
 
+
 class ExecutorAgent(Agent):
     """
     Agent responsible for executing specific tasks and producing concrete outputs.
     Acts as the operational component of the multi-agent system.
     """
-    
+
     def __init__(
         self,
         api_client: ClaudeAPIClient,
@@ -24,7 +26,7 @@ class ExecutorAgent(Agent):
     ):
         """
         Initialize the executor agent.
-        
+
         Args:
             api_client: Claude API client instance
             name: Agent name
@@ -44,7 +46,7 @@ class ExecutorAgent(Agent):
         )
         self.tools = tools or []
         self.tool_callbacks = {}  # Map of tool name to callback function
-    
+
     def _default_system_prompt(self) -> str:
         """Default system prompt for the executor."""
         return (
@@ -54,11 +56,13 @@ class ExecutorAgent(Agent):
             f"You think step-by-step and follow instructions carefully. "
             f"When given a task, you execute it to completion with high-quality results."
         )
-    
-    def register_tool(self, tool_definition: Dict[str, Any], callback: Callable) -> None:
+
+    def register_tool(
+        self, tool_definition: Dict[str, Any], callback: Callable
+    ) -> None:
         """
         Register a tool that the executor can use, along with its callback.
-        
+
         Args:
             tool_definition: Tool definition in Claude tool format
             callback: Function to call when tool is invoked
@@ -67,30 +71,30 @@ class ExecutorAgent(Agent):
         tool_name = tool_definition.get("function", {}).get("name")
         if not tool_name:
             raise ValueError("Tool definition must include function.name")
-        
+
         # Add to tools list if not already present
         if not any(t.get("function", {}).get("name") == tool_name for t in self.tools):
             self.tools.append(tool_definition)
-        
+
         # Register callback
         self.tool_callbacks[tool_name] = callback
-        
+
         logger.info(f"Registered tool '{tool_name}' with executor agent")
-    
+
     def process(self, task: Dict[str, Any]) -> Dict[str, Any]:
         """
         Process a task and execute it.
-        
+
         Args:
             task: Task definition with description and any required context
-            
+
         Returns:
             Execution results
         """
         # Prepare task description
         task_description = task.get("description", "")
         task_context = task.get("context", {})
-        
+
         # Format context as string if needed
         context_str = ""
         if task_context:
@@ -98,75 +102,102 @@ class ExecutorAgent(Agent):
                 context_str = task_context
             else:
                 context_str = json.dumps(task_context, indent=2)
-        
-        # Add to history
-        self.add_to_history({
-            "role": "user",
-            "content": (
-                f"Please execute the following task:\n\n"
-                f"TASK: {task_description}\n\n"
-                f"{f'CONTEXT:\n{context_str}' if context_str else ''}"
-            )
-        })
-        
-        # Make API call with tools
-        response = self._call_claude(
-            messages=self.history,
-            tools=self.tools
+
+        context_block = f"CONTEXT:\n{context_str}" if context_str else ""
+        self.add_to_history(
+            {
+                "role": "user",
+                "content": (
+                    f"Please execute the following task:\n\n"
+                    f"TASK: {task_description}\n\n"
+                    f"{context_block}"
+                ),
+            }
         )
-        
+
+        # Make API call with tools
+        response = self._call_claude(messages=self.history, tools=self.tools)
+
         # Process tool calls if present
         execution_results = {
             "task_id": task.get("id", "unknown"),
             "outputs": [],
             "tool_calls": [],
-            "completion": ""
+            "completion": "",
         }
-        
+
         # Extract completion text
-        if response.content:
-            execution_results["completion"] = response.content[0].text
-        
+        if hasattr(response, "content") and response.content:
+            # Modern Anthropic API responses (Claude v0.7.0+)
+            completion_parts = []
+            for block in response.content:
+                if hasattr(block, "type") and block.type == "text":
+                    completion_parts.append(block.text)
+
+            execution_results["completion"] = "".join(completion_parts)
+
         # Process tool calls
-        if hasattr(response, 'tool_calls') and response.tool_calls:
+        if hasattr(response, "tool_calls") and response.tool_calls:
             for tool_call in response.tool_calls:
-                tool_name = tool_call.function.name
+                # Handle different possible structures
+                if hasattr(tool_call, "function"):
+                    tool_name = (
+                        tool_call.function.name
+                        if hasattr(tool_call.function, "name")
+                        else tool_call.function.get("name")
+                    )
+                    tool_args_raw = (
+                        tool_call.function.arguments
+                        if hasattr(tool_call.function, "arguments")
+                        else tool_call.function.get("arguments")
+                    )
+                elif isinstance(tool_call, dict) and "function" in tool_call:
+                    tool_name = tool_call["function"].get("name")
+                    tool_args_raw = tool_call["function"].get("arguments")
+                else:
+                    logger.warning(f"Unexpected tool_call structure: {tool_call}")
+                    continue
+
+                # Parse arguments
                 try:
-                    tool_args = json.loads(tool_call.function.arguments)
+                    tool_args = (
+                        json.loads(tool_args_raw)
+                        if isinstance(tool_args_raw, str)
+                        else tool_args_raw
+                    )
                 except json.JSONDecodeError:
-                    tool_args = tool_call.function.arguments
-                
+                    tool_args = tool_args_raw
+
                 # Record the tool call
-                execution_results["tool_calls"].append({
-                    "tool": tool_name,
-                    "arguments": tool_args
-                })
-                
+                execution_results["tool_calls"].append(
+                    {"tool": tool_name, "arguments": tool_args}
+                )
+
                 # Execute callback if registered
                 if tool_name in self.tool_callbacks:
                     try:
                         result = self.tool_callbacks[tool_name](tool_args)
-                        execution_results["outputs"].append({
-                            "tool": tool_name,
-                            "result": result
-                        })
+                        execution_results["outputs"].append(
+                            {"tool": tool_name, "result": result}
+                        )
                     except Exception as e:
                         logger.error(f"Error executing tool '{tool_name}': {str(e)}")
-                        execution_results["outputs"].append({
-                            "tool": tool_name,
-                            "error": str(e)
-                        })
-        
+                        execution_results["outputs"].append(
+                            {"tool": tool_name, "error": str(e)}
+                        )
+
         return execution_results
-    
-    def process_step(self, step: Dict[str, Any], plan_context: Dict[str, Any]) -> Dict[str, Any]:
+
+    def process_step(
+        self, step: Dict[str, Any], plan_context: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """
         Process a specific step from a plan.
-        
+
         Args:
             step: Step definition from a plan
             plan_context: Overall plan context and previous results
-            
+
         Returns:
             Step execution results
         """
@@ -179,14 +210,19 @@ class ExecutorAgent(Agent):
                 "expected_outcome": step.get("expected_outcome", ""),
                 "previous_results": plan_context.get("previous_results", {}),
                 # Add any other relevant context
-            }
+            },
         }
-        
+
         # Execute the task
         result = self.process(task)
-        
+
         # Add step-specific metadata
         result["step_id"] = step.get("id", "unknown_step")
         result["step_description"] = step.get("description", "")
-        
+
         return result
+
+    def some_method_that_might_fail(self, path: str):
+        if not os.path.exists(path):
+            formatted_path = path.replace("\n", "\\n")
+            raise RuntimeError(f"Invalid path: {formatted_path}")

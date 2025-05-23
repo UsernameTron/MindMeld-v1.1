@@ -1,0 +1,73 @@
+codecov:
+  require_ci_to_pass: true
+  notify:
+    wait_for_ci: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...100"
+  status:
+    project:
+      default:
+        # basic settings
+        target: 75%
+        threshold: 1%
+        base: auto
+      frontend:
+        flags:
+          - frontend
+        target: 70%
+      backend:
+        flags:
+          - backend
+        target: 80%
+      auth:
+        flags:
+          - auth
+        paths:
+          - "frontend/pages/api/auth/"
+          - "frontend/pages/login.tsx"
+          - "frontend/pages/forgot-password.tsx"
+          - "frontend/pages/reset-password.tsx"
+        target: 90%  # Higher target for authentication code
+    patch:
+      default:
+        # basic settings
+        target: 70%
+        threshold: 5%
+        base: auto
+    changes: false
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+comment:
+  layout: "reach,diff,flags,tree"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+
+flags:
+  frontend:
+    paths:
+      - frontend/
+  auth:
+    paths:
+      - frontend/pages/api/auth/
+      - frontend/pages/login.tsx
+      - frontend/pages/forgot-password.tsx
+      - frontend/pages/reset-password.tsx
+    carryforward: true
+    carryforward: true
+  backend:
+    paths:
+      - src/
+      - app/
+    carryforward: true

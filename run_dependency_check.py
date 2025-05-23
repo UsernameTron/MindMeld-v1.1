@@ -8,7 +8,9 @@ import argparse
 import os
 from typing import Any, Dict, List
 
-from src.agents.implementations.dependency_management import DependencyManagementAgent
+from packages.agents.claude_agents.agents.dependency_management import (
+    DependencyManagementAgent,
+)
 
 
 def read_file(file_path: str) -> str:

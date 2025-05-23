@@ -1,0 +1,16 @@
+{
+    "analysis_id": "mock-analysis-123",
+    "timestamp": "2025-05-21T12:00:00Z",
+    "results": [
+        {
+            "type": "info",
+            "message": "Function is well documented",
+            "line": 5
+        },
+        {
+            "type": "warning",
+            "message": "Consider adding parameter validation",
+            "line": 6
+        }
+    ]
+}

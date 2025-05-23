@@ -2,10 +2,12 @@ import json
 import logging
 import os
 
+from packages.agents.claude_agents.agents.code_organizer import CodeOrganizerAgent
+from packages.agents.claude_agents.agents.planner import PlannerAgent
+from packages.agents.claude_agents.memory.optimized_vector_memory import (
+    OptimizedVectorMemoryAgent,
+)
 from src.agents.core.registry import AgentRegistry
-from src.agents.implementations.code_organizer import CodeOrganizerAgent
-from src.agents.implementations.planner import PlannerAgent
-from src.agents.memory.optimized_vector_memory import OptimizedVectorMemoryAgent
 from src.ai.client import LLMClientFactory
 from src.ai.embeddings import EmbeddingService
 

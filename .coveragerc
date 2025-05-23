@@ -1,0 +1,28 @@
+[run]
+source = src
+omit =
+    */tests/*
+    */test_*
+    */__pycache__/*
+    */venv/*
+    */env/*
+    setup.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    pass
+    raise ImportError
+    except ImportError
+    warnings.warn
+
+[html]
+directory = coverage/backend
+title = Backend Test Coverage Report
+
+[json]
+output = coverage/backend/coverage.json
+pretty_print = true

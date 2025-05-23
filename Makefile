@@ -58,3 +58,23 @@ generate-types:
 
 storybook:
 	cd frontend && npm run storybook
+
+.PHONY: test lint run-agent start-api update-tools verify-api
+
+test:               # run tests
+	pytest tests/
+
+lint:               # run lint checks
+	flake8 .
+
+run-agent:          # run single agent
+	python scripts/agents/run_agent_simple.py --list
+
+start-api:          # start API server
+	bash scripts/start_api.sh
+
+update-tools:       # update agent tool definitions
+	python scripts/update_agent_tools.py
+
+verify-api:         # verify API tool compatibility
+	python scripts/verify_api_tools.py

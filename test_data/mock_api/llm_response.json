@@ -1,0 +1,18 @@
+{
+    "id": "mock-response-001",
+    "object": "text_completion",
+    "created": 1716307700,
+    "model": "mindmeld-test-model",
+    "choices": [
+        {
+            "text": "This code appears to be implementing a basic calculator function with addition and subtraction operations. Here's my analysis:\n\n1. The `add` function is well-documented with proper docstrings explaining parameters and return values.\n\n2. The `subtract` function is missing documentation, which should be added for consistency.\n\n3. Neither function has input validation, which could lead to unexpected behavior if non-numeric values are passed.\n\n4. Consider adding type hints to improve code readability and enable better IDE support.\n\nI would recommend the following improvements:\n\n```python\ndef add(a: float, b: float) -> float:\n    \"\"\"\n    Add two numbers and return the result.\n    \n    Args:\n        a: First number\n        b: Second number\n        \n    Returns:\n        Sum of a and b\n    \"\"\"\n    if not (isinstance(a, (int, float)) and isinstance(b, (int, float))):\n        raise TypeError(\"Both arguments must be numbers\")\n    return a + b\n\ndef subtract(a: float, b: float) -> float:\n    \"\"\"\n    Subtract the second number from the first and return the result.\n    \n    Args:\n        a: First number\n        b: Second number to subtract from first\n        \n    Returns:\n        Difference of a and b (a - b)\n    \"\"\"\n    if not (isinstance(a, (int, float)) and isinstance(b, (int, float))):\n        raise TypeError(\"Both arguments must be numbers\")\n    return a - b\n```",
+            "index": 0,
+            "finish_reason": "stop"
+        }
+    ],
+    "usage": {
+        "prompt_tokens": 150,
+        "completion_tokens": 342,
+        "total_tokens": 492
+    }
+}

@@ -3,7 +3,6 @@
 from functools import lru_cache
 from typing import Optional
 
-from pydantic import Field
 from pydantic_settings import BaseSettings
 
 
@@ -30,7 +29,7 @@ class Settings(BaseSettings):
 
     # Application
     app_name: str = "MindMeld API"
-    debug: bool = Field(False, env="DEBUG")
+    debug: bool = False
 
     # Logging
     LOG_LEVEL: str = "INFO"
@@ -39,7 +38,7 @@ class Settings(BaseSettings):
     EMOTION_MODEL_NAME: str = "j-hartmann/emotion-english-distilroberta-base"
     INFERENCE_DEVICE: str = "cpu"  # or "mps" for Apple Silicon GPU
     # OpenAI settings
-    openai_api_key: str = Field("", env="OPENAI_API_KEY")
+    openai_api_key: str = ""
     OPENAI_MODEL: str = "gpt-4"
     # Redis settings
     REDIS_URL: str = "redis://localhost:6379/0"
@@ -52,16 +51,15 @@ class Settings(BaseSettings):
     HUGGINGFACE_KEY: Optional[str] = None
 
     # Feature flags
-    AUTH_ENABLED: bool = Field(
-        True, description="Set to False to disable authentication"
-    )
+    AUTH_ENABLED: bool = True
 
     # Audio storage settings
-    audio_storage_path: str = Field("./storage/audio", env="AUDIO_STORAGE_PATH")
+    audio_storage_path: str = "./storage/audio"
     # API settings
-    api_base_url: str = Field("http://localhost:8000", env="API_BASE_URL")
+    api_base_url: str = "http://localhost:8000"
 
     class Config:
+        extra = "allow"
         """
         Pydantic settings configuration.
 
@@ -75,9 +73,11 @@ class Settings(BaseSettings):
         env_file_encoding = "utf-8"
         case_sensitive = False
 
+
 @lru_cache()
 def get_settings() -> Settings:
     return Settings()
+
 
 settings = get_settings()
 
@@ -86,11 +86,14 @@ import redis.asyncio as redis_async
 
 _redis = None
 
+
 async def get_redis():
     global _redis
     if _redis is None:
         try:
-            _redis = await redis_async.from_url(settings.REDIS_URL, decode_responses=True)
+            _redis = await redis_async.from_url(
+                settings.REDIS_URL, decode_responses=True
+            )
         except Exception:
             _redis = None
     return _redis

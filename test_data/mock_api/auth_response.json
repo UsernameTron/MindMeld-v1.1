@@ -1,0 +1,11 @@
+{
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwiZXhwIjoxNzE2Mzk0MTAwfQ.mock-signature",
+    "token_type": "bearer",
+    "expires_in": 86400,
+    "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0QGV4YW1wbGUuY29tIiwidHlwZSI6InJlZnJlc2giLCJleHAiOjE3MTY0ODA1MDB9.mock-refresh-signature",
+    "user": {
+        "email": "test@example.com",
+        "name": "Test User",
+        "id": "user123"
+    }
+}

@@ -1,0 +1,45 @@
+packages/agents
+├── AgentFactory.py
+├── claude_agents
+│   ├── __init__.py
+│   ├── agents
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── critic.py
+│   │   ├── executor.py
+│   │   ├── memory
+│   │   └── planner.py
+│   ├── api
+│   │   ├── __init__.py
+│   │   ├── client.py
+│   │   └── optimized_client.py
+│   ├── implementations
+│   │   ├── code_debug.py
+│   │   ├── dependency_management.py
+│   │   └── test_generator.py
+│   ├── memory
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── conversation.py
+│   │   ├── optimized_vector_memory.py
+│   │   ├── simple.py
+│   │   └── vector.py
+│   ├── monitoring
+│   │   ├── dashboard.py
+│   │   └── integrations.py
+│   ├── orchestration
+│   │   ├── __init__.py
+│   │   ├── pipeline.py
+│   │   └── task_decomposition.py
+│   ├── patterns
+│   │   ├── reasoning_patterns.py
+│   │   └── task_patterns.py
+│   └── utils
+│       ├── __init__.py
+│       ├── token_counter.py
+│       └── token_optimizer.py
+├── hr_llm
+├── hybrid_agents
+└── sfa_agents
+
+14 directories, 29 files

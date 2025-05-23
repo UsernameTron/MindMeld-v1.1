@@ -129,13 +129,25 @@ class TestAPI:
 
     def test_run_agent_error(self, mock_agent_factory, mock_ollama_available):
         """Test handling errors from agents."""
+        # First, clear any previous configuration
+        mock_agent_factory.reset_mock()
+
         # Configure the mock agent to return an error
-        mock_creator = mock_agent_factory.__getitem__.return_value
-        mock_agent = mock_creator.return_value
-        mock_agent.run.return_value = {
+        error_result = {
             "error": "Test error",
             "details": "Error details",
         }
+
+        # Create a new mock agent
+        mock_agent = MagicMock()
+        mock_agent.run.return_value = error_result
+
+        # Create a new mock creator
+        mock_creator = MagicMock()
+        mock_creator.return_value = mock_agent
+
+        # Override the getitem implementation
+        mock_agent_factory.__getitem__ = MagicMock(return_value=mock_creator)
 
         response = client.post(
             "/agents/run", json={"prompt": "Test prompt", "agent_name": "test_agent"}
@@ -150,7 +162,8 @@ class TestAPI:
 
     def test_async_run_agent(self, mock_agent_factory, mock_ollama_available):
         """Test running an agent asynchronously."""
-        with patch("api.background_tasks.add_task") as mock_add_task:
+        # We need to patch the add_task method of the BackgroundTasks object that gets injected
+        with patch("fastapi.BackgroundTasks.add_task") as mock_add_task:
             response = client.post(
                 "/agents/async-run",
                 json={"prompt": "Test prompt", "agent_name": "test_agent"},

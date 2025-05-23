@@ -12,7 +12,7 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.syntax import Syntax
 
-from src.agents.implementations.test_generator import TestGeneratorAgent
+from packages.agents.claude_agents.agents.test_generator import TestGeneratorAgent
 
 console = Console()
 
@@ -575,7 +575,7 @@ def main():
     debug_agent = None
     if args.debug:
         try:
-            from src.agents.implementations.code_debug import CodeDebugAgent
+            from packages.agents.claude_agents.agents.code_debug import CodeDebugAgent
 
             debug_agent = CodeDebugAgent()
             console.print(

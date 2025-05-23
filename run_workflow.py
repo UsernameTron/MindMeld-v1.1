@@ -9,10 +9,12 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.tree import Tree
 
-from src.agents.implementations.code_debug import CodeDebugAgent
-from src.agents.implementations.dependency_management import DependencyManagementAgent
-from src.agents.implementations.orchestrator import OrchestratorAgent
-from src.agents.implementations.test_generator import TestGeneratorAgent
+from packages.agents.claude_agents.agents.code_debug import CodeDebugAgent
+from packages.agents.claude_agents.agents.dependency_management import (
+    DependencyManagementAgent,
+)
+from packages.agents.claude_agents.agents.orchestrator import OrchestratorAgent
+from packages.agents.claude_agents.agents.test_generator import TestGeneratorAgent
 from src.agents.workflows.code_quality import WORKFLOWS
 
 console = Console()

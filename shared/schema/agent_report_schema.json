@@ -1,0 +1,171 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Agent Report",
+  "description": "Schema for agent execution reports",
+  "type": "object",
+  "properties": {
+    "agent": {
+      "type": "string",
+      "description": "Agent name"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["success", "error", "partial_success"],
+      "description": "Overall execution status"
+    },
+    "payload": {
+      "type": "string",
+      "description": "Input provided to agent"
+    },
+    "timestamp": {
+      "type": "integer",
+      "description": "Execution timestamp"
+    },
+    "runtime_seconds": {
+      "type": "number",
+      "description": "Execution duration"
+    },
+    "data": {
+      "type": "object",
+      "description": "Agent-specific result data"
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "Human-readable error message"
+        },
+        "type": {
+          "type": "string",
+          "description": "Error classification"
+        },
+        "details": {
+          "type": "string",
+          "description": "Additional error context"
+        }
+      },
+      "required": ["message"],
+      "description": "Error information when status is error"
+    },
+    "review": {
+      "type": "object",
+      "properties": {
+        "severity": {
+          "type": "string",
+          "enum": ["info", "warning", "error"]
+        },
+        "category": {
+          "type": "string",
+          "enum": ["style", "bug", "performance", "security", "best-practice", "other"]
+        },
+        "suggestion": {
+          "type": "string"
+        },
+        "details": {
+          "type": "string"
+        },
+        "line": {
+          "type": "integer"
+        }
+      },
+      "required": ["severity", "category"],
+      "description": "Frontend-compatible review information"
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Operational metadata",
+      "properties": {
+        "agent": {
+          "type": "string",
+          "description": "Agent name (duplicate for backwards compatibility)"
+        },
+        "timestamp": {
+          "type": "integer",
+          "description": "Execution timestamp (duplicate for backwards compatibility)"
+        },
+        "payload": {
+          "type": "string",
+          "description": "Input provided to agent (duplicate for backwards compatibility)"
+        },
+        "runtime_seconds": {
+          "type": "number",
+          "description": "Execution duration (duplicate for backwards compatibility)"
+        },
+        "job_id": {
+          "type": "string",
+          "description": "Unique execution ID for traceability"
+        },
+        "retries": {
+          "type": "integer",
+          "description": "Number of retry attempts"
+        },
+        "fallback_used": {
+          "type": "boolean",
+          "description": "Whether fallback model was used"
+        },
+        "system_info": {
+          "type": "object",
+          "description": "System information"
+        },
+        "model_info": {
+          "type": "object",
+          "description": "Model information",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Model name"
+            },
+            "initial_model": {
+              "type": "string",
+              "description": "Original model name if fallback was used"
+            }
+          }
+        }
+      }
+    }
+  },
+  "required": ["agent", "status", "timestamp"],
+  "allOf": [
+    {
+      "if": {
+        "properties": { "status": { "const": "error" } }
+      },
+      "then": {
+        "required": ["error"]
+      }
+    },
+    {
+      "if": {
+        "properties": { "status": { "const": "success" } }
+      },
+      "then": {
+        "required": ["data"]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "fallback_used": { "const": true }
+            },
+            "required": ["fallback_used"]
+          }
+        },
+        "required": ["metadata"]
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "properties": {
+              "model_info": {
+                "required": ["initial_model"]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

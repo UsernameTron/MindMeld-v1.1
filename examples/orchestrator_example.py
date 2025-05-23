@@ -6,10 +6,12 @@ Example script demonstrating how to use the OrchestratorAgent programmatically.
 import json
 import os
 
-from src.agents.implementations.code_debug import CodeDebugAgent
-from src.agents.implementations.dependency_management import DependencyManagementAgent
-from src.agents.implementations.orchestrator import OrchestratorAgent
-from src.agents.implementations.test_generator import TestGeneratorAgent
+from packages.agents.claude_agents.agents.code_debug import CodeDebugAgent
+from packages.agents.claude_agents.agents.dependency_management import (
+    DependencyManagementAgent,
+)
+from packages.agents.claude_agents.agents.orchestrator import OrchestratorAgent
+from packages.agents.claude_agents.agents.test_generator import TestGeneratorAgent
 from src.agents.workflows.code_quality import WORKFLOWS
 
 
@@ -101,7 +103,7 @@ def create_custom_workflow():
     orchestrator.register_workflow("quick_debug", custom_workflow)
 
     # Example usage with a file
-    file_path = "src/agents/implementations/orchestrator.py"
+    file_path = "packages.agents.claude_agents.agents/orchestrator.py"
     with open(file_path, "r") as f:
         code = f.read()
 

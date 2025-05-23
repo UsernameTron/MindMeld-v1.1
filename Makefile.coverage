@@ -1,0 +1,52 @@
+# MindMeld Test Coverage Makefile
+
+.PHONY: test test-frontend test-backend coverage coverage-frontend coverage-backend clean
+
+# Default target
+all: coverage
+
+# Clean coverage results
+clean:
+	rm -rf coverage/
+	rm -rf .coverage
+	rm -rf frontend/coverage/
+	mkdir -p coverage/frontend
+	mkdir -p coverage/backend
+
+# Run all tests
+test: test-frontend test-backend
+
+# Run frontend tests only
+test-frontend:
+	cd frontend && npm test
+
+# Run backend tests only
+test-backend:
+	python -m pytest
+
+# Run all tests with coverage
+coverage: coverage-frontend coverage-backend
+
+# Run frontend tests with coverage
+coverage-frontend:
+	cd frontend && npm run test:coverage
+	@echo "Frontend coverage report available at coverage/frontend/index.html"
+
+# Run backend tests with coverage
+coverage-backend:
+	python -m pytest tests/ \
+		--cov=src \
+		--cov-config=.coveragerc \
+		--cov-report=term \
+		--cov-report=html:coverage/backend \
+		--cov-report=json:coverage/backend/coverage.json
+	@echo "Backend coverage report available at coverage/backend/index.html"
+
+# Generate badge for README
+badge:
+	python -c "import json, os; \
+		frontend = json.load(open('coverage/frontend/coverage-summary.json'))['total']['lines']['pct'] if os.path.exists('coverage/frontend/coverage-summary.json') else 0; \
+		backend = json.load(open('coverage/backend/coverage.json'))['totals']['percent_covered'] if os.path.exists('coverage/backend/coverage.json') else 0; \
+		avg = (frontend + backend) / 2; \
+		color = 'red' if avg < 50 else 'yellow' if avg < 80 else 'brightgreen'; \
+		print(f'![Coverage](https://img.shields.io/badge/coverage-{avg:.1f}%25-{color})')"
