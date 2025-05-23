@@ -6,6 +6,11 @@ MindMeld is an advanced agent orchestration system powered by local LLMs through
 
 ### v1.1 Features
 
+- **Claude 3.7 API Support**:
+  - Updated tool definitions for compatibility with Claude 3.7 API
+  - Specialized tool types (`bash_20250124`, `web_search_20250305`, etc.)
+  - Automated conversion utilities for agent files
+
 - **Robust LLM Call Handling**:
   - Configurable retries with exponential backoff
   - Timeout controls for reliable operation

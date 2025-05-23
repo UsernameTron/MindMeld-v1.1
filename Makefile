@@ -59,12 +59,13 @@ generate-types:
 storybook:
 	cd frontend && npm run storybook
 
-.PHONY: test lint run-agent start-api update-tools verify-api
+.PHONY: install dev-deps dev start test format lint flake8 static-analysis clean generate_dot_env fetch-schema generate-types storybook run-agent start-api update-tools verify-api
 
-test:               # run tests
+# Updated targets
+test-suite:         # run tests with pytest
 	pytest tests/
 
-lint:               # run lint checks
+lint-check:         # run lint checks
 	flake8 .
 
 run-agent:          # run single agent

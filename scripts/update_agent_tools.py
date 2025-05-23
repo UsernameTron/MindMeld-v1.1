@@ -3,9 +3,9 @@
 Script to update tool definitions in agent files to use the new Claude 3.7 API format.
 """
 
+import argparse
 import os
 import re
-import argparse
 
 
 def update_tools_in_file(file_path, dry_run=False):
@@ -18,7 +18,6 @@ def update_tools_in_file(file_path, dry_run=False):
         # Match function tool type definitions and replace with appropriate type
         (r'"type"\s*:\s*"function"', '"type": "custom"'),  # Default to custom
         (r"'type'\s*:\s*'function'", "'type': 'custom'"),  # Single quotes version
-        
         # Handle specific functions that map to specific tools
         # Double quotes versions
         (
@@ -45,7 +44,6 @@ def update_tools_in_file(file_path, dry_run=False):
                 '"function"', '"retrieval_20250301"'
             ),
         ),
-        
         # Single quotes versions
         (
             r"'name'\s*:\s*'execute_bash'.*?'type'\s*:\s*'function'",
@@ -61,7 +59,9 @@ def update_tools_in_file(file_path, dry_run=False):
         ),
         (
             r"'name'\s*:\s*'browse_web'.*?'type'\s*:\s*'function'",
-            "'name': 'browse_web'\\g<0>".replace("'function'", "'web_browser_20250428'"),
+            "'name': 'browse_web'\\g<0>".replace(
+                "'function'", "'web_browser_20250428'"
+            ),
         ),
         (
             r"'name'\s*:\s*'retrieve_content'.*?'type'\s*:\s*'function'",
@@ -101,7 +101,9 @@ def update_tools_in_file(file_path, dry_run=False):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Update tool definitions in agent files")
+    parser = argparse.ArgumentParser(
+        description="Update tool definitions in agent files"
+    )
     parser.add_argument(
         "--dry-run",
         action="store_true",
@@ -141,7 +143,9 @@ def main():
                     if update_tools_in_file(file_path, args.dry_run):
                         files_updated += 1
 
-    print(f"\nSummary: {'Would update' if args.dry_run else 'Updated'} {files_updated} files")
+    print(
+        f"\nSummary: {'Would update' if args.dry_run else 'Updated'} {files_updated} files"
+    )
 
 
 if __name__ == "__main__":
