@@ -130,7 +130,7 @@ conftest.py
 frontend
 node_modules
 outline_codebase.py
-packages
+# packages
 repo_healthcheck.py
 run_agent.py
 run_all_agents.py
@@ -192,7 +192,7 @@ conftest.py
 frontend
 node_modules
 outline_codebase.py
-packages
+# packages
 repo_healthcheck.py
 run_agent.py
 run_all_agents.py
