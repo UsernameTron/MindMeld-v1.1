@@ -6,8 +6,6 @@ Automated compliance review for MindMeld project.
 - Runs static analysis tools
 - Generates HTML report
 """
-import glob
-import os
 import re
 import subprocess
 from pathlib import Path

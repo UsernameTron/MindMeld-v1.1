@@ -6,15 +6,14 @@ Tests for the update_agent_tools.py and verify_api_tools.py scripts
 import os
 import sys
 import unittest
-from unittest.mock import MagicMock, patch, mock_open
+from unittest.mock import MagicMock, mock_open, patch
 
 # Add scripts directory to path
 sys.path.insert(
     0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "scripts"))
 )
 
-from scripts import update_agent_tools
-from scripts import verify_api_tools
+from scripts import update_agent_tools, verify_api_tools
 
 
 class TestUpdateAgentTools(unittest.TestCase):
@@ -33,9 +32,7 @@ class TestUpdateAgentTools(unittest.TestCase):
 
         # Use the update function directly with the test content
         with patch("builtins.open", mock_open(read_data=test_content)):
-            with patch(
-                "update_agent_tools.open", mock_open()
-            ) as mock_file:
+            with patch("update_agent_tools.open", mock_open()) as mock_file:
                 # Test that the function correctly identifies the tool
                 update_agent_tools.update_tools_in_file("test.py", dry_run=True)
 

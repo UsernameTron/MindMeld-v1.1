@@ -5,7 +5,10 @@ providing consistent error responses and logging.
 """
 
 import traceback
-from typing import Any, Dict
+
+from fastapi import FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 from app.core.logging import get_logger
 from app.models.common import StandardResponse
@@ -20,12 +23,8 @@ from app.services.errors import (
     ModelLoadError,
     RateLimitError,
     ResourceNotFoundError,
-    ServiceError,
     ValidationError,
 )
-from fastapi import FastAPI, Request, status
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 
 logger = get_logger()
 

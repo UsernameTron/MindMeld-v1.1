@@ -1,20 +1,15 @@
-import os
 import sys
 
 # Set testing flag BEFORE any app imports
-from app.core.test_config import IS_TESTING
 
 sys.modules["app.core.test_config"].IS_TESTING = True
 
-import asyncio
-import os
-from unittest.mock import AsyncMock, patch
 
 import pytest
-from app.core.auth_middleware import APIKeyMiddleware
-from app.main import app as main_app
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
+
+from app.main import app as main_app
 
 
 @pytest.fixture(scope="session")

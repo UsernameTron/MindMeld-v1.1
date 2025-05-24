@@ -10,7 +10,7 @@ import sys
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple
 
 import jsonschema
 

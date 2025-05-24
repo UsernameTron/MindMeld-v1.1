@@ -1,7 +1,8 @@
+from fastapi import APIRouter, HTTPException
+
 from app.models.chat.chat import ChatCompletionRequest, ChatCompletionResponse
 from app.services.chat.chat_service import chat_service
 from app.services.errors import OpenAIServiceError
-from fastapi import APIRouter, HTTPException
 
 router = APIRouter(
     prefix="/chat",
@@ -29,5 +30,5 @@ async def create_chat_completion(
         return response
     except OpenAIServiceError as e:
         raise HTTPException(status_code=500, detail=str(e))
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=500, detail="Internal server error")

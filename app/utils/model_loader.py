@@ -6,9 +6,10 @@ with standardized error handling.
 
 from typing import Any, Callable
 
+from transformers import pipeline
+
 from app.core.config import settings
 from app.services.errors import InferenceError, ModelLoadError
-from transformers import pipeline
 
 
 def load_model(

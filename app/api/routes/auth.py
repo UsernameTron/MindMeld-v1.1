@@ -5,7 +5,9 @@ login, token refresh, and retrieving user information.
 """
 
 from datetime import timedelta
-from typing import List
+
+from fastapi import APIRouter, Body, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 
 from app.models.auth.auth import Token, User
 from app.services.auth.auth_service import (
@@ -18,8 +20,6 @@ from app.services.auth.auth_service import (
     get_user,
     verify_refresh_token,
 )
-from fastapi import APIRouter, Body, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(
     tags=["auth"],

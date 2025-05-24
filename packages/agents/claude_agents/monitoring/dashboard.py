@@ -942,7 +942,7 @@ def track_agent(monitor: AgentMonitor):
                     cost = self.last_cost
 
                 return result
-            except Exception as e:
+            except Exception:
                 success = False
                 raise
             finally:
@@ -1003,7 +1003,7 @@ def track_pipeline(monitor: AgentMonitor):
                                 total_tokens += step_result.get("tokens", 0)
 
                 return result
-            except Exception as e:
+            except Exception:
                 success = False
                 raise
             finally:

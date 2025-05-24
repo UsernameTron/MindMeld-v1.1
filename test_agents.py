@@ -1,7 +1,5 @@
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from packages.agents.advanced_reasoning.agents import (
     DependencyAgent,
     TestGeneratorAgent,
@@ -36,7 +34,7 @@ def test_dependency_agent():
         mock_file.__enter__.return_value.read.return_value = "import os\nimport sys"
 
         # Mock AST parsing to return known imports
-        mock_tree = MagicMock()
+        MagicMock()
         mock_import = MagicMock()
         mock_import.module = None
         mock_alias1 = MagicMock()

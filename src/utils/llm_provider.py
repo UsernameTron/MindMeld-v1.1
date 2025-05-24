@@ -73,7 +73,7 @@ class LLMClient:
                 return response["message"]["content"]
             elif self.provider == LLMProvider.ANTHROPIC:
                 # Anthropic expects system, user, assistant roles
-                import anthropic
+                pass
 
                 system_prompt = next(
                     (m["content"] for m in messages if m["role"] == "system"), ""
@@ -113,7 +113,6 @@ class LLMClient:
                     if role == "system":
                         # For system messages, prepend to the first user message
                         # or add as a user message if none exists
-                        system_content = content
                         continue
 
                     gemini_messages.append(

@@ -1,8 +1,9 @@
 import json
 import os
 
-from app.main import app
 from fastapi.openapi.utils import get_openapi
+
+from app.main import app
 
 DOCS_DIR = os.path.join(os.path.dirname(__file__), "..", "docs")
 

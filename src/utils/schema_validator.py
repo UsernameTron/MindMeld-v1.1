@@ -219,7 +219,6 @@ def validate_input_for_agent(
         Tuple of (is_valid, error_message)
     """
     import os
-    from pathlib import Path
 
     if input_type == "file":
         if not os.path.exists(input_value):

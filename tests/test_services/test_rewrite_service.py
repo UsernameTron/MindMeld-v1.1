@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
 from app.models.rewrite.rewrite import RewriteRequest
 from app.services.errors import OpenAIServiceError
 from app.services.rewrite.rewrite_service import RewriteService

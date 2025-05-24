@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 from .reasoning_patterns import ReasoningPatternLibrary
 

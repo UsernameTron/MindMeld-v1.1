@@ -22,4 +22,7 @@ mkdir -p outputs/jobs
 
 # Start the API service
 echo "Starting MindMeld API on port $API_PORT..."
-uvicorn api:app --host 0.0.0.0 --port $API_PORT --log-level info
+uvicorn api:app --host 0.0.0.0 --port $API_PORT --log-level info &
+
+# Start the API server
+python api.py

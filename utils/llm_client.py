@@ -5,12 +5,11 @@ This module provides standardized LLM interaction with retry logic,
 fallback models, and consistent error handling.
 """
 
-import json
 import logging
 import os
 import time
 from functools import wraps
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
 import requests
 import tenacity
@@ -241,7 +240,7 @@ def with_fallback_model(func):
     def wrapper(prompt, model_name=None, *args, **kwargs):
         try:
             return func(prompt, model_name, *args, **kwargs)
-        except LLMCallError as e:
+        except LLMCallError:
             # Try with fallback model if available
             fallback_model = get_fallback_model()
             if fallback_model and fallback_model != model_name:

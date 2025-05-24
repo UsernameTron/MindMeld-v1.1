@@ -1,0 +1,26 @@
+{
+  "agent": "planner",
+  "status": "success",
+  "timestamp": 1748031239,
+  "payload": "Create a plan for implementing a new feature",
+  "runtime_seconds": 9.5367431640625e-07,
+  "job_id": "28214d20-469b-4a7d-9454-b518d1dbb31a",
+  "data": {
+    "status": "success",
+    "agent": "planner",
+    "result": "Mock planner executed successfully with payload: Create a plan for implementing a new feature",
+    "timestamp": 1748031239
+  },
+  "metadata": {
+    "agent": "planner",
+    "timestamp": 1748031239,
+    "job_id": "28214d20-469b-4a7d-9454-b518d1dbb31a",
+    "system_info": {
+      "os": "posix",
+      "python_version": [
+        3,
+        10
+      ]
+    }
+  }
+}

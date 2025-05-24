@@ -268,7 +268,7 @@ class VectorMemory(Memory):
     def clear(self) -> None:
         """Clear all items from memory."""
         # Reset FAISS index
-        embedding_dim = self.embedding_dim
+        self.embedding_dim
         self.index.reset()
 
         # Reset storage and mappings

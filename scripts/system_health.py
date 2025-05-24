@@ -3,7 +3,8 @@ import sys
 from pathlib import Path
 
 import httpx
-from app.core.config import redis, settings
+
+from app.core.config import redis
 
 
 async def check_system_health():

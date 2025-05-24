@@ -66,37 +66,25 @@ ServiceError = BaseServiceError
 class ValidationError(BaseServiceError):
     """Raised when input validation fails."""
 
-    pass
-
 
 class ModelLoadError(BaseServiceError):
     """Raised when a model fails to load."""
-
-    pass
 
 
 class ModelInferenceError(BaseServiceError):
     """Raised when model inference fails."""
 
-    pass
-
 
 class OpenAIError(BaseServiceError):
     """Raised when there's an issue with OpenAI API."""
-
-    pass
 
 
 class ExternalAPIError(BaseServiceError):
     """Raised when there's an issue with external API calls."""
 
-    pass
-
 
 class InferenceError(BaseServiceError):
     """Raised when model inference fails."""
-
-    pass
 
 
 class ResourceNotFoundError(BaseServiceError):
@@ -129,13 +117,9 @@ class ResourceNotFoundError(BaseServiceError):
 class AuthenticationError(BaseServiceError):
     """Raised when authentication fails."""
 
-    pass
-
 
 class RateLimitError(BaseServiceError):
     """Raised when a rate limit is exceeded."""
-
-    pass
 
 
 class InvalidTaskError(Exception):
@@ -170,11 +154,9 @@ class ConfigurationError(ServiceError):
     """
     Error raised when there's a configuration issue.
     """
-    pass
 
 
 class OpenAIServiceError(ServiceError):
     """
     Error raised when there's an issue with OpenAI service.
     """
-    pass

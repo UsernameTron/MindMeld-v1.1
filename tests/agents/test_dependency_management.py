@@ -2,10 +2,6 @@ import os
 import tempfile
 from typing import Any
 
-import pytest
-
-from packages.agents import DependencyAgent
-
 # Import the ClaudeAPIClient from the correct location
 from packages.agents.claude_agents.api.client import ClaudeAPIClient
 

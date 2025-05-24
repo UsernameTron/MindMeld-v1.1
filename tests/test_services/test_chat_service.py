@@ -1,6 +1,7 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+
 from app.models.chat.chat import ChatCompletionRequest, ChatMessage
 from app.services.chat.chat_service import ChatService, OpenAIServiceError
 

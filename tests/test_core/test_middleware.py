@@ -1,16 +1,15 @@
 import asyncio
-import uuid
 
 import pytest
+from fastapi import HTTPException, Request, Response
+from fastapi.testclient import TestClient
+
 from app.core.middleware import (
     RateLimiter,
     RateLimitHeaderMiddleware,
     RequestIdMiddleware,
 )
 from app.main import app
-from fastapi import HTTPException, Request, Response
-from fastapi.testclient import TestClient
-from starlette.types import ASGIApp
 
 client = TestClient(app)
 

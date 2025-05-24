@@ -12,15 +12,15 @@ This module defines custom middleware for request ID management and rate limitin
 """
 
 import time
-from typing import Any, Awaitable, Callable, Dict, Optional, Union
+from typing import Awaitable, Callable, Dict
 
-from app.core.config import get_redis
-from app.core.logging import get_logger, set_request_id
-from cachetools import TTLCache
 from fastapi import HTTPException, Request, Response, status
 from opentelemetry import trace
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
+
+from app.core.config import get_redis
+from app.core.logging import get_logger, set_request_id
 
 
 class MemoryRateLimiter:
@@ -33,6 +33,7 @@ class MemoryRateLimiter:
         expiry (Dict[str, float]): Stores expiration times per key.
         lock (asyncio.Lock): Ensures thread safety for async operations.
     """
+
     def __init__(self) -> None:
         """
         Initialize the MemoryRateLimiter.
@@ -40,6 +41,7 @@ class MemoryRateLimiter:
         self.counters: Dict[str, int] = {}
         self.expiry: Dict[str, float] = {}
         import asyncio
+
         self.lock: asyncio.Lock = asyncio.Lock()
 
     async def incr(self, key: str) -> int:
@@ -55,14 +57,18 @@ class MemoryRateLimiter:
         async with self.lock:
             now = time.time()
             if key in self.expiry and now > self.expiry[key]:
-                print(f"[DEBUG] Expiring key '{key}' at {now}, expired at {self.expiry[key]}")
+                print(
+                    f"[DEBUG] Expiring key '{key}' at {now}, expired at {self.expiry[key]}"
+                )
                 self.counters.pop(key, None)
                 self.expiry.pop(key, None)
             if key not in self.counters:
                 self.counters[key] = 1
             else:
                 self.counters[key] += 1
-            print(f"[DEBUG] incr: key={key}, value={self.counters[key]}, expiry={self.expiry.get(key)}")
+            print(
+                f"[DEBUG] incr: key={key}, value={self.counters[key]}, expiry={self.expiry.get(key)}"
+            )
             return self.counters[key]
 
     async def expire(self, key: str, ttl: int) -> bool:
@@ -83,7 +89,9 @@ class MemoryRateLimiter:
                 self.expiry.pop(key, None)
             else:
                 self.expiry[key] = time.time() + ttl
-            print(f"[DEBUG] expire: key={key}, ttl={ttl}, expiry={self.expiry.get(key)}")
+            print(
+                f"[DEBUG] expire: key={key}, ttl={ttl}, expiry={self.expiry.get(key)}"
+            )
             return True
 
     async def ttl(self, key: str) -> int:
@@ -116,6 +124,7 @@ class MemoryRateLimiter:
             self.counters.pop(key, None)
             self.expiry.pop(key, None)
 
+
 # Example tier config (could be loaded from DB/config)
 TIERS: Dict[str, Dict[str, int]] = {
     "basic": {"requests": 100, "window": 3600},
@@ -134,9 +143,9 @@ def get_tier_for_key(api_key: str) -> str:
     Returns:
         str: The tier name ('basic', 'pro', or 'enterprise').
     """
-    if (api_key and api_key.startswith("pro_")):
+    if api_key and api_key.startswith("pro_"):
         return "pro"
-    if (api_key and api_key.startswith("ent_")):
+    if api_key and api_key.startswith("ent_"):
         return "enterprise"
     return "basic"
 
@@ -248,7 +257,7 @@ class RateLimiter:
                 limit = self.default_requests
                 window = self.default_window
             key = f"ratelimit:{identifier}:{request.url.path}"
-            
+
             redis = await self._get_backend()
 
             # Safe check if key exists before incrementing
@@ -267,10 +276,12 @@ class RateLimiter:
                 current = await redis.incr(key)
                 if current == 1:
                     await redis.expire(key, window)
-                    
+
             ttl = await redis.ttl(key)
             request.state._rate_limit_limit = limit
-            request.state._rate_limit_reset = int(time.time() + ttl if ttl > 0 else window)
+            request.state._rate_limit_reset = int(
+                time.time() + ttl if ttl > 0 else window
+            )
             if current >= int(limit * 0.8) and current < limit:
                 logger = get_logger()
                 logger.warning(

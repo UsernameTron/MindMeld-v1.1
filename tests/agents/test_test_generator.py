@@ -3,15 +3,9 @@
 Unit tests for TestGeneratorAgent using the new utility modules.
 """
 
-import json
-import os
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-
-from packages.agents.claude_agents.agents import TestGeneratorAgent
-from utils.error_handling import FileProcessingError, LLMCallError
-from utils.file_operations import read_file, write_file
 
 
 class MockClaudeAPIClient:

@@ -5,11 +5,10 @@ This module provides services for analyzing text sentiment, extracting key phras
 and processing text content using machine learning models.
 """
 
-import re
-import uuid
-from datetime import datetime, timedelta
-from functools import lru_cache
 from typing import Any, ClassVar, Dict, List, Optional
+
+from opentelemetry import trace
+from transformers import pipeline
 
 from app.core.config import settings
 from app.models.analyze.analyze import (
@@ -19,11 +18,10 @@ from app.models.analyze.analyze import (
     SentimentRequest,
     SentimentResponse,
 )
-from app.services.errors import InferenceError, ValidationError
-from opentelemetry import trace
-from transformers import pipeline
+from app.services.errors import InferenceError
 
 tracer = trace.get_tracer(__name__)
+
 
 class AnalyzeService:
     """
@@ -85,7 +83,9 @@ class AnalyzeService:
         elif task == "emotion":
             if not self._emotion_pipeline:
                 self._emotion_pipeline = pipeline(
-                    "text-classification", model=self.emotion_model_name, device=self.device
+                    "text-classification",
+                    model=self.emotion_model_name,
+                    device=self.device,
                 )
             return self._emotion_pipeline
         elif task == "zero-shot-classification":
@@ -119,7 +119,14 @@ class AnalyzeService:
                     score = item["score"]
                     emotions_dict[label] = score
                 # Ensure all required emotion categories are present with default values
-                required_emotions = ["joy", "anger", "fear", "sadness", "surprise", "disgust"]
+                required_emotions = [
+                    "joy",
+                    "anger",
+                    "fear",
+                    "sadness",
+                    "surprise",
+                    "disgust",
+                ]
                 for emotion in required_emotions:
                     if emotion not in emotions_dict:
                         emotions_dict[emotion] = 0.0
@@ -165,7 +172,7 @@ class AnalyzeService:
             request: SentimentRequest with text and parameters
 
         Returns:
-            SentimentResponse: Sentiment analysis results containing sentiment label, scores, 
+            SentimentResponse: Sentiment analysis results containing sentiment label, scores,
                               and emotion categories
 
         Raises:
@@ -179,18 +186,18 @@ class AnalyzeService:
             score = result["score"]
             # Build scores dict as required by SentimentResponse
             scores = {result["label"].upper(): score}
-            
+
             # Get emotion analysis if requested
             emotions = None
             if getattr(request, "include_emotions", True):
                 emotions = self.analyze_emotions(request.text)
-            
+
             # Return combined sentiment and emotion results
             return SentimentResponse(
-                text=request.text, 
-                sentiment=sentiment.upper(), 
+                text=request.text,
+                sentiment=sentiment.upper(),
                 scores=scores,
-                emotions=emotions
+                emotions=emotions,
             )
 
     def analyze_batch_sentiment(
@@ -213,11 +220,11 @@ class AnalyzeService:
             results = []
             for text in request.texts:
                 single_request = SentimentRequest(
-                    text=text, 
+                    text=text,
                     model_name=request.model_name,
                     include_scores=request.include_scores,
                     include_emotions=request.include_emotions,
-                    normalize_scores=request.normalize_scores
+                    normalize_scores=request.normalize_scores,
                 )
                 results.append(self.analyze_sentiment(single_request))
             return BatchSentimentResponse(results=results)

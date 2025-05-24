@@ -1,0 +1,27 @@
+{
+  "agent": "TestGeneratorAgent",
+  "status": "error",
+  "error": {
+    "message": "Agent.__init__() got an unexpected keyword argument 'test_framework'",
+    "type": "TypeError"
+  },
+  "timestamp": 1748119651,
+  "payload": "scripts/agents/ollama_client.py",
+  "metadata": {
+    "agent": "TestGeneratorAgent",
+    "timestamp": 1748119651,
+    "job_id": "1f49426a-0925-4f1f-9000-e753cf65ec25",
+    "system_info": {
+      "os": "Darwin",
+      "python_version": "3.10.13",
+      "cpu_count": 14
+    },
+    "model_info": {
+      "name": "phi3.5:latest",
+      "config": {
+        "temperature": 0.7,
+        "max_tokens": 1024
+      }
+    }
+  }
+}

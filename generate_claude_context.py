@@ -1,8 +1,5 @@
-import json
 import os
 from datetime import datetime
-
-import yaml
 
 # List of critical files to include in Claude's context
 CRITICAL_FILES = [

@@ -7,9 +7,8 @@ according to specific persona characteristics and styles.
 """
 
 import logging
-from typing import Any, Dict, List
+from typing import Dict, List
 
-from app.core.config import settings
 from app.models.chat.chat import ChatCompletionRequest, ChatMessage
 from app.models.rewrite.rewrite import RewriteRequest, RewriteResponse
 from app.services.chat.chat_service import chat_service

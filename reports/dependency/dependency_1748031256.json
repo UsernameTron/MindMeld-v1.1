@@ -1,0 +1,30 @@
+{
+  "agent": "dependency",
+  "status": "success",
+  "timestamp": 1748031256,
+  "payload": "/Users/cpconnor/projects/mindmeld-v1.1",
+  "runtime_seconds": 9.5367431640625e-07,
+  "job_id": "efd9d084-b875-48fc-8029-e055107e64cc",
+  "data": {
+    "status": "success",
+    "agent": "dependency",
+    "dependencies": [
+      "mock_dep1",
+      "mock_dep2"
+    ],
+    "analysis": "Mock dependency analysis for /Users/cpconnor/projects/mindmeld-v1.1",
+    "verbose": true
+  },
+  "metadata": {
+    "agent": "dependency",
+    "timestamp": 1748031256,
+    "job_id": "efd9d084-b875-48fc-8029-e055107e64cc",
+    "system_info": {
+      "os": "posix",
+      "python_version": [
+        3,
+        10
+      ]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 """Common models and utilities for the application."""
 
-from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
+from typing import Any, Dict, Generic, Optional, TypeVar
 
 from pydantic import BaseModel as PydanticBaseModel
 from pydantic import Field
@@ -53,4 +53,5 @@ class StandardResponse(BaseModel, Generic[T]):
 
 class ErrorResponse(BaseModel):
     """Standard error response model for API errors."""
+
     detail: str = Field(..., description="Error message")

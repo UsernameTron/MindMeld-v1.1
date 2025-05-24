@@ -4,7 +4,6 @@ Example script demonstrating how to use the OrchestratorAgent programmatically.
 """
 
 import json
-import os
 
 from packages.agents.claude_agents.agents.code_debug import CodeDebugAgent
 from packages.agents.claude_agents.agents.dependency_management import (

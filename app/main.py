@@ -9,6 +9,9 @@ import os
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
+from fastapi import APIRouter, FastAPI
+from fastapi.staticfiles import StaticFiles
+
 from app.api.routes import analyze, auth, data, persona, rewrite, sentiment, tts
 from app.api.routes.chat import router as chat_router
 from app.core.auth_middleware import APIKeyMiddleware
@@ -17,8 +20,6 @@ from app.core.errors import register_exception_handlers
 from app.core.logging import get_logger
 from app.core.middleware import RateLimitHeaderMiddleware, RequestIdMiddleware
 from app.services.errors import ModelLoadError
-from fastapi import APIRouter, FastAPI
-from fastapi.staticfiles import StaticFiles
 
 # Get the logger
 log = get_logger()

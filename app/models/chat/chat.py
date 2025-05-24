@@ -7,8 +7,9 @@ message structure, completion requests, and response formats.
 
 from typing import Dict, List, Literal, Optional
 
-from app.models.common import BaseModel
 from pydantic import ConfigDict, Field
+
+from app.models.common import BaseModel
 
 
 class ChatMessage(BaseModel):

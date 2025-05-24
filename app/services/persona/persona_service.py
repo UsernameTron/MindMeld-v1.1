@@ -1,11 +1,12 @@
 import json
 import logging
 import os
-from typing import Dict, List, Optional
+from typing import Dict
 
 import yaml
+
 from app.models.persona.persona import PersonaDefinition, PersonaListResponse
-from app.services.errors import ConfigurationError, ResourceNotFoundError
+from app.services.errors import ResourceNotFoundError
 
 logger = logging.getLogger(__name__)
 

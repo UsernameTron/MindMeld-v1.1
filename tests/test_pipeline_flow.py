@@ -3,7 +3,7 @@
 Tests for the end-to-end pipeline flow between agents.
 """
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 

@@ -1,5 +1,3 @@
-import asyncio
-import json
 import logging
 import os
 import shutil
@@ -7,9 +5,8 @@ import tempfile
 import time
 import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
 
-from fastapi import BackgroundTasks, FastAPI, File, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, UploadFile
 from fastapi.responses import JSONResponse
 
 # Import agents
@@ -17,14 +14,11 @@ from packages.agents.advanced_reasoning.agents import (
     CodeAnalyzerAgent,
     CodeDebuggerAgent,
     CodeRepairAgent,
-    DependencyAgent,
-    IntegratedCodebaseOptimizer,
     TestGeneratorAgent,
 )
 
 # Import agent input types
-from packages.agents.AgentFactory import AGENT_INPUT_TYPES
-from schema_validator import normalize_agent_output, validate_agent_output
+from schema_validator import normalize_agent_output
 
 app = FastAPI(title="MindMeld API", version="1.0.0")
 logger = logging.getLogger("mindmeld")

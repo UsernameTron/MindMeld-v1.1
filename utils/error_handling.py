@@ -8,10 +8,9 @@ enhanced error formatting, retry mechanisms, and transaction-like behavior.
 import functools
 import logging
 import os
-import sys
 import time
 import traceback
-from typing import Any, Callable, Dict, List, Optional, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, Optional, Tuple, Type, TypeVar, Union
 
 logger = logging.getLogger(__name__)
 
@@ -40,13 +39,9 @@ class MindMeldError(Exception):
 class ValidationError(MindMeldError):
     """Raised when input validation fails."""
 
-    pass
-
 
 class FileProcessingError(MindMeldError):
     """Raised when file operations fail."""
-
-    pass
 
 
 class LLMCallError(MindMeldError):
@@ -71,37 +66,25 @@ class LLMCallError(MindMeldError):
 class ModelUnavailableError(LLMCallError):
     """Raised when required LLM model is not available."""
 
-    pass
-
 
 class AnalysisError(MindMeldError):
     """Raised when code analysis operations fail."""
-
-    pass
 
 
 class CompilationError(MindMeldError):
     """Raised when code compilation fails."""
 
-    pass
-
 
 class RepairError(MindMeldError):
     """Raised when code repair fails."""
-
-    pass
 
 
 class SchemaValidationError(MindMeldError):
     """Raised when output schema validation fails."""
 
-    pass
-
 
 class TimeoutError(MindMeldError):
     """Raised when an operation times out."""
-
-    pass
 
 
 class AgentExecutionError(MindMeldError):
@@ -125,8 +108,6 @@ class AgentExecutionError(MindMeldError):
 
 class TransactionError(MindMeldError):
     """Raised when a transaction fails."""
-
-    pass
 
 
 def format_error_for_json(error: Exception) -> dict:

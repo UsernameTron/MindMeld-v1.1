@@ -12,7 +12,7 @@ import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, BinaryIO, Dict, Iterator, List, Optional, TextIO, Tuple, Union
+from typing import Any, Dict, List, Union
 
 from utils.error_handling import FileProcessingError
 

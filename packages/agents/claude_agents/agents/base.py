@@ -72,7 +72,6 @@ class Agent(ABC):
         Returns:
             Agent's processed output
         """
-        pass
 
     def add_to_history(self, message: Dict[str, Any]) -> None:
         """

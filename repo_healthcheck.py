@@ -8,7 +8,6 @@ Performs:
  4. Dependency Auditor (Python/Node)
  5. Large-File Detector (>10MB)
 """
-import importlib.util
 import json
 import os
 import re
@@ -20,7 +19,19 @@ from pathlib import Path
 REQUIRED_ENV_VARS = ["CLAUDE_API_KEY", "PHI_MODEL_PATH"]
 CONFIG_EXTS = [".json", ".yml", ".yaml"]
 LARGE_FILE_MB = 10
-IGNORE_DIRS = {'.git', 'node_modules', 'run', 'logs', 'output', 'outputs', 'htmlcov', '__pycache__', 'playwright-report', 'temp'}
+IGNORE_DIRS = {
+    ".git",
+    "node_modules",
+    "run",
+    "logs",
+    "output",
+    "outputs",
+    "htmlcov",
+    "__pycache__",
+    "playwright-report",
+    "temp",
+}
+
 
 # --- 1. TODO/FIXME/XXX Scanner ---
 def scan_todos(root):
@@ -29,15 +40,29 @@ def scan_todos(root):
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in IGNORE_DIRS]
         for fn in filenames:
-            if fn.endswith(('.py', '.js', '.ts', '.tsx', '.jsx', '.md', '.sh', '.json', '.yml', '.yaml')):
+            if fn.endswith(
+                (
+                    ".py",
+                    ".js",
+                    ".ts",
+                    ".tsx",
+                    ".jsx",
+                    ".md",
+                    ".sh",
+                    ".json",
+                    ".yml",
+                    ".yaml",
+                )
+            ):
                 path = os.path.join(dirpath, fn)
                 try:
-                    with open(path, encoding='utf-8', errors='ignore') as f:
+                    with open(path, encoding="utf-8", errors="ignore") as f:
                         for i, line in enumerate(f, 1):
                             if todo_re.search(line):
                                 print(f"{path}:{i}: {line.strip()}")
                 except Exception as e:
                     print(f"[WARN] Could not read {path}: {e}")
+
 
 # --- 2. Import-Health Checker ---
 def check_python_imports(root):
@@ -45,28 +70,35 @@ def check_python_imports(root):
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in IGNORE_DIRS]
         for fn in filenames:
-            if fn.endswith('.py'):
+            if fn.endswith(".py"):
                 path = os.path.join(dirpath, fn)
                 try:
-                    subprocess.check_output([sys.executable, '-m', 'py_compile', path], stderr=subprocess.STDOUT)
+                    subprocess.check_output(
+                        [sys.executable, "-m", "py_compile", path],
+                        stderr=subprocess.STDOUT,
+                    )
                 except subprocess.CalledProcessError as e:
                     print(f"[ERROR] {path}: {e.output.decode().strip()}")
 
+
 def check_ts_imports(root):
     print("\n--- TypeScript Import/Compile Check ---")
-    tsc = shutil.which('tsc')
+    tsc = shutil.which("tsc")
     if not tsc:
         print("[WARN] tsc (TypeScript compiler) not found in PATH.")
         return
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in IGNORE_DIRS]
         for fn in filenames:
-            if fn.endswith(('.ts', '.tsx')):
+            if fn.endswith((".ts", ".tsx")):
                 path = os.path.join(dirpath, fn)
                 try:
-                    subprocess.check_output([tsc, '--noEmit', path], stderr=subprocess.STDOUT)
+                    subprocess.check_output(
+                        [tsc, "--noEmit", path], stderr=subprocess.STDOUT
+                    )
                 except subprocess.CalledProcessError as e:
                     print(f"[ERROR] {path}: {e.output.decode().strip()}")
+
 
 # --- 3. Env-Var & Config Validator ---
 def check_env_vars():
@@ -77,6 +109,7 @@ def check_env_vars():
         else:
             print(f"[OK] Env var: {var}")
 
+
 def check_config_files(root):
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in IGNORE_DIRS]
@@ -85,27 +118,30 @@ def check_config_files(root):
             if ext in CONFIG_EXTS:
                 path = os.path.join(dirpath, fn)
                 try:
-                    with open(path, encoding='utf-8') as f:
-                        if ext == '.json':
+                    with open(path, encoding="utf-8") as f:
+                        if ext == ".json":
                             json.load(f)
                         else:
                             import yaml
+
                             yaml.safe_load(f)
                     print(f"[OK] Config parses: {path}")
                 except Exception as e:
                     print(f"[ERROR] Config parse failed: {path}: {e}")
 
+
 # --- 4. Dependency Auditor ---
 def check_python_deps():
     print("\n--- Python Dependency Auditor ---")
-    req = Path('requirements.txt')
+    req = Path("requirements.txt")
     if req.exists():
         try:
             import pkg_resources
+
             with open(req) as f:
                 for line in f:
-                    pkg = line.strip().split('==')[0]
-                    if pkg and not pkg.startswith('#'):
+                    pkg = line.strip().split("==")[0]
+                    if pkg and not pkg.startswith("#"):
                         try:
                             pkg_resources.get_distribution(pkg)
                         except Exception:
@@ -116,18 +152,20 @@ def check_python_deps():
 
 def check_node_deps():
     print("\n--- Node.js Dependency Auditor ---")
-    if not Path('package.json').exists():
+    if not Path("package.json").exists():
         print("[INFO] No package.json found.")
         return
     try:
-        with open('package.json') as f:
+        with open("package.json") as f:
             pkg = json.load(f)
-        deps = set(pkg.get('dependencies', {}).keys()) | set(pkg.get('devDependencies', {}).keys())
+        deps = set(pkg.get("dependencies", {}).keys()) | set(
+            pkg.get("devDependencies", {}).keys()
+        )
         lock = None
-        if Path('yarn.lock').exists():
-            lock = Path('yarn.lock').read_text()
-        elif Path('package-lock.json').exists():
-            lock = Path('package-lock.json').read_text()
+        if Path("yarn.lock").exists():
+            lock = Path("yarn.lock").read_text()
+        elif Path("package-lock.json").exists():
+            lock = Path("package-lock.json").read_text()
         else:
             print("[WARN] No lockfile found.")
         for dep in deps:
@@ -135,6 +173,7 @@ def check_node_deps():
                 print(f"[MISSING] Node dep not in lockfile: {dep}")
     except Exception as e:
         print(f"[ERROR] Node dep check failed: {e}")
+
 
 # --- 5. Large-File Detector ---
 def detect_large_files(root):
@@ -144,15 +183,17 @@ def detect_large_files(root):
         for fn in filenames:
             path = os.path.join(dirpath, fn)
             try:
-                size_mb = os.path.getsize(path) / (1024*1024)
+                size_mb = os.path.getsize(path) / (1024 * 1024)
                 if size_mb > LARGE_FILE_MB:
                     print(f"[LARGE] {path}: {size_mb:.2f} MB")
             except Exception:
                 continue
 
+
 # --- MAIN ---
 if __name__ == "__main__":
     import shutil
+
     root = os.path.dirname(os.path.abspath(__file__))
     scan_todos(root)
     print("\n=== [2] Import-Health Checker ===")

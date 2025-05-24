@@ -1,0 +1,26 @@
+{
+  "agent": "planner",
+  "status": "success",
+  "timestamp": 1748112231,
+  "payload": "Design a URL content extraction service for sentiment analysis that: 1) Takes a URL, 2) Extracts the main text content, 3) Removes HTML/boilerplate, 4) Performs sentiment analysis, 5) Caches results for 24 hours. Include error handling, rate limiting, and robots.txt compliance.",
+  "runtime_seconds": 9.5367431640625e-07,
+  "job_id": "45b582e4-c7c8-4b40-9bb8-b6d4d7c331d0",
+  "data": {
+    "status": "success",
+    "agent": "planner",
+    "result": "Mock planner executed successfully with payload: Design a URL content extraction service for sentiment analysis that: 1) Takes a URL, 2) Extracts the main text content, 3) Removes HTML/boilerplate, 4) Performs sentiment analysis, 5) Caches results for 24 hours. Include error handling, rate limiting, and robots.txt compliance.",
+    "timestamp": 1748112231
+  },
+  "metadata": {
+    "agent": "planner",
+    "timestamp": 1748112231,
+    "job_id": "45b582e4-c7c8-4b40-9bb8-b6d4d7c331d0",
+    "system_info": {
+      "os": "posix",
+      "python_version": [
+        3,
+        10
+      ]
+    }
+  }
+}

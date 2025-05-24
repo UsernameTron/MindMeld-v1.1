@@ -195,7 +195,6 @@ class OptimizedClaudeClient:
 
         # Send request to API with retry logic
         attempts = 0
-        last_error = None
 
         while attempts < self.max_retries:
             try:
@@ -238,7 +237,6 @@ class OptimizedClaudeClient:
 
             except anthropic.APIError as e:
                 attempts += 1
-                last_error = e
 
                 # Check if we should retry
                 if attempts >= self.max_retries:

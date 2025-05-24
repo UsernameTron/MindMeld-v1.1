@@ -16,6 +16,7 @@ Usage:
 
 This pattern enables dependency injection and easier testing/mocking of authentication logic.
 """
+
 from abc import ABC, abstractmethod
 
 from fastapi import Request
@@ -27,6 +28,7 @@ class AuthInterface(ABC):
 
     Implementations must provide async methods for JWT and API key validation.
     """
+
     @abstractmethod
     async def validate_jwt(self, request: Request, required_scope: str = None):
         """
@@ -38,7 +40,6 @@ class AuthInterface(ABC):
         Returns:
             AuthResult or bool: Validation result (see implementation).
         """
-        pass
 
     @abstractmethod
     async def validate_api_key(self, request: Request, required_scope: str = None):
@@ -51,4 +52,3 @@ class AuthInterface(ABC):
         Returns:
             AuthResult or bool: Validation result (see implementation).
         """
-        pass

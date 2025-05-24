@@ -1,7 +1,8 @@
 from typing import List, Optional
 
-from app.models.common import BaseModel
 from pydantic import ConfigDict, Field
+
+from app.models.common import BaseModel
 
 
 class Token(BaseModel):

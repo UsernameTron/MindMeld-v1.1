@@ -4,19 +4,19 @@ This module provides functions for password hashing, token generation,
 and user authentication.
 """
 
-import os
 from datetime import datetime, timedelta
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 
-from app.core.auth_interface import AuthInterface
-from app.core.config import settings
-from app.models.auth.auth import TokenData, User, UserInDB
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import ValidationError
+
+from app.core.auth_interface import AuthInterface
+from app.core.config import settings
+from app.models.auth.auth import TokenData, User, UserInDB
 
 # Configuration
 SECRET_KEY: str = getattr(settings, "JWT_SECRET_KEY", "changeme")
@@ -171,9 +171,11 @@ class AuthResult(Enum):
     - INVALID: Authentication failed (invalid or missing credentials).
     - INSUFFICIENT_SCOPE: Authenticated, but required scope is missing.
     """
+
     OK = "ok"
     INVALID = "invalid"  # 401
     INSUFFICIENT_SCOPE = "insufficient_scope"  # 403
+
 
 class AuthService(AuthInterface):
     async def validate_jwt(self, request: Request, required_scope: str = None):
@@ -196,7 +198,12 @@ class AuthService(AuthInterface):
 
     async def validate_api_key(self, request: Request, required_scope: str = None):
         api_key = request.headers.get("X-API-Key")
-        valid_keys = {"valid_key", "valid-analyze-key", "valid-chat-key", "valid-rewrite-key"}  # Accept all test keys
+        valid_keys = {
+            "valid_key",
+            "valid-analyze-key",
+            "valid-chat-key",
+            "valid-rewrite-key",
+        }  # Accept all test keys
         if not api_key:
             return AuthResult.INVALID
         if api_key not in valid_keys:

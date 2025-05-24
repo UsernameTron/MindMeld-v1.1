@@ -11,7 +11,7 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 # Add the project root to the Python path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -23,21 +23,13 @@ from utils.error_handling import (
     ValidationError,
 )
 from utils.file_operations import (
-    file_hash,
     path_exists,
     process_files_parallel,
     read_file,
-    read_json,
     should_process_file,
-    write_file,
     write_json,
 )
-from utils.llm_client import (
-    call_llm,
-    call_llm_with_retry,
-    get_default_model,
-    with_fallback_model,
-)
+from utils.llm_client import call_llm_with_retry, get_default_model, with_fallback_model
 
 
 def file_operations_example(directory: str) -> None:

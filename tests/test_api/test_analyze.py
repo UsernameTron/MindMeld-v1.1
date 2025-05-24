@@ -1,11 +1,10 @@
 from unittest.mock import patch
 
-import pytest
-from app.main import app
-from app.models.analyze.analyze import AnalysisResult, AnalyzeResponse
-from app.services.auth.auth_service import create_access_token
-from app.services.errors import InferenceError, ValidationError
 from fastapi.testclient import TestClient
+
+from app.main import app
+from app.services.auth.auth_service import create_access_token
+from app.services.errors import InferenceError
 
 client = TestClient(app)
 

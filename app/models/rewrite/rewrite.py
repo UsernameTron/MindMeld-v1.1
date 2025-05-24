@@ -7,8 +7,9 @@ rewriting functionality, enabling persona-based content transformation.
 
 from typing import Optional
 
-from app.models.common import BaseModel
 from pydantic import ConfigDict, Field
+
+from app.models.common import BaseModel
 
 
 class RewriteRequest(BaseModel):

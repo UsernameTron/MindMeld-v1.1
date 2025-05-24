@@ -1,10 +1,11 @@
-from typing import Any, Dict
+from typing import Dict
 
 from pydantic import BaseModel, HttpUrl
 
 
 class SentimentRequest(BaseModel):
     url: HttpUrl
+
 
 class SentimentResponse(BaseModel):
     overall_sentiment: str

@@ -2,8 +2,6 @@ import secrets
 import time
 from typing import Dict, List, Optional
 
-from pydantic import BaseModel
-
 # In production, use a database for API keys
 api_keys_db: Dict[str, Dict] = {}
 

@@ -8,8 +8,9 @@ sentiment analysis and other text analysis features.
 
 from typing import Dict, List, Optional
 
-from app.models.common import BaseModel
 from pydantic import ConfigDict, Field, field_validator
+
+from app.models.common import BaseModel
 
 
 class AnalyzeRequest(BaseModel):
@@ -225,7 +226,16 @@ class SentimentResponse(BaseModel):
     emotions: Optional[Dict[str, float]] = Field(
         None,
         description="Emotion category scores (joy, anger, fear, sadness, surprise, disgust)",
-        json_schema_extra={"example": {"joy": 0.8, "surprise": 0.15, "anger": 0.02, "sadness": 0.01, "fear": 0.01, "disgust": 0.01}},
+        json_schema_extra={
+            "example": {
+                "joy": 0.8,
+                "surprise": 0.15,
+                "anger": 0.02,
+                "sadness": 0.01,
+                "fear": 0.01,
+                "disgust": 0.01,
+            }
+        },
     )
 
 
@@ -286,3 +296,67 @@ class BatchSentimentResponse(BaseModel):
             ]
         },
     )
+
+
+class URLSentimentRequest(BaseModel):
+    """
+    Request model for URL-based sentiment analysis operations.
+
+    Defines the structure for requests to analyze sentiment from URL content,
+    with validation to ensure valid URL format and parameters to control
+    content extraction and analysis behavior.
+    """
+
+    url: str = Field(
+        ...,
+        description="URL to extract content from and analyze for sentiment",
+        json_schema_extra={"example": "https://example.com/article"},
+    )
+    include_scores: bool = Field(
+        True,
+        description="Include detailed sentiment scores in response",
+        json_schema_extra={"example": True},
+    )
+    include_emotions: bool = Field(
+        True,
+        description="Include emotion category scores in response (joy, anger, fear, etc.)",
+        json_schema_extra={"example": True},
+    )
+    model_name: Optional[str] = Field(
+        None,
+        description="Specific model to use for sentiment analysis",
+        json_schema_extra={"example": "distilbert-base-uncased"},
+    )
+    normalize_scores: bool = Field(
+        True,
+        description="Normalize sentiment scores to range 0-1",
+        json_schema_extra={"example": True},
+    )
+    max_content_length: Optional[int] = Field(
+        None,
+        description="Maximum content length to analyze (characters)",
+        json_schema_extra={"example": 50000},
+    )
+    model_config = ConfigDict(extra="forbid")
+
+    @field_validator("url")
+    @classmethod
+    def url_must_be_valid(cls, v: str) -> str:
+        """Validate that URL field is a valid HTTP/HTTPS URL."""
+        from urllib.parse import urlparse
+
+        if not v.strip():
+            raise ValueError("URL cannot be empty")
+
+        try:
+            parsed = urlparse(v)
+            if not parsed.scheme or not parsed.netloc:
+                raise ValueError("Invalid URL format")
+
+            if parsed.scheme not in ["http", "https"]:
+                raise ValueError("Only HTTP and HTTPS URLs are supported")
+
+        except Exception as e:
+            raise ValueError(f"Invalid URL: {e}")
+
+        return v

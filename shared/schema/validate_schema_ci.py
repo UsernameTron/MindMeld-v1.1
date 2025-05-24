@@ -7,11 +7,10 @@ This script checks all report files against the schema and fails if any are inva
 import argparse
 import json
 import logging
-import os
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import List, Tuple
 
 # Try to import our schema validator
 try:

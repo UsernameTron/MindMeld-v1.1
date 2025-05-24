@@ -5,6 +5,8 @@ This module defines the FastAPI routes for analyzing text sentiment,
 including single and batch sentiment analysis endpoints.
 """
 
+from fastapi import APIRouter, Depends, HTTPException
+
 from app.core.middleware import RateLimiter
 from app.models.analyze.analyze import (
     AnalysisResult,
@@ -14,10 +16,11 @@ from app.models.analyze.analyze import (
     BatchSentimentResponse,
     SentimentRequest,
     SentimentResponse,
+    URLSentimentRequest,
 )
 from app.models.common import StandardResponse
 from app.services.analyze.analyze_service import AnalyzeService
-from fastapi import APIRouter, Depends
+from app.services.analyze.content_extraction_service import ContentExtractionService
 
 router = APIRouter(tags=["Sentiment Analysis"])
 
@@ -56,44 +59,49 @@ async def analyze_text(
     Returns:
         StandardResponse[AnalyzeResponse]: The analysis result wrapped in a standard response.
     """
-    sentiment_request = SentimentRequest(text=request.text, include_emotions=True)
+    sentiment_request = SentimentRequest(
+        text=request.text,
+        include_emotions=True,
+        include_scores=True,
+        normalize_scores=True,
+        model_name=None,
+    )
     result = service.analyze_sentiment(sentiment_request)
-    
+
     # Extract sentiment score
     sentiment_score = list(result.scores.values())[0] if result.scores else 0.0
-    
+
     # Find dominant emotion for key phrase extraction
     dominant_emotion = None
     if result.emotions:
         dominant_emotion = max(result.emotions.items(), key=lambda x: x[1])[0]
-    
+
     results = [
         AnalysisResult(
             text=request.text,
             label=result.sentiment.upper(),
             score=sentiment_score,
-            confidence_level=(
-                "high" if sentiment_score > 0.8 else "medium"
-            ),
+            confidence_level=("high" if sentiment_score > 0.8 else "medium"),
             is_uncertain=sentiment_score < 0.5,
             key_phrases=[],  # Could extract based on dominant emotion if needed
-            intensity_level=(
-                "strong" if sentiment_score > 0.8 else "moderate"
-            ),
+            intensity_level=("strong" if sentiment_score > 0.8 else "moderate"),
         )
     ]
     analyze_response = AnalyzeResponse(result=results[0])
-    
+
     # Add emotion data to the metadata
     meta = {
-        "model": "default", 
+        "model": "default",
         "task": "sentiment-analysis",
-        "emotions": result.emotions if result.emotions else {}
+        "emotions": result.emotions if result.emotions else {},
     }
-    
+
     return StandardResponse(
         success=True,
         data=analyze_response,
+        error=None,
+        code=None,
+        request_id=None,
         meta=meta,
     )
 
@@ -120,8 +128,89 @@ async def analyze_sentiment(request: SentimentRequest) -> SentimentResponse:
     if result.emotions:
         dominant_emotion = max(result.emotions.items(), key=lambda x: x[1])[0]
         import logging
+
         logging.getLogger("uvicorn.info").info(f"Dominant emotion: {dominant_emotion}")
     return result
+
+
+@router.post(
+    "/sentiment/url",
+    response_model=SentimentResponse,
+    summary="Analyze sentiment from URL content",
+    description="Extracts content from a URL and performs sentiment and emotion analysis.",
+    dependencies=[Depends(RateLimiter(requests=10, window=60 * 5))],
+    responses={
+        429: {
+            "description": "Rate limit exceeded",
+            "headers": {
+                "Retry-After": {
+                    "description": "Seconds to wait before retrying",
+                    "schema": {"type": "string"},
+                }
+            },
+        },
+        400: {
+            "description": "Invalid URL or content extraction failed",
+        },
+    },
+)
+async def analyze_url_sentiment(request: URLSentimentRequest) -> SentimentResponse:
+    """
+    Extract content from a URL and perform sentiment and emotion analysis.
+
+    Args:
+        request (URLSentimentRequest): The request containing the URL to analyze.
+
+    Returns:
+        SentimentResponse: The sentiment and emotion analysis result.
+
+    Raises:
+        HTTPException: If URL content extraction fails or URL is invalid.
+    """
+    # Extract content from URL
+    content_service = ContentExtractionService.get_instance()
+
+    try:
+        extracted_content = await content_service.extract_content(request.url)
+        if not extracted_content:
+            raise HTTPException(
+                status_code=400,
+                detail="Failed to extract content from URL or content is empty",
+            )
+
+        # Create sentiment request with extracted text
+        sentiment_request = SentimentRequest(
+            text=extracted_content,
+            include_scores=request.include_scores,
+            include_emotions=request.include_emotions,
+            model_name=request.model_name,
+            normalize_scores=request.normalize_scores,
+        )
+
+        # Analyze sentiment
+        service = AnalyzeService.get_instance(request.model_name)
+        result = service.analyze_sentiment(sentiment_request)
+
+        # Log extraction success and dominant emotion
+        import logging
+
+        logger = logging.getLogger("uvicorn.info")
+        logger.info(
+            f"Successfully extracted and analyzed content from URL: {request.url}"
+        )
+        if result.emotions:
+            dominant_emotion = max(result.emotions.items(), key=lambda x: x[1])[0]
+            logger.info(f"Dominant emotion: {dominant_emotion}")
+
+        return result
+
+    except Exception as e:
+        import logging
+
+        logging.getLogger("uvicorn.error").error(
+            f"Failed to analyze URL sentiment: {str(e)}"
+        )
+        raise HTTPException(status_code=400, detail=f"Failed to process URL: {str(e)}")
 
 
 @router.post("/batch-sentiment", response_model=BatchSentimentResponse)

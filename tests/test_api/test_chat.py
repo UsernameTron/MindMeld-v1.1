@@ -1,10 +1,11 @@
 from unittest.mock import AsyncMock, patch
 
 import pytest
+from fastapi.testclient import TestClient
+
 from app.main import app
 from app.models.chat.chat import ChatCompletionResponse, ChatMessage
 from app.services.errors import OpenAIServiceError
-from fastapi.testclient import TestClient
 
 client = TestClient(app)
 

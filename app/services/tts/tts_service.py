@@ -1,15 +1,16 @@
-import asyncio
 import os
-import tempfile
 import uuid
 from io import BytesIO
 
 import httpx
+
 from app.core.config import get_settings
 from app.core.errors import ServiceError
 
 
-async def generate_speech(text: str, voice: str = "nova", model: str = "tts-1", speed: float = 1.0) -> BytesIO:
+async def generate_speech(
+    text: str, voice: str = "nova", model: str = "tts-1", speed: float = 1.0
+) -> BytesIO:
     settings = get_settings()
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
@@ -17,15 +18,15 @@ async def generate_speech(text: str, voice: str = "nova", model: str = "tts-1", 
                 "https://api.openai.com/v1/audio/speech",
                 headers={
                     "Authorization": f"Bearer {settings.openai_api_key}",
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
                 },
                 json={
                     "model": model,
                     "input": text,
                     "voice": voice,
                     "speed": speed,
-                    "response_format": "mp3"
-                }
+                    "response_format": "mp3",
+                },
             )
             if response.status_code != 200:
                 raise ServiceError(f"OpenAI TTS API error: {response.text}")
@@ -34,6 +35,7 @@ async def generate_speech(text: str, voice: str = "nova", model: str = "tts-1", 
             return audio_data
     except Exception as e:
         raise ServiceError(f"TTS error: {str(e)}")
+
 
 async def save_audio_file(audio_data: BytesIO) -> tuple[str, str]:
     settings = get_settings()

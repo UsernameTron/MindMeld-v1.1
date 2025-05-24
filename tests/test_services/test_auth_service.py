@@ -1,4 +1,6 @@
 import pytest
+from fastapi import Request
+
 from app.services.auth.api_key_service import (
     api_keys_db,
     create_api_key,
@@ -7,7 +9,6 @@ from app.services.auth.api_key_service import (
     validate_api_key,
 )
 from app.services.auth.auth_service import AuthResult, AuthService
-from fastapi import Request
 
 
 @pytest.mark.asyncio

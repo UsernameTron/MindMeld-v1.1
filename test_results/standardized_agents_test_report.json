@@ -1,0 +1,428 @@
+{
+  "timestamp": 1748129620.804899,
+  "summary": {
+    "total_tests": 7,
+    "passed_tests": 7,
+    "failed_tests": 0,
+    "success_rate": 100.0
+  },
+  "test_results": [
+    {
+      "test_name": "agent_registration",
+      "status": "passed",
+      "details": {
+        "registered_agents": [
+          "TestExecutorAgent",
+          "TestCriticAgent"
+        ]
+      },
+      "errors": []
+    },
+    {
+      "test_name": "agent_capabilities",
+      "status": "passed",
+      "details": {
+        "executor_capabilities": {
+          "name": "TestExecutorAgent",
+          "type": "executor",
+          "description": "Executes specific tasks and produces concrete outputs",
+          "capabilities": [
+            "task_execution",
+            "step_by_step_processing",
+            "tool_integration",
+            "plan_execution",
+            "error_handling",
+            "result_tracking"
+          ],
+          "input_types": [
+            "task",
+            "step",
+            "plan"
+          ],
+          "output_types": [
+            "execution_result",
+            "tool_output",
+            "step_result"
+          ],
+          "tools_supported": 0,
+          "registered_callbacks": 0
+        },
+        "critic_capabilities": {
+          "name": "TestCriticAgent",
+          "type": "critic",
+          "description": "Evaluates outputs, finds errors, and suggests improvements",
+          "capabilities": [
+            "quality_evaluation",
+            "error_detection",
+            "improvement_suggestions",
+            "multi_output_comparison",
+            "requirements_checking",
+            "structured_feedback",
+            "scoring_and_ranking"
+          ],
+          "input_types": [
+            "output",
+            "comparison_request",
+            "evaluation_request"
+          ],
+          "output_types": [
+            "evaluation",
+            "comparison",
+            "feedback"
+          ],
+          "evaluation_criteria": [
+            "correctness",
+            "completeness",
+            "quality",
+            "clarity",
+            "efficiency",
+            "maintainability"
+          ]
+        }
+      },
+      "errors": []
+    },
+    {
+      "test_name": "input_validation",
+      "status": "passed",
+      "details": {
+        "test_cases_count": 4
+      },
+      "errors": []
+    },
+    {
+      "test_name": "executor_functionality",
+      "status": "passed",
+      "details": {
+        "task_result": {
+          "task_id": "sample_task",
+          "status": "completed",
+          "outputs": [],
+          "tool_calls": [],
+          "completion": "Task 'Generate a simple Python function that calculates the factorial of a number' would be executed here",
+          "agent": "TestExecutorAgent",
+          "note": "API client not available - using fallback execution"
+        },
+        "step_result": {
+          "task_id": "step_1",
+          "status": "completed",
+          "outputs": [],
+          "tool_calls": [],
+          "completion": "Task 'Analyze the code for potential improvements' would be executed here",
+          "agent": "TestExecutorAgent",
+          "note": "API client not available - using fallback execution",
+          "step_id": "step_1",
+          "step_description": "Analyze the code for potential improvements",
+          "step_type": "general"
+        },
+        "plan_result": {
+          "plan_id": "plan_2",
+          "objective": "Create a comprehensive math utility module",
+          "status": "completed",
+          "step_results": [
+            {
+              "task_id": "step_1",
+              "status": "completed",
+              "outputs": [],
+              "tool_calls": [],
+              "completion": "Task 'Create basic arithmetic functions' would be executed here",
+              "agent": "TestExecutorAgent",
+              "note": "API client not available - using fallback execution",
+              "step_id": "step_1",
+              "step_description": "Create basic arithmetic functions",
+              "step_type": "general"
+            },
+            {
+              "task_id": "step_2",
+              "status": "completed",
+              "outputs": [],
+              "tool_calls": [],
+              "completion": "Task 'Add advanced math functions' would be executed here",
+              "agent": "TestExecutorAgent",
+              "note": "API client not available - using fallback execution",
+              "step_id": "step_2",
+              "step_description": "Add advanced math functions",
+              "step_type": "general"
+            }
+          ],
+          "overall_completion": "Successfully executed 2 steps for objective: Create a comprehensive math utility module",
+          "agent": "TestExecutorAgent"
+        }
+      },
+      "errors": []
+    },
+    {
+      "test_name": "critic_functionality",
+      "status": "passed",
+      "details": {
+        "single_evaluation": {
+          "evaluation_id": "eval_0",
+          "status": "completed",
+          "agent": "TestCriticAgent",
+          "quality_score": 8.0,
+          "correctness_score": 5.0,
+          "completeness_score": 6.0,
+          "clarity_score": 7.0,
+          "issues": [],
+          "errors": [],
+          "strengths": [
+            "Output has substantial content",
+            "Output is well-structured with multiple lines",
+            "Contains code or structured content"
+          ],
+          "improvement_suggestions": [
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"quality\":' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"high\",' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"completeness\":' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"function' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'should' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'handle' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'edge' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'cases\",' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"style\":' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"include' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'proper' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'handling' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'documentation\"' mentioned in requirements"
+            }
+          ],
+          "meets_requirements": false,
+          "overall_feedback": "Basic evaluation completed. Quality score: 8.0/10. May not fully meet requirements."
+        },
+        "comparison_result": {
+          "comparison_id": "comp_1",
+          "status": "completed",
+          "agent": "TestCriticAgent",
+          "num_outputs": 2,
+          "rankings": [
+            {
+              "rank": 1,
+              "output_index": 1,
+              "score": 6.0,
+              "rationale": "Basic heuristic scoring based on length (101 chars) and structure"
+            },
+            {
+              "rank": 2,
+              "output_index": 2,
+              "score": 6.0,
+              "rationale": "Basic heuristic scoring based on length (236 chars) and structure"
+            }
+          ],
+          "comparison_criteria": [
+            {
+              "criterion": "length",
+              "weight": 0.4,
+              "description": "Longer outputs generally scored higher"
+            },
+            {
+              "criterion": "structure",
+              "weight": 0.3,
+              "description": "Well-structured outputs with line breaks scored higher"
+            },
+            {
+              "criterion": "code_presence",
+              "weight": 0.3,
+              "description": "Outputs containing code blocks scored higher"
+            }
+          ],
+          "recommended_output": 1,
+          "analysis": "Basic heuristic comparison of 2 outputs. Ranking based on length, structure, and code presence.",
+          "ranking": [
+            {
+              "rank": 1,
+              "output_index": 1,
+              "score": 6.0,
+              "rationale": "Basic heuristic scoring based on length (101 chars) and structure"
+            },
+            {
+              "rank": 2,
+              "output_index": 2,
+              "score": 6.0,
+              "rationale": "Basic heuristic scoring based on length (236 chars) and structure"
+            }
+          ]
+        },
+        "error_detection": {
+          "evaluation_id": "eval_2",
+          "status": "completed",
+          "agent": "TestCriticAgent",
+          "quality_score": 6.0,
+          "correctness_score": 5.0,
+          "completeness_score": 6.0,
+          "clarity_score": 7.0,
+          "issues": [
+            {
+              "severity": "critical",
+              "description": "Syntax error: assignment (=) used instead of equality (==) in conditional at line 3",
+              "location": "line 3"
+            }
+          ],
+          "errors": [
+            {
+              "severity": "critical",
+              "description": "Syntax error: assignment (=) used instead of equality (==) in conditional at line 3",
+              "location": "line 3"
+            }
+          ],
+          "strengths": [
+            "Output has substantial content",
+            "Contains code or structured content"
+          ],
+          "improvement_suggestions": [
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"correctness\":' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"critical\"' mentioned in requirements"
+            }
+          ],
+          "meets_requirements": false,
+          "overall_feedback": "Basic evaluation completed. Quality score: 6.0/10. May not fully meet requirements."
+        }
+      },
+      "errors": []
+    },
+    {
+      "test_name": "integration_workflow",
+      "status": "passed",
+      "details": {
+        "execution_result": {
+          "task_id": "integration_task",
+          "status": "completed",
+          "outputs": [],
+          "tool_calls": [],
+          "completion": "Task 'Create a function to check if a number is prime' would be executed here",
+          "agent": "TestExecutorAgent",
+          "note": "API client not available - using fallback execution"
+        },
+        "evaluation_result": {
+          "evaluation_id": "eval_3",
+          "status": "completed",
+          "agent": "TestCriticAgent",
+          "quality_score": 8.0,
+          "correctness_score": 5.0,
+          "completeness_score": 4.0,
+          "clarity_score": 5.0,
+          "issues": [],
+          "errors": [],
+          "strengths": [
+            "Output has substantial content",
+            "Contains code or structured content"
+          ],
+          "improvement_suggestions": [
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"efficiency\":' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"algorithm' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'should' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'optimal\",' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"correctness\":' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"function' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'should' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'work' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'inputs\",' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"documentation\":' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing '\"should' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'include' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'docstring' mentioned in requirements"
+            },
+            {
+              "area": "requirements",
+              "suggestion": "Consider addressing 'comments\"' mentioned in requirements"
+            }
+          ],
+          "meets_requirements": false,
+          "overall_feedback": "Basic evaluation completed. Quality score: 8.0/10. May not fully meet requirements."
+        },
+        "final_quality_score": 8.0,
+        "iterations": 0
+      },
+      "errors": []
+    },
+    {
+      "test_name": "error_handling",
+      "status": "passed",
+      "details": {
+        "invalid_input_tests": 4,
+        "incomplete_data_tests": 3
+      },
+      "errors": []
+    }
+  ]
+}

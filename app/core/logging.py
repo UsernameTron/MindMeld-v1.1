@@ -9,8 +9,9 @@ import sys
 import uuid
 from contextvars import ContextVar
 
-from app.core.config import settings
 from loguru import logger
+
+from app.core.config import settings
 
 # Context variable to store request ID
 request_id_var: ContextVar[str] = ContextVar("request_id", default="")

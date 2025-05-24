@@ -1,0 +1,51 @@
+{
+  "agent": "CodeDebugAgent",
+  "status": "success",
+  "data": {
+    "has_errors": true,
+    "issues": [
+      {
+        "type": "syntaxerror",
+        "description": "missing colon",
+        "line": 36,
+        "column": null,
+        "fix": "Add a colon at the end of line 36",
+        "severity": "medium"
+      }
+    ]
+  },
+  "timestamp": 1748119621,
+  "payload": "scripts/agents/ollama_client.py",
+  "runtime_seconds": 0.003475189208984375,
+  "metadata": {
+    "agent": "CodeDebugAgent",
+    "timestamp": 1748119621,
+    "payload": "scripts/agents/ollama_client.py",
+    "runtime_seconds": 0.003475189208984375,
+    "job_id": "cc8600d0-4123-4db4-8e9a-9245dc05dd2e",
+    "system_info": {
+      "os": "Darwin",
+      "python_version": "3.10.13",
+      "cpu_count": 14
+    },
+    "model_info": {
+      "name": "phi3.5:latest",
+      "config": {
+        "temperature": 0.7,
+        "max_tokens": 1024
+      }
+    },
+    "analysis_mode": "single_file",
+    "files_analyzed": 1,
+    "min_severity": "medium",
+    "include_traceback": false,
+    "exclude_dirs": [
+      "__pycache__",
+      ".git",
+      "node_modules",
+      "venv",
+      ".env"
+    ],
+    "verbose": false
+  }
+}

@@ -49,8 +49,8 @@ export async function analyzeSentiment(
   const maxRetries = options?.retry ?? 1;
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      // Fix API endpoint path
-      const res = await fetch('/api/sentiment', {
+      // Use the new URL-based sentiment endpoint
+      const res = await fetch('/api/v1/sentiment/url', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),

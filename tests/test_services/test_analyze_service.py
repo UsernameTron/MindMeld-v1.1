@@ -1,4 +1,5 @@
 import pytest
+
 from app.models.analyze.analyze import BatchSentimentRequest, SentimentRequest
 from app.services.analyze.analyze_service import AnalyzeService
 

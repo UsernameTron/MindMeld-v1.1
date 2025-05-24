@@ -39,13 +39,9 @@ class MindMeldError(Exception):
 class ValidationError(MindMeldError):
     """Raised when input validation fails."""
 
-    pass
-
 
 class FileProcessingError(MindMeldError):
     """Raised when file operations fail."""
-
-    pass
 
 
 class LLMCallError(MindMeldError):
@@ -70,37 +66,25 @@ class LLMCallError(MindMeldError):
 class ModelUnavailableError(LLMCallError):
     """Raised when required LLM model is not available."""
 
-    pass
-
 
 class AnalysisError(MindMeldError):
     """Raised when code analysis operations fail."""
-
-    pass
 
 
 class CompilationError(MindMeldError):
     """Raised when code compilation fails."""
 
-    pass
-
 
 class RepairError(MindMeldError):
     """Raised when code repair fails."""
-
-    pass
 
 
 class SchemaValidationError(MindMeldError):
     """Raised when output schema validation fails."""
 
-    pass
-
 
 class TimeoutError(MindMeldError):
     """Raised when an operation times out."""
-
-    pass
 
 
 class AgentExecutionError(MindMeldError):
@@ -124,8 +108,6 @@ class AgentExecutionError(MindMeldError):
 
 class TransactionError(MindMeldError):
     """Raised when a transaction fails."""
-
-    pass
 
 
 def format_error_for_json(error: Exception) -> dict:
@@ -304,7 +286,6 @@ class Transaction:
             operation_data: Data associated with the operation
         """
         # TODO: Implement operation handling
-        pass
 
     def add_file_write(self, file_path: str, backup_path: Optional[str] = None) -> None:
         """

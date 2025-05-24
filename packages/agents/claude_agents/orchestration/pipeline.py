@@ -182,7 +182,6 @@ class OrchestrationPipeline:
                 dependencies[step_id] = step.get("dependencies", [])
 
         # Track completed steps
-        completed_steps = set()
 
         # Execute steps respecting dependencies
         if self.parallel_execution:

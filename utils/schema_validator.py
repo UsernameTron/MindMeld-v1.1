@@ -10,11 +10,11 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 import jsonschema
 
-from utils.error_handling import SchemaValidationError, ValidationError
+from utils.error_handling import SchemaValidationError
 
 # Configure logging
 logging.basicConfig(
@@ -217,7 +217,6 @@ def validate_input_for_agent(
         Tuple of (is_valid, error_message)
     """
     import os
-    from pathlib import Path
 
     if input_type == "file":
         if not os.path.exists(input_value):

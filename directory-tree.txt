@@ -1,0 +1,1989 @@
+.
+├── __tests__
+│   ├── next-action.test.js
+│   ├── report-failures.test.js
+│   ├── status.test.js
+│   ├── update-status.test.js
+│   └── verify-sprint.test.js
+├── .benchmarks
+├── .cache
+│   └── embeddings
+│       ├── 00f424efa7a1db8e0b559b5fc27e4abe.json
+│       ├── 01012775ca9762f2b9610d450bb79c57.json
+│       ├── 077b036291f74e57419599bc07ca9faa.json
+│       ├── 0866547497d3d711c951a3a75009d4e0.json
+│       ├── 088a7c314ef2a59f3862bbdcf1d61cbd.json
+│       ├── 09a6f36729c4e63fb6e43613e606cbca.json
+│       ├── 0a8f8b9632772a984568b6be17f12575.json
+│       ├── 0c0d1096760b83b0099bb8e448a63d9b.json
+│       ├── 0c7695b4ca932c14ac28391e6d88d52d.json
+│       ├── 0cfdea449f102b6824350056f41dbd8c.json
+│       ├── 0d79d4175215cd427bf05f03690dda95.json
+│       ├── 0e9c09d65397728093622855b466f500.json
+│       ├── 0eeac338c73ad70d3d282ac77cb07318.json
+│       ├── 11f65850d76445c62a74302d970cf4d0.json
+│       ├── 13d386204fa4c6e2fe305bd4147a36ef.json
+│       ├── 157c6793f715d5b5ad2aa12608e3e5c6.json
+│       ├── 1666450b1c7670b432c3bef7f553c851.json
+│       ├── 177b39008dc1b0dcf4b044c5b583a424.json
+│       ├── 17fe98a8304637c2193ff1d03977ae34.json
+│       ├── 1a58d7b69a17fc0a9cbb4977d6a9fbce.json
+│       ├── 1b96dc66bea1e5b718bb0af6b1219cfc.json
+│       ├── 1ba3ba92f9c446eb29ec73adca963a85.json
+│       ├── 1bbee85171e5a6b0b125cfea950e97f5.json
+│       ├── 1c9adeebea5c8a058fb23b794819b546.json
+│       ├── 1d352298ab88f804cc5be5943614b8ff.json
+│       ├── 1d56481c5ff29470c0baeceedb68fbeb.json
+│       ├── 204ec2f6f50fffb9184baa04d2476f1b.json
+│       ├── 2232795575348a1e0d2d17cc0758424d.json
+│       ├── 22f8503900a55e71b402f943e66f6e95.json
+│       ├── 23c9e810ff24fcdc8bac9be57d5c32d2.json
+│       ├── 2407cd3a8cea26e3473e6d1d7f323777.json
+│       ├── 2419a3b80a38d51507a6a3301b544d11.json
+│       ├── 248cbc5dd8fd2800491081de7dce568d.json
+│       ├── 258898b9bdf36451efd1706bb865cdd2.json
+│       ├── 262ae78ed9134fa6f27be16af935479d.json
+│       ├── 262fb36bc6b3bfd54be4d3244bac6843.json
+│       ├── 26307f3b7d922fc10d3d683075383e27.json
+│       ├── 27c627cecf85a51c71dff1d410d9ee38.json
+│       ├── 280c893434e5b09831d9f76cda72dc7c.json
+│       ├── 297dc996a81be11f7d74749be3c39ceb.json
+│       ├── 29b9688b54a20629f1c7db9208c205af.json
+│       ├── 2e9807999a957392ba8f2b66427c6928.json
+│       ├── 2ec03d0ab5a456c6b6b107f490186580.json
+│       ├── 3105c182ae590be2ce44c2edf22a26ec.json
+│       ├── 3151995aadf1e750a40e98b662e4afc6.json
+│       ├── 318bf7cfc860d93c074248766c1c5b1c.json
+│       ├── 31f466db0a37e492da436db39aaa818d.json
+│       ├── 32fe1c5d8e5f8370d2798dda0a0d94bf.json
+│       ├── 3354e088e4120a17b13bdce1faa95489.json
+│       ├── 3386a3d027eacb7dd5aff60de0e7f80d.json
+│       ├── 345ed6ba073264c6a537a336db912fe7.json
+│       ├── 351e78c0a24ac5596414d332885f19d1.json
+│       ├── 354cd5a9343d4d9504ba8f03103d9a93.json
+│       ├── 35c1ba91043fa2cc6a98715c8965f059.json
+│       ├── 36032023eb3576a63f809c97189c5e07.json
+│       ├── 362db6b0fb3421b480194474d66f5022.json
+│       ├── 371af6c2074c17bca607b2b5ef2f1d04.json
+│       ├── 384123bd8c9173bbe25ef540dad3d73a.json
+│       ├── 3874a1ff6d05f7843bdd9700472a8357.json
+│       ├── 391a8ecb7e8ddc7a732c71c05ae1dcaa.json
+│       ├── 3944be0257a5937443bf13fbcd16fb28.json
+│       ├── 3a6aea477d28e281cad7a50e9b5a818c.json
+│       ├── 3c311ebc18355339abd5051491478e3a.json
+│       ├── 3cee9d0f85a13971ad6a7feb7405cef5.json
+│       ├── 3df5d7233781c6b7f1df685569df913f.json
+│       ├── 3ee7b2ae255eb555dbc9b4095c396e96.json
+│       ├── 3f7b52f805b7c373fdee5c821e7644d1.json
+│       ├── 40df91af9c235236803d9fad4b220e0d.json
+│       ├── 41b1db7454428f0b2aed9a5eb694b1ce.json
+│       ├── 420e0cf6fe91f917c89d0c5cfd38bc36.json
+│       ├── 42c1a1b54f3051541d12fc0c6a00e1f1.json
+│       ├── 44605040ac27c56ebe5d838c9ca4e8a4.json
+│       ├── 44cf209ed70e57509b3f15721f6d83f0.json
+│       ├── 468d9f77ed296db79d6ff266ac7d867f.json
+│       ├── 48508012f6233f3a428e4290afa3061a.json
+│       ├── 4871db451b2716e43c76806672d05025.json
+│       ├── 498e0cde27699cfbcbaac9c2c2f8eba5.json
+│       ├── 4a272c99e7a8c0be3e4ff059c1656e03.json
+│       ├── 4ad5f828afef6213426a769f62374f33.json
+│       ├── 4ae35cd73aaab213ddab7bdf5b949790.json
+│       ├── 4b4804e5a4ed52e3b51f3ffa5343925e.json
+│       ├── 4da5f5f5de0711ffce945527ed977e16.json
+│       ├── 4e7c30f79a4d905a4a3707d9c285e8e2.json
+│       ├── 4eb115bccdb0e76f0e5218a06b2341bd.json
+│       ├── 50b836ba8114a1d4f73986b29f658673.json
+│       ├── 540ce0056b22b79ab3d0a9838efdba1c.json
+│       ├── 545e8bf2f6803a72509797c644780aef.json
+│       ├── 560e6963ea21c141ddac033a1c06edb0.json
+│       ├── 56230deb0da3c28c437ba6f2b3fb33aa.json
+│       ├── 56701385dfca0b79d4009478d0c210fb.json
+│       ├── 5706ee51739d587e52e84bcc87238eed.json
+│       ├── 57a5aafac0375c2a1c54a43ee3edfed2.json
+│       ├── 58682841bd1e40b082df29b315c93bc5.json
+│       ├── 5959ec54d877f2f3cad35e6d4c40ceb5.json
+│       ├── 59a754d17474ea5ae3603d0bcaa163e4.json
+│       ├── 5a6c20002f57fca1a8cc3cf3231ebbd0.json
+│       ├── 5ba0882d3e8380edf37cc63d34ca92b2.json
+│       ├── 5c222de82b5c01d368150b43a76ce152.json
+│       ├── 5c83c44658393235c2f404a715458d70.json
+│       ├── 5e0e3bd3739d2fe87f20d06492eebe7b.json
+│       ├── 60fd097949af30eefb2ce1c2d20f3661.json
+│       ├── 653bf4e6ada6e6ee6b4024bd714e3d14.json
+│       ├── 65ec8327e6c06f416a3dc5fab2ed633b.json
+│       ├── 6759ce7c9f240c2a80c3f8dcfe45ceee.json
+│       ├── 679cd7ee118495a96261e8b99d5fcb1b.json
+│       ├── 681bd621ba638cf090f1cadb8086eef4.json
+│       ├── 6a1412ae1c7cbba1eb4109305e5992f3.json
+│       ├── 6a60fd1bc38299995a07a7b5c19ef483.json
+│       ├── 6adaac65f8ce2e641d1e94a4cc09ab65.json
+│       ├── 6b4c2e7652550b1ea6a5179de4ea02d7.json
+│       ├── 704133f9e925c26badc8b1207f18f758.json
+│       ├── 71ef7449076cb6d294de413ea385561c.json
+│       ├── 73ca0f5e2cbfee25683a1b668281b7a7.json
+│       ├── 7649020e89ed3367e2aa5e085ef67a3d.json
+│       ├── 7659b1da70d986f0bb86cdab22e4353f.json
+│       ├── 7893b809d516cb099c602b68ec9c8ebd.json
+│       ├── 798fa49e038eef6531875bf42437c593.json
+│       ├── 79b4ffca43a73d4193774968c1cbd073.json
+│       ├── 7ad7f26c8d096cbc8520a69168e33f0e.json
+│       ├── 7af2f910e19f1cb69bc59982654f2a17.json
+│       ├── 7b13080bb41d27c9c9438a2499e28311.json
+│       ├── 7c17952f1bbaef0e1faa3f8b54377c29.json
+│       ├── 7c2a79cf16d12901e3bd85bd502aaa57.json
+│       ├── 7de83bc9ea1b8307f694bcf4860d0789.json
+│       ├── 80a08c4eee45ca23e15d37eb290d6cfb.json
+│       ├── 8293dbd14f3811e312743f88383e1890.json
+│       ├── 83dd535c51f85ae50415b7d414e5def6.json
+│       ├── 847bd520391083cbd334dab10fe02f66.json
+│       ├── 86c59c1e49575e1cbcdd5f89475b456a.json
+│       ├── 877369069ce12b0a5799e84b65c75640.json
+│       ├── 87b835db4e620230c46e52f0f4094e35.json
+│       ├── 88447116fdd5f23b16ceec86258399c4.json
+│       ├── 8a434c9376f98b4712eb5f96dd527710.json
+│       ├── 8a752c6e718343eee6ed6908a93069c6.json
+│       ├── 8a76e2c8486244eb466405a21776bb49.json
+│       ├── 8b9f6924695c77e4f507d4db9f15c8e3.json
+│       ├── 8be8b48e884cd74a9a7ace9e00612d5e.json
+│       ├── 8d95a07b295f57501059173381672e93.json
+│       ├── 8daa57496ced719d449476e6804cf4df.json
+│       ├── 8ea52540040bc5fb20d7428433122c4c.json
+│       ├── 8f9ab99e7d1134f2496c4a6b78753584.json
+│       ├── 91e0a6ee1805c38a55d0a43a38626ce8.json
+│       ├── 925c4b3ddadf5a63a963fd64fd45b8c4.json
+│       ├── 92c1e9f731cf19caf5c4724beb4e7a73.json
+│       ├── 931c6fd342ade26e551234a347f66db7.json
+│       ├── 94ea8ae1643e2f74f65045e67b50bf3d.json
+│       ├── 94f2fe3fb73b3bc3dc9caef0e25869f5.json
+│       ├── 94fb0364e52cd7e43997584dcb54e7fe.json
+│       ├── 97d8a7d8ffe930f1e16739f1cff26632.json
+│       ├── 9829b52f5d707f53f8e73dc13e2faa64.json
+│       ├── 98eb1304e6436866ddc6155ff6563c57.json
+│       ├── 9e68a7af99d80f0b68e818ce2f0f5c1c.json
+│       ├── 9fa4e3573cdfe7f80cf1765dd84221d1.json
+│       ├── a456197d8706840c68618201ab56357a.json
+│       ├── a5fb7e42216ef92655bbc2c774573764.json
+│       ├── a6121eeaa199014e23b2c3d6f39200d2.json
+│       ├── a7e6b3baf6c1bf1596c764cefd971c8c.json
+│       ├── a9d33d3cb60ec775375209cc6c2bd532.json
+│       ├── ac3af723c99d7dcc5dda7f26d833831c.json
+│       ├── ac82e2bc308bd7a9471cb10b3efa2943.json
+│       ├── addd9180f0b8fed3767a671dde65fd79.json
+│       ├── ae3cc84237f5e66d0ded3e3494e37d8f.json
+│       ├── ae610e62bb6646dd3c98d5d5ef765a09.json
+│       ├── afce5c675d0b67958e6480ce9d25c9bc.json
+│       ├── b056dfd856804b893ca7e03f5512452a.json
+│       ├── b082a0bc36af7c621b49e1e5a156dc17.json
+│       ├── b1a70901c83b5371ea7e3beb03b25906.json
+│       ├── b2f0460f9f9cea2711e6367c56ac5660.json
+│       ├── b3525f6d67e3e2dd911435c158e06c29.json
+│       ├── b4b26ba57e401038bb0bf50a6fe712f5.json
+│       ├── b94cf3a62791cf0fc37e2b6ab3ec0ce0.json
+│       ├── b96a48ddc2342c7070add6aee8c9342b.json
+│       ├── baf74a8e3e920b40b11967911c753dd7.json
+│       ├── bcee2fee1df2a3ef58e0419d88f1c8ef.json
+│       ├── beb46a68e1a4341ebe13bf46551e95f5.json
+│       ├── c11e029bdc72f9b3619fe6ce97090429.json
+│       ├── c3551ffdd2e4f9e2a3779bb981f4e0bb.json
+│       ├── c660d3a40f570ab9966098d3316c1e69.json
+│       ├── c686d29be7213708e9ee24a8f8dd2d48.json
+│       ├── c6ad08018c99a5b6b1a59a87e9b817be.json
+│       ├── c6b8e5e4ca43ab12b664c3230d1da038.json
+│       ├── c6f83ec52a62337942a5bf7e69601980.json
+│       ├── c759c7e55646413bfd1348b58e9100aa.json
+│       ├── c7cd394f9dad01f5576cd5364bae08b8.json
+│       ├── c838ce8fbce415e8e03a232ded836d2e.json
+│       ├── c904f3532f54ca77ff87205a0d264c5d.json
+│       ├── ca4420e784a0fe768fdccdc10894f4c8.json
+│       ├── cce90077d2172ac721a321f608501bfe.json
+│       ├── d002ba47f9904e9eccb1632b6302a278.json
+│       ├── d094413df4b513625799ec3f9790ada5.json
+│       ├── d1a746fe8080962b3838b813feca3466.json
+│       ├── d3554e6f0905929b7a7b5415d5ca9403.json
+│       ├── d39d12ac866eb2bdc0192254a7450737.json
+│       ├── d4f2eae36d4db1355c963b8e6f652b56.json
+│       ├── d4f8fc159369409c0f7627a87c98b779.json
+│       ├── d72da312f6c708131268ae0318b48db3.json
+│       ├── d74da1f871e5df26314f1e1efcbacac4.json
+│       ├── db063e84de575f6f1e3997dc3fb09d94.json
+│       ├── db974238714ca8de634a7ce1d083a14f.json
+│       ├── dc2b9363e5276f7ba761269879866efa.json
+│       ├── dd30bc540f02eccccb7ea3eaa4f225cd.json
+│       ├── de04537906b3f20fa4e5c0603f87c5aa.json
+│       ├── df5a9912eb4ba15e7f6c830606593de9.json
+│       ├── e01c3320b9aec4a8f68a9d3ae4b61849.json
+│       ├── e04d1bcee667afb8622501b9a4b4654d.json
+│       ├── e32553047a09fa3a8f6d35d97f16b9ca.json
+│       ├── e3cb7fe6bedcf8179b3d3ca82c810a89.json
+│       ├── e58a6bc13826145f136a86df98884861.json
+│       ├── e7891c4a02ed046716e2d9a94d6db392.json
+│       ├── e7e7fa476b9805c7ac54b3f38f8c1dac.json
+│       ├── ec3e59c6fb9ae500b17515073f8489e6.json
+│       ├── ec662f5edb083d758f6badaf8975cba7.json
+│       ├── ef5b6b3e282c6ea67915d4352483198f.json
+│       ├── efbac8efdaba1a045c2fbe1ec87340e4.json
+│       ├── f0b9cce24092f82c8e07a1247d070856.json
+│       ├── f12a259e6174da1c8589b6145c75bc60.json
+│       ├── f3d75079fafe06f48470f79020bafbf4.json
+│       ├── f4104de27ad2eb846d79c3f036dfb6cf.json
+│       ├── f48d7cde7319716fc0f235b6946645c7.json
+│       ├── f76d1962d12032209e84ed0e12784249.json
+│       ├── f9009d194be54c233635a5bab8698daf.json
+│       ├── fa66b7ddd94e0baa002ab3281f1d5f8f.json
+│       ├── fafce316e563564045b0b33125be64d5.json
+│       ├── fba1121f2e9614c65b553703f577c41a.json
+│       ├── fc9ee18827afda9a9f890c0ad0f62fae.json
+│       ├── fd3a67c156b795d848bf62edcea3eddd.json
+│       ├── fe1bbd06d82c201f05923fea20660196.json
+│       ├── fec2cf26d6a35718543e408ca7cb8178.json
+│       └── ff0eb3a593fffd178730e2ed6fa295bb.json
+├── .claude
+│   ├── context.md
+│   └── settings.local.json
+├── .coveragerc
+├── .DS_Store
+├── .env
+├── .env.example
+├── .env.test
+├── .eslintignore
+├── .flake8
+├── .gitattributes
+├── .github
+│   ├── .DS_Store
+│   ├── .env.example
+│   ├── actions-runner-workaround.md
+│   ├── dependabot.yml
+│   ├── GIT_REF_ERROR_RESOLUTION.md
+│   ├── ISSUE_TEMPLATE
+│   │   ├── backlog-item.md
+│   │   ├── current-sprint-item.md
+│   │   ├── feature.yml
+│   │   └── upcoming-item.md
+│   ├── PULL_REQUEST_TEMPLATE.md
+│   ├── scripts
+│   │   └── generate_claude_context.py
+│   ├── TEMP_WORKFLOW_SIMPLIFICATION.md
+│   ├── TEMP_WORKFLOWS_README.md
+│   └── workflows
+├── .gitignore
+├── .gitmodules
+├── .next
+│   ├── .DS_Store
+│   ├── app-build-manifest.json
+│   ├── app-path-routes-manifest.json
+│   ├── BUILD_ID
+│   ├── build-manifest.json
+│   ├── cache
+│   │   ├── .rscinfo
+│   │   ├── .tsbuildinfo
+│   │   └── webpack
+│   │       ├── client-production
+│   │       │   ├── 0.pack
+│   │       │   ├── 1.pack
+│   │       │   ├── 2.pack
+│   │       │   ├── 3.pack
+│   │       │   ├── 4.pack
+│   │       │   ├── 5.pack
+│   │       │   ├── 6.pack
+│   │       │   ├── index.pack
+│   │       │   └── index.pack.old
+│   │       ├── edge-server-production
+│   │       │   ├── 0.pack
+│   │       │   ├── index.pack
+│   │       │   └── index.pack.old
+│   │       └── server-production
+│   │           ├── 0.pack
+│   │           ├── 1.pack
+│   │           ├── 2.pack
+│   │           ├── 3.pack
+│   │           ├── index.pack
+│   │           └── index.pack.old
+│   ├── diagnostics
+│   │   ├── build-diagnostics.json
+│   │   └── framework.json
+│   ├── export-marker.json
+│   ├── images-manifest.json
+│   ├── next-minimal-server.js.nft.json
+│   ├── next-server.js.nft.json
+│   ├── package.json
+│   ├── prerender-manifest.json
+│   ├── react-loadable-manifest.json
+│   ├── required-server-files.json
+│   ├── routes-manifest.json
+│   ├── server
+│   │   ├── app-paths-manifest.json
+│   │   ├── chunks
+│   │   │   └── 973.js
+│   │   ├── functions-config-manifest.json
+│   │   ├── interception-route-rewrite-manifest.js
+│   │   ├── middleware-build-manifest.js
+│   │   ├── middleware-manifest.json
+│   │   ├── middleware-react-loadable-manifest.js
+│   │   ├── next-font-manifest.js
+│   │   ├── next-font-manifest.json
+│   │   ├── pages
+│   │   │   ├── _app.js
+│   │   │   ├── _app.js.nft.json
+│   │   │   ├── _document.js
+│   │   │   ├── _document.js.nft.json
+│   │   │   ├── _error.js
+│   │   │   ├── _error.js.nft.json
+│   │   │   ├── 404.html
+│   │   │   └── 500.html
+│   │   ├── pages-manifest.json
+│   │   ├── server-reference-manifest.js
+│   │   ├── server-reference-manifest.json
+│   │   └── webpack-runtime.js
+│   ├── static
+│   │   ├── 8Xq2nCnrX20ZeEuxcNXNJ
+│   │   │   ├── _buildManifest.js
+│   │   │   └── _ssgManifest.js
+│   │   └── chunks
+│   │       ├── 4bd1b696-1b1288bbaf77407d.js
+│   │       ├── 601.9a5c0f85bbb5239b.js
+│   │       ├── 664-7f60b66735a176fa.js
+│   │       ├── 708.db8284690283f7de.js
+│   │       ├── framework-be704551803917a8.js
+│   │       ├── main-29847b555d1189df.js
+│   │       ├── main-app-0e8320796d65cb30.js
+│   │       ├── pages
+│   │       │   ├── _app-95238968b32d966e.js
+│   │       │   └── _error-488d31a20db5c041.js
+│   │       ├── polyfills-42372ed130431b0a.js
+│   │       └── webpack-07c6379e3479b48b.js
+│   ├── trace
+│   └── types
+│       ├── cache-life.d.ts
+│       └── package.json
+├── .next-build-debug.log
+├── .nvmrc
+├── .pre-commit-config.yaml
+├── .python-version
+├── .storybook
+│   ├── main.js
+│   ├── preview.js
+│   └── vitest.setup.js
+├── .vscode
+│   └── settings.json
+├── agent_analysis.json
+├── AGENT_GUIDE.md
+├── agent_report_schema.json.new
+├── agents-directory.txt
+├── analyze_agents_safe_fixed.py
+├── analyze_agents_safe.py
+├── analyze_agents.py
+├── api.py
+├── app
+│   ├── __init__.py
+│   ├── .coverage
+│   ├── .DS_Store
+│   ├── .env
+│   ├── api
+│   │   ├── __init__.py
+│   │   └── routes
+│   │       ├── __init__.py
+│   │       ├── analyze.py
+│   │       ├── auth.py
+│   │       ├── chat.py
+│   │       ├── data.py
+│   │       ├── persona.py
+│   │       ├── rewrite.py
+│   │       ├── sentiment.py
+│   │       └── tts.py
+│   ├── core
+│   │   ├── __init__.py
+│   │   ├── auth_interface.py
+│   │   ├── auth_middleware.py
+│   │   ├── config.py
+│   │   ├── errors.py
+│   │   ├── logging.py
+│   │   ├── middleware.py
+│   │   └── test_config.py
+│   ├── htmlcov
+│   │   ├── __init___py.html
+│   │   ├── .gitignore
+│   │   ├── class_index.html
+│   │   ├── coverage_html_cb_6fb7b396.js
+│   │   ├── favicon_32_cb_58284776.png
+│   │   ├── function_index.html
+│   │   ├── index.html
+│   │   ├── keybd_closed_cb_ce680311.png
+│   │   ├── main_py.html
+│   │   ├── status.json
+│   │   ├── style_cb_8e611ae1.css
+│   │   ├── z_10fae538ba4e8521___init___py.html
+│   │   ├── z_4fb5f34370673e01___init___py.html
+│   │   ├── z_4fb5f34370673e01_analyze_py.html
+│   │   ├── z_4fb5f34370673e01_auth_py.html
+│   │   ├── z_4fb5f34370673e01_chat_py.html
+│   │   ├── z_4fb5f34370673e01_data_py.html
+│   │   ├── z_4fb5f34370673e01_persona_py.html
+│   │   ├── z_4fb5f34370673e01_rewrite_py.html
+│   │   ├── z_57760688d1f824db___init___py.html
+│   │   ├── z_57760688d1f824db_auth_interface_py.html
+│   │   ├── z_57760688d1f824db_auth_middleware_py.html
+│   │   ├── z_57760688d1f824db_config_py.html
+│   │   ├── z_57760688d1f824db_errors_py.html
+│   │   ├── z_57760688d1f824db_logging_py.html
+│   │   ├── z_57760688d1f824db_middleware_py.html
+│   │   ├── z_57760688d1f824db_test_config_py.html
+│   │   ├── z_920d85acf4fd377e___init___py.html
+│   │   ├── z_920d85acf4fd377e_chat_py.html
+│   │   ├── z_d17c1848a4b8ef78___init___py.html
+│   │   ├── z_d17c1848a4b8ef78_chat_py.html
+│   │   ├── z_d17c1848a4b8ef78_chat_service_py.html
+│   │   ├── z_de3833460954761d___init___py.html
+│   │   ├── z_de3833460954761d_errors_py.html
+│   │   ├── z_e634d7a1dd90e049___init___py.html
+│   │   ├── z_e634d7a1dd90e049_common_py.html
+│   │   └── z_e634d7a1dd90e049_error_py.html
+│   ├── main.py
+│   ├── models
+│   │   ├── __init__.py
+│   │   ├── analyze
+│   │   │   ├── analyze.py
+│   │   │   └── sentiment.py
+│   │   ├── auth
+│   │   │   └── auth.py
+│   │   ├── chat
+│   │   │   ├── __init__.py
+│   │   │   └── chat.py
+│   │   ├── common.py
+│   │   ├── error.py
+│   │   ├── persona
+│   │   │   └── persona.py
+│   │   ├── rewrite
+│   │   │   └── rewrite.py
+│   │   └── tts.py
+│   ├── services
+│   │   ├── __init__.py
+│   │   ├── analyze
+│   │   │   ├── analyze_service.py
+│   │   │   └── sentiment_analyzer.py
+│   │   ├── auth
+│   │   │   ├── api_key_service.py
+│   │   │   └── auth_service.py
+│   │   ├── chat
+│   │   │   ├── __init__.py
+│   │   │   ├── chat_service.py
+│   │   │   └── chat.py
+│   │   ├── errors.py
+│   │   ├── persona
+│   │   │   └── persona_service.py
+│   │   ├── promptService.js
+│   │   ├── rewrite
+│   │   │   └── rewrite_service.py
+│   │   └── tts
+│   │       └── tts_service.py
+│   └── utils
+│       └── model_loader.py
+├── app.py
+├── architecture
+│   ├── JSON Schema Template.json
+│   └── strategic-review.md
+├── ARCHITECTURE.md
+├── archive
+│   ├── .DS_Store
+│   ├── .keep
+│   ├── component-check.txt
+│   ├── dashboard.html
+│   ├── finetune_config.json
+│   ├── login.html
+│   ├── mindmeld_architecture_review.json
+│   ├── mindmeld-slice.tar.gz
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── README_PROJECT_TRACKING.md
+│   ├── select_implementations.txt
+│   ├── select_tests.txt
+│   ├── tempCodeRunnerFile.python
+│   ├── test-template-integration.spec.ts
+│   ├── test-template-minimal-debug.ts
+│   ├── test-template-registration.ts
+│   ├── tsc-trace.log
+│   └── tsconfig.json
+├── babel.config.cjs
+├── babel.config.js
+├── babel.config.mjs
+├── backup
+│   └── legacy-components
+│       ├── ErrorDisplay
+│       │   ├── ErrorDisplay.stories.tsx
+│       │   ├── ErrorDisplay.test.tsx
+│       │   ├── ErrorDisplay.tsx
+│       │   └── index.ts
+│       ├── FeatureErrorBoundary
+│       │   ├── FeatureErrorBoundary.stories.tsx
+│       │   ├── FeatureErrorBoundary.test.tsx
+│       │   ├── FeatureErrorBoundary.tsx
+│       │   └── index.ts
+│       └── LoadingIndicator
+│           ├── index.ts
+│           ├── LoadingIndicator.stories.tsx
+│           ├── LoadingIndicator.test.tsx
+│           └── LoadingIndicator.tsx
+├── check_code_quality.sh
+├── Claude Context Management System.md
+├── claude-context-updater.txt
+├── codecov.yml
+├── combined_report.json
+├── conftest.py
+├── coverage
+│   ├── backend
+│   └── frontend
+│       └── .tmp
+├── data
+│   ├── analysis
+│   ├── embeddings_cache
+│   ├── examples
+│   │   ├── basic_vector_memory
+│   │   ├── knowledge_base
+│   │   └── optimized_vector_memory
+│   ├── outputs
+│   │   └── analysis
+│   │       └── dependency_analysis.json
+│   ├── storage
+│   │   └── vector_memory
+│   ├── test_results
+│   │   └── vector_memory
+│   │       └── test_run_20250519_122530.log
+│   └── test_storage
+│       ├── 01f0fb44-c5c3-4536-9abb-3ad8612c5c49
+│       │   └── default.json
+│       ├── 02d9398b-0254-4f93-af30-8c075ed0ad5a
+│       │   └── default.json
+│       ├── 045dce88-37e4-46f8-ab5e-e4cea731fef1
+│       │   └── default.json
+│       ├── 052be23a-29a0-444e-833a-a292830de44b
+│       │   └── default.json
+│       ├── 05c87124-b11a-4817-827c-05d2ca25b187
+│       │   └── default.json
+│       ├── 092210e4-f31f-41db-b463-d29cf55d93d2
+│       │   └── default.json
+│       ├── 0f0ade37-f17a-47c2-88a0-2e493a218b46
+│       │   └── default.json
+│       ├── 0f13e34d-9687-45d8-9346-946c5f817625
+│       │   └── default.json
+│       ├── 15b3ae24-efcf-4916-8664-892030137bdf
+│       │   └── default.json
+│       ├── 2606dfc7-1613-4c1c-9985-cc34f06a8f18
+│       │   └── default.json
+│       ├── 26938438-e084-4103-89a9-93e6a26aff6a
+│       │   └── default.json
+│       ├── 333553c8-c038-4ec4-8e06-37a58c0e6cdc
+│       │   └── default.json
+│       ├── 36be436c-102d-4db0-ae6c-a382b69b4d83
+│       │   └── default.json
+│       ├── 3f1dcc0d-a803-4a77-996c-20d29e2cd746
+│       │   └── default.json
+│       ├── 3f7bddc2-0dac-4198-b355-60a0ed60d83f
+│       │   └── default.json
+│       ├── 41dd40a1-3466-4f70-912c-74d70b8b762d
+│       │   └── default.json
+│       ├── 42ed142d-b18d-4a34-9170-d9a5bc67e093
+│       │   └── default.json
+│       ├── 48684a69-4653-4f6c-a79c-a6c04206799e
+│       │   └── default.json
+│       ├── 49f26bb2-cdad-484f-bac9-52eaeb130f5f
+│       │   └── default.json
+│       ├── 4a1964b8-cc71-4258-be77-03e72420e2ed
+│       │   └── default.json
+│       ├── 4b17f0ba-ef18-422d-876a-29099eb35ee8
+│       │   └── default.json
+│       ├── 4be5b5a7-d7b2-496e-8df0-f398cddb0fab
+│       │   └── default.json
+│       ├── 4fb9c174-6e73-4472-b6ed-b35f3c92718c
+│       │   └── default.json
+│       ├── 5f2cc03f-c9f5-4342-abc4-66983c56d68d
+│       │   └── default.json
+│       ├── 61550582-66e3-47c1-ad6c-d6b9b3bae623
+│       │   └── default.json
+│       ├── 64bab86e-45dc-4554-8e7b-357d4bb53326
+│       │   └── default.json
+│       ├── 64f2b872-6092-4df7-8c0c-f3cdf85855ac
+│       │   └── default.json
+│       ├── 65eed110-44ed-41e0-aab3-cf5e2c0d357f
+│       │   └── default.json
+│       ├── 6823d423-6003-420e-8e20-ba56993352f5
+│       │   └── default.json
+│       ├── 69dd2222-c030-4055-a57a-e719cba6cdd5
+│       │   └── default.json
+│       ├── 70531149-34b3-4ac9-8a6a-dcf3c25ed99f
+│       │   └── default.json
+│       ├── 71cee433-6674-4992-884b-0ea20689bcfb
+│       │   └── default.json
+│       ├── 7397fab4-07e9-4629-97d7-d3577b48a76e
+│       │   └── default.json
+│       ├── 7562b165-2896-4040-a845-1309af2d56fe
+│       │   └── default.json
+│       ├── 766660ad-01c4-4f2d-84b2-df8a645dfea1
+│       │   └── default.json
+│       ├── 773223b0-20ba-44d9-abb4-521c121f95d2
+│       │   └── default.json
+│       ├── 7b4bd23c-711f-4540-a691-0d30cc882098
+│       │   └── default.json
+│       ├── 8031c5f4-5fff-4b47-b8ed-6acd3a5cabd0
+│       │   └── default.json
+│       ├── 80fcf8b3-6719-47f1-8314-771cd5eb4871
+│       │   └── default.json
+│       ├── 84439dae-0955-4ea1-a1ad-dfdcf307a375
+│       │   └── default.json
+│       ├── 870d89a8-51f4-4c50-843d-ea0ed30356d6
+│       │   └── default.json
+│       ├── 889e9453-209e-4a35-bef4-025e72cbcd3a
+│       │   └── default.json
+│       ├── 8cc91f36-c693-419d-9223-68db674e4fd6
+│       │   └── default.json
+│       ├── 9678a7d2-d011-4aea-a4d8-05dbac8810f2
+│       │   └── default.json
+│       ├── 9870834c-7c25-469a-b0e7-3394ad2cc411
+│       │   └── default.json
+│       ├── 99117990-3c0e-4677-9948-c92b802d4940
+│       │   └── default.json
+│       ├── 9bcb56a9-dc1f-44e7-8597-c32531b60e6f
+│       │   └── default.json
+│       ├── 9bdd6b04-03b0-4801-9688-25c93e5a35d2
+│       │   └── default.json
+│       ├── 9d6f3895-57f3-4fcc-b087-b54fe8a153a4
+│       │   └── default.json
+│       ├── 9e1f4d53-00e1-4af9-85f3-68563bea4d91
+│       │   └── default.json
+│       ├── 9fb5ab30-46a6-40db-a570-4290faf14122
+│       │   └── default.json
+│       ├── a4a928d3-f198-43c8-bfa9-2f6a083fa9ab
+│       │   └── default.json
+│       ├── a6c94426-5594-4d40-9038-f4b11895d38a
+│       │   └── default.json
+│       ├── advanced_ops_6420e85e-1759-49f8-9c9a-454fbdc81d80
+│       │   └── default.json
+│       ├── advanced_ops_a59cb9c7-1836-4ff2-9b84-d179351bd763
+│       │   └── default.json
+│       ├── b5354f86-bd9a-4467-aa6a-ac289535180f
+│       │   └── default.json
+│       ├── b71d39f8-3a4a-4296-9629-7610947bfc8f
+│       │   └── default.json
+│       ├── b8192f02-bc5e-45bb-8f99-7a588bfff068
+│       │   └── default.json
+│       ├── b82a810c-fb56-4a76-8712-40f429332a8e
+│       │   └── default.json
+│       ├── basic_benchmark_1747675536
+│       │   ├── large
+│       │   │   └── default.json
+│       │   ├── medium
+│       │   │   └── default.json
+│       │   └── small
+│       │       └── default.json
+│       ├── bb531f70-19ee-4f63-a0ad-9ec0465d7504
+│       │   └── default.json
+│       ├── bba73516-6ec2-42fa-b437-9a913ddce255
+│       │   └── default.json
+│       ├── benchmark_plots_1747675536
+│       │   ├── add_performance.png
+│       │   ├── memory_usage.png
+│       │   └── search_performance.png
+│       ├── benchmark_results_1747675536.json
+│       ├── c311af4d-52f2-4ed4-8bca-69a6a0b37b48
+│       │   └── default.json
+│       ├── caea3b52-9e0c-4cab-9e30-9fce60ae2015
+│       │   └── default.json
+│       ├── cb516c4f-b506-46f6-9759-a0d19d7a6b49
+│       │   └── default.json
+│       ├── cdabda6d-9389-4a7c-9484-9f6d7837ca83
+│       │   └── default.json
+│       ├── d317fc4a-4692-4c27-90fa-636193eedb13
+│       │   └── default.json
+│       ├── d78038f0-fa00-4ed9-90e3-b14fe9616de1
+│       │   └── default.json
+│       ├── e22c0a9b-30fc-44b0-b503-2e2fc50cbe69
+│       │   └── default.json
+│       ├── e4c6c04d-7d88-4ae9-95dc-f6703594b947
+│       │   └── default.json
+│       ├── e8a97fd6-b461-4fb5-93f5-c5795b35e92f
+│       │   └── default.json
+│       ├── ee7dd48e-ad20-454c-b1b4-6f57377bde0b
+│       │   └── default.json
+│       ├── efcf04e3-d718-41a5-83e4-58ed74e1e714
+│       │   └── default.json
+│       ├── f314a8af-49a1-4a86-a1d5-f11cfdd243d0
+│       │   └── default.json
+│       ├── f637ed20-7bd4-4a9d-a970-a3d9d7c7ab85
+│       │   └── default.json
+│       ├── fafe937d-8b1d-499c-bee8-7fbb0a1f372e
+│       │   └── default.json
+│       ├── fd77d189-fbfb-4abd-bfba-779a5d79cbe3
+│       │   └── default.json
+│       ├── fff165c4-fa6c-4968-8a22-d5df4e132959
+│       │   └── default.json
+│       ├── integration_test_1747674783
+│       │   ├── basic
+│       │   │   └── default.json
+│       │   └── optimized
+│       │       └── default.json
+│       ├── integration_test_1747675533
+│       │   ├── basic
+│       │   │   └── default.json
+│       │   └── optimized
+│       │       └── default.json
+│       ├── integration_test_1747750905
+│       │   ├── basic
+│       │   │   └── default.json
+│       │   └── optimized
+│       │       └── default.json
+│       ├── opt_benchmark_1747675536
+│       │   ├── large
+│       │   │   └── default.json
+│       │   ├── medium
+│       │   │   └── default.json
+│       │   └── small
+│       │       └── default.json
+│       ├── optimized_vector_memory_591f16d7-1f38-42d1-8c11-9ecf4e52a744
+│       │   └── default.json
+│       ├── optimized_vector_memory_5a39a736-afa1-4f6e-a0ac-db6862c116ef
+│       │   └── default.json
+│       ├── optimized_vector_memory_9fdcc602-1ad1-46fd-97cd-2b71b40ff541
+│       │   └── default.json
+│       ├── optimized_vector_memory_a924a0cc-d1b2-4f56-aef3-6f612ac222a0
+│       │   └── default.json
+│       ├── optimized_vector_memory_cfe86734-24ce-46d0-92ef-445b640a327f
+│       │   └── default.json
+│       ├── optimized_vector_memory_d50057d6-8ca1-4f38-9105-6a3696a69f58
+│       │   └── default.json
+│       ├── persistence_test
+│       │   └── persistence_test.json
+│       ├── vector_memory_04c83a89-aac4-43ff-97fc-c6a9f55a0899
+│       │   └── default.json
+│       ├── vector_memory_3ad8de51-56c0-4e50-9eec-a849298eeb26
+│       │   └── default.json
+│       ├── vector_memory_66d57b79-3af3-4416-b63a-5196b7fb4f3b
+│       │   └── default.json
+│       ├── vector_memory_74ade933-2d94-4fe2-b88c-f8a86b208b3f
+│       │   └── default.json
+│       ├── vector_memory_d2f90a11-d07f-4380-abe6-ec5d17fe97d9
+│       │   └── default.json
+│       └── vector_memory_dab52760-b162-4dbf-97ac-1b3f71fc4190
+│           └── default.json
+├── directory-tree.txt
+├── dist
+│   └── tsconfig.tsbuildinfo
+├── docker-compose.test.yml
+├── docker-compose.yml
+├── Dockerfile
+├── docs
+│   ├── .DS_Store
+│   ├── advanced-prompt-templates.md
+│   ├── agent_interfaces.md
+│   ├── AGENT_REPORT_SCHEMA.md
+│   ├── api.md
+│   ├── architecture.md
+│   ├── auth-architecture.md
+│   ├── development
+│   │   └── component-standards.md
+│   ├── implementation-summary.md
+│   ├── ORCHESTRATOR_GUIDE.md
+│   ├── PIPELINE_FIXES.md
+│   ├── planning
+│   │   ├── component-migration-plan.md
+│   │   ├── implementation-priority.md
+│   │   ├── migration-log.txt
+│   │   └── updated-roadmap.md
+│   ├── quick-start.md
+│   ├── reports
+│   │   ├── implementation-checklist.md
+│   │   └── project-status-report.md
+│   ├── risk-register.md
+│   ├── security
+│   │   └── audit-summary.md
+│   ├── tasks
+│   │   ├── implement-code-editor.md
+│   │   └── implement-loading-indicator.md
+│   ├── technical-debt
+│   │   ├── analysis-report.md
+│   │   ├── inventory.md
+│   │   ├── loadingindicator-debt-reduction.md
+│   │   └── reduction-template.md
+│   ├── template-ui-automation.md
+│   └── testing
+│       └── e2e-coverage.md
+├── e2e
+│   └── playwright
+│       ├── auth-flow.spec.ts
+│       ├── auth.spec.ts
+│       ├── global-setup.ts
+│       ├── security-flows.spec.ts
+│       ├── security.spec.ts
+│       ├── setup
+│       │   └── mocks.ts
+│       └── tests
+│           ├── auth
+│           │   └── login.spec.ts
+│           ├── performance
+│           │   └── template-registration.spec.ts
+│           └── ui
+│               ├── template-e2e.spec.ts
+│               └── template-visual.spec.ts
+├── eslint.config.js
+├── examples
+│   ├── orchestrator_example.py
+│   └── utility_examples.py
+├── exceptions.py
+├── fix_claude_context.sh
+├── fix_legacy_reports.py
+├── FIXES_SUMMARY.md
+├── frontend
+│   ├── __isolate
+│   │   └── AnalysisResult
+│   │       ├── .keep
+│   │       ├── AnalysisFeedbackItem.tsx
+│   │       ├── AnalysisResult.stories.tsx
+│   │       ├── AnalysisResult.test.tsx
+│   │       ├── AnalysisResult.tsx
+│   │       └── index.ts
+│   ├── __mocks__
+│   │   └── next
+│   │       ├── navigation.js
+│   │       └── router.js
+│   ├── .claude
+│   │   └── settings.local.json
+│   ├── .DS_Store
+│   ├── .env.local
+│   ├── .eslintrc.js
+│   ├── .eslintrc.overrides.js
+│   ├── .gitignore
+│   ├── .husky
+│   │   └── pre-commit
+│   ├── .lighthouserc.json
+│   ├── .next
+│   │   ├── app-build-manifest.json
+│   │   ├── build-manifest.json
+│   │   ├── cache
+│   │   │   ├── .rscinfo
+│   │   │   ├── swc
+│   │   │   │   └── plugins
+│   │   │   └── webpack
+│   │   │       ├── client-development
+│   │   │       ├── edge-server-development
+│   │   │       └── server-development
+│   │   ├── package.json
+│   │   ├── react-loadable-manifest.json
+│   │   ├── server
+│   │   │   ├── app-paths-manifest.json
+│   │   │   ├── edge-runtime-webpack.js
+│   │   │   ├── interception-route-rewrite-manifest.js
+│   │   │   ├── middleware-build-manifest.js
+│   │   │   ├── middleware-manifest.json
+│   │   │   ├── middleware-react-loadable-manifest.js
+│   │   │   ├── middleware.js
+│   │   │   ├── next-font-manifest.js
+│   │   │   ├── next-font-manifest.json
+│   │   │   ├── pages
+│   │   │   │   ├── _app.js
+│   │   │   │   ├── _document.js
+│   │   │   │   ├── _error.js
+│   │   │   │   └── login.js
+│   │   │   ├── pages-manifest.json
+│   │   │   ├── server-reference-manifest.js
+│   │   │   ├── server-reference-manifest.json
+│   │   │   ├── static
+│   │   │   │   └── webpack
+│   │   │   ├── vendor-chunks
+│   │   │   │   └── next.js
+│   │   │   └── webpack-runtime.js
+│   │   ├── static
+│   │   │   ├── chunks
+│   │   │   │   ├── main.js
+│   │   │   │   ├── pages
+│   │   │   │   ├── polyfills.js
+│   │   │   │   ├── react-refresh.js
+│   │   │   │   └── webpack.js
+│   │   │   ├── development
+│   │   │   │   ├── _buildManifest.js
+│   │   │   │   └── _ssgManifest.js
+│   │   │   └── webpack
+│   │   │       └── 633457081244afec._.hot-update.json
+│   │   ├── trace
+│   │   └── types
+│   │       ├── cache-life.d.ts
+│   │       └── package.json
+│   ├── .storybook
+│   │   ├── main.js
+│   │   └── stories
+│   │       ├── LoadingIndicator.stories.tsx
+│   │       └── Select.stories.tsx
+│   ├── APP_ROUTER_REMOVAL.md
+│   ├── audit-backend.json
+│   ├── audit-frontend.json
+│   ├── backup
+│   │   └── app
+│   │       ├── analyze
+│   │       │   ├── ClientAnalyzer.tsx
+│   │       │   ├── error.tsx
+│   │       │   ├── loading.tsx
+│   │       │   ├── metadata.ts
+│   │       │   └── page.tsx
+│   │       ├── design-test
+│   │       │   └── page.tsx
+│   │       ├── favicon.ico
+│   │       ├── globals.css
+│   │       ├── layout.tsx
+│   │       ├── page.tsx
+│   │       └── tts
+│   │           └── page.tsx
+│   ├── CHANGELOG.md
+│   ├── component-check.txt
+│   ├── components
+│   │   ├── __init__.py
+│   │   ├── CodeEditor
+│   │   │   ├── __init__.py
+│   │   │   ├── CodeEditor.tsx
+│   │   │   └── index.ts
+│   │   ├── forms
+│   │   │   ├── __init__.py
+│   │   │   └── UrlInputForm.tsx
+│   │   ├── mindmeld
+│   │   │   ├── index.ts
+│   │   │   ├── ParameterForm.tsx
+│   │   │   ├── PromptDisplay.tsx
+│   │   │   ├── README.md
+│   │   │   ├── styles
+│   │   │   │   ├── ParameterForm.css
+│   │   │   │   ├── PromptDisplay.css
+│   │   │   │   └── TemplateSelector.css
+│   │   │   └── TemplateSelector.tsx
+│   │   ├── organisms
+│   │   │   ├── __init__.py
+│   │   │   └── CodeAnalyzer
+│   │   │       ├── __init__.py
+│   │   │       ├── AnalysisResult.tsx
+│   │   │       ├── CodeAnalyzer.stories.tsx
+│   │   │       ├── CodeAnalyzer.test.tsx
+│   │   │       ├── CodeAnalyzer.tsx
+│   │   │       └── CodeEditor.tsx
+│   │   └── ui
+│   │       ├── __init__.py
+│   │       └── organisms
+│   │           ├── __init__.py
+│   │           ├── SentimentSummaryDisplay
+│   │           └── SentimentVisualization
+│   ├── coverage
+│   │   ├── clover.xml
+│   │   ├── coverage-final.json
+│   │   ├── lcov-report
+│   │   │   ├── base.css
+│   │   │   ├── block-navigation.js
+│   │   │   ├── favicon.png
+│   │   │   ├── index.html
+│   │   │   ├── prettify.css
+│   │   │   ├── prettify.js
+│   │   │   ├── sort-arrow-sprite.png
+│   │   │   └── sorter.js
+│   │   └── lcov.info
+│   ├── DEVELOPER_GUIDE.md
+│   ├── docs
+│   │   ├── api
+│   │   │   └── structure.md
+│   │   ├── components
+│   │   │   └── structure.md
+│   │   ├── development
+│   │   │   └── code-editor-dashboard-integration.md
+│   │   ├── development-guidelines.md
+│   │   ├── IMPORT_PATH_RESOLUTION.md
+│   │   ├── MONACO_TESTING.md
+│   │   ├── navigation-shims.md
+│   │   ├── schema
+│   │   │   ├── AnalysisResult.ts
+│   │   │   ├── AuthResponse.ts
+│   │   │   ├── CodeEditorProps.ts
+│   │   │   ├── Project.ts
+│   │   │   └── User.ts
+│   │   ├── sprints
+│   │   │   └── sprint4-verification.md
+│   │   └── TEST_CONFIGURATION.md
+│   ├── e2e
+│   │   ├── .keep
+│   │   ├── playwright
+│   │   │   └── tests
+│   │   │       ├── api
+│   │   │       ├── auth
+│   │   │       ├── injection
+│   │   │       ├── offline
+│   │   │       ├── performance
+│   │   │       ├── rbac
+│   │   │       ├── sync
+│   │   │       └── theme
+│   │   └── README.md
+│   ├── eslint.config.mjs
+│   ├── IMPLEMENTATION_STATUS.md
+│   ├── jest.config.js
+│   ├── jest.setup.js
+│   ├── jsconfig.json
+│   ├── lint-staged.config.js
+│   ├── middleware
+│   │   └── cache.ts
+│   ├── middleware.ts
+│   ├── MIGRATION.md
+│   ├── next-env.d.ts
+│   ├── next.config.mjs
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── pages
+│   │   ├── _app.tsx
+│   │   ├── _error.tsx
+│   │   ├── 404.tsx
+│   │   ├── analyze
+│   │   │   └── index.tsx
+│   │   ├── api
+│   │   │   ├── analyze
+│   │   │   │   └── code.ts
+│   │   │   ├── analyze.ts
+│   │   │   ├── auth
+│   │   │   │   ├── loginAttempt.ts
+│   │   │   │   ├── logout.ts
+│   │   │   │   ├── refresh.ts
+│   │   │   │   ├── resetPassword.ts
+│   │   │   │   ├── token.ts
+│   │   │   │   ├── user.ts
+│   │   │   │   └── validate.ts
+│   │   │   ├── data.ts
+│   │   │   ├── projects
+│   │   │   │   └── recent.ts
+│   │   │   ├── proxy
+│   │   │   │   ├── [...path].ts
+│   │   │   │   └── librechat.ts
+│   │   │   ├── sentiment
+│   │   │   │   └── index.ts
+│   │   │   └── tts
+│   │   │       └── generate.ts
+│   │   ├── dashboard.tsx
+│   │   ├── design-test.tsx
+│   │   ├── forgot-password.tsx
+│   │   ├── index.tsx
+│   │   ├── login.tsx
+│   │   ├── PromptPage.tsx
+│   │   ├── reset-password.tsx
+│   │   ├── sentiment-analysis.tsx
+│   │   └── tts.tsx
+│   ├── PHASE5_PLAN.md
+│   ├── postcss.config.mjs
+│   ├── prettier.config.js
+│   ├── public
+│   │   ├── api
+│   │   │   └── openapi.yaml
+│   │   ├── file.svg
+│   │   ├── globe.svg
+│   │   ├── next.svg
+│   │   ├── vercel.svg
+│   │   └── window.svg
+│   ├── README.md
+│   ├── scripts
+│   │   ├── dev.sh
+│   │   ├── fix-imports.js
+│   │   └── fix-testing-matchers.js
+│   ├── services
+│   │   └── authService.js
+│   ├── setupTests.ts
+│   ├── src
+│   │   ├── __mocks__
+│   │   │   ├── next
+│   │   │   │   ├── navigation.js
+│   │   │   │   └── router.js
+│   │   │   ├── services
+│   │   │   │   ├── api
+│   │   │   │   ├── apiClient.js
+│   │   │   │   ├── authService.js
+│   │   │   │   └── codeService.js
+│   │   │   ├── shims
+│   │   │   │   └── navigation.ts
+│   │   │   └── utils
+│   │   │       └── jwt.js
+│   │   ├── __tests__
+│   │   │   ├── codeAnalysisAgent.spec.ts
+│   │   │   ├── components
+│   │   │   │   └── LoginForm.test.tsx
+│   │   │   ├── LoginPage.test.tsx
+│   │   │   ├── RequireAuth.test.tsx
+│   │   │   ├── RootPage.test.tsx
+│   │   │   └── test-utils
+│   │   │       └── RouterWrapper.tsx
+│   │   ├── .DS_Store
+│   │   ├── api
+│   │   │   └── schema
+│   │   │       ├── fetch-schema.ts
+│   │   │       ├── generate-types.ts
+│   │   │       ├── generated
+│   │   │       ├── helpers.ts
+│   │   │       ├── index.ts
+│   │   │       └── openapi.yaml
+│   │   ├── app
+│   │   │   └── code-analyzer
+│   │   │       ├── layout.tsx
+│   │   │       └── page.tsx
+│   │   ├── App.tsx
+│   │   ├── AuthContext.tsx
+│   │   ├── components
+│   │   │   ├── .DS_Store
+│   │   │   ├── atoms
+│   │   │   │   ├── Button.tsx
+│   │   │   │   ├── Card.tsx
+│   │   │   │   ├── Select.test.tsx
+│   │   │   │   └── Select.tsx
+│   │   │   ├── auth
+│   │   │   │   ├── LoginForm.tsx
+│   │   │   │   └── RequireAuth.tsx
+│   │   │   ├── Button.stories.tsx
+│   │   │   ├── Button.test.tsx
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.test.tsx
+│   │   │   ├── CodeAnalyzer
+│   │   │   │   ├── CodeAnalyzer.stories.tsx
+│   │   │   │   ├── CodeAnalyzer.test.tsx
+│   │   │   │   ├── CodeAnalyzer.tsx
+│   │   │   │   ├── index.ts
+│   │   │   │   └── useCodeAnalysis.ts
+│   │   │   ├── CodeEditor
+│   │   │   │   ├── CodeEditor.stories.tsx
+│   │   │   │   ├── CodeEditor.tsx
+│   │   │   │   └── index.ts
+│   │   │   ├── common
+│   │   │   │   ├── ErrorBoundary.tsx
+│   │   │   │   └── index.ts
+│   │   │   ├── dev
+│   │   │   │   └── OpenAPIDebug.tsx
+│   │   │   ├── ErrorDisplay
+│   │   │   │   └── ErrorDisplay.tsx
+│   │   │   ├── examples
+│   │   │   │   ├── OpenAPIExample.test.tsx
+│   │   │   │   ├── SimpleApiEndpoint.test.tsx
+│   │   │   │   └── SimpleApiEndpointTest.tsx
+│   │   │   ├── forms
+│   │   │   │   └── UrlInputForm.tsx
+│   │   │   ├── index.ts
+│   │   │   ├── jest.config.js
+│   │   │   ├── layout
+│   │   │   │   └── DashboardLayout.tsx
+│   │   │   ├── LoadingIndicator.tsx
+│   │   │   ├── LoginForm.tsx
+│   │   │   ├── LoginPage.tsx
+│   │   │   ├── molecules
+│   │   │   │   ├── ErrorDisplay.stories.tsx
+│   │   │   │   ├── ErrorDisplay.test.tsx
+│   │   │   │   ├── ErrorDisplay.tsx
+│   │   │   │   ├── LoadingIndicator.stories.tsx
+│   │   │   │   ├── LoadingIndicator.test.tsx
+│   │   │   │   └── LoadingIndicator.tsx
+│   │   │   ├── organisms
+│   │   │   │   ├── CodeAnalyzer
+│   │   │   │   └── ErrorBoundary
+│   │   │   ├── package-lock.json
+│   │   │   ├── Select
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── Select.stories.tsx
+│   │   │   │   ├── Select.test.tsx
+│   │   │   │   └── Select.tsx
+│   │   │   ├── test
+│   │   │   │   ├── ThemeTester.stories.tsx
+│   │   │   │   └── ThemeTester.tsx
+│   │   │   ├── TextToSpeech
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── TextToSpeech.test.tsx
+│   │   │   │   └── TextToSpeech.tsx
+│   │   │   ├── ttsControls
+│   │   │   │   └── TTSControls.tsx
+│   │   │   └── ui
+│   │   │       ├── atoms
+│   │   │       ├── Card
+│   │   │       ├── Card.stories.tsx
+│   │   │       ├── Card.test.tsx
+│   │   │       ├── Card.tsx
+│   │   │       ├── LoadingIndicator.tsx
+│   │   │       ├── molecules
+│   │   │       ├── organisms
+│   │   │       └── Select.tsx
+│   │   ├── config
+│   │   │   └── routes.ts
+│   │   ├── context
+│   │   │   ├── AuthContext.tsx
+│   │   │   ├── OpenAPIContext.tsx
+│   │   │   ├── ServicesContext.tsx
+│   │   │   └── SettingsContext.tsx
+│   │   ├── Dashboard.tsx
+│   │   ├── DashboardLayout.tsx
+│   │   ├── design
+│   │   │   ├── tailwind.config.ts
+│   │   │   └── tokens
+│   │   │       ├── base.ts
+│   │   │       ├── index.ts
+│   │   │       ├── theme.ts
+│   │   │       └── utils.ts
+│   │   ├── hooks
+│   │   │   ├── useServices.ts
+│   │   │   └── useSettings.ts
+│   │   ├── lib
+│   │   │   └── reactQueryProvider.tsx
+│   │   ├── LoginForm.tsx
+│   │   ├── LoginPage.tsx
+│   │   ├── mocks
+│   │   │   └── handlers.ts
+│   │   ├── Navigation.tsx
+│   │   ├── pages
+│   │   │   ├── _app.tsx
+│   │   │   ├── .DS_Store
+│   │   │   ├── api
+│   │   │   │   ├── __tests__
+│   │   │   │   └── auth
+│   │   │   └── demo.tsx
+│   │   ├── RequireAuth.tsx
+│   │   ├── routes
+│   │   │   └── AppRoutes.tsx
+│   │   ├── services
+│   │   │   ├── __mocks__
+│   │   │   │   └── authService.js
+│   │   │   ├── __tests__
+│   │   │   │   ├── authService.test.ts
+│   │   │   │   ├── codeAnalysisAgent.test.ts
+│   │   │   │   ├── codeService.test.ts
+│   │   │   │   ├── dataService.test.ts
+│   │   │   │   └── ttsService.test.ts
+│   │   │   ├── analysisService.ts
+│   │   │   ├── api
+│   │   │   │   ├── __mocks__
+│   │   │   │   └── apiClient.ts
+│   │   │   ├── apiClient.ts
+│   │   │   ├── apiService.ts
+│   │   │   ├── auth-flow.test.ts
+│   │   │   ├── authService.ts
+│   │   │   ├── codeService.ts
+│   │   │   ├── dataService.ts
+│   │   │   ├── errors.ts
+│   │   │   ├── externalService.ts
+│   │   │   ├── projectService.ts
+│   │   │   ├── sentimentAnalysisService.ts
+│   │   │   ├── tts
+│   │   │   │   ├── __mocks__
+│   │   │   │   └── ttsService.test.ts
+│   │   │   ├── ttsCache.ts
+│   │   │   └── ttsService.ts
+│   │   ├── setupTests.ts
+│   │   ├── shims
+│   │   │   ├── font.ts
+│   │   │   ├── navigation.ts
+│   │   │   ├── router.ts
+│   │   │   ├── server.ts
+│   │   │   └── vitest.d.ts
+│   │   ├── test-setup.ts
+│   │   ├── test-utils
+│   │   │   ├── auth-test-utils.ts
+│   │   │   ├── dom-testing-helpers.ts
+│   │   │   ├── README.md
+│   │   │   └── setupTests.js
+│   │   ├── test-utils.tsx
+│   │   ├── types
+│   │   │   ├── code.ts
+│   │   │   └── swagger-client.d.ts
+│   │   └── utils
+│   │       ├── auth.ts
+│   │       ├── cn.ts
+│   │       ├── jwt.ts
+│   │       ├── openapi.ts
+│   │       └── setAuthCookie.ts
+│   ├── tailwind.config.ts
+│   ├── test-phase3.sh
+│   ├── test-results
+│   │   └── .last-run.json
+│   ├── test-utils
+│   │   ├── auth-test-utils.ts
+│   │   ├── AuthWrapper.tsx
+│   │   ├── index.ts
+│   │   ├── monaco
+│   │   │   ├── index.ts
+│   │   │   └── MonacoMock.tsx
+│   │   └── router
+│   │       ├── index.ts
+│   │       └── RouterWrapper.tsx
+│   ├── tests
+│   │   └── mocks
+│   │       ├── apiClient.ts
+│   │       └── OpenAPIContext.mock.tsx
+│   ├── tsconfig.json
+│   ├── tsconfig.temp.json
+│   ├── vite.config.ts
+│   ├── vitest.config.mts
+│   ├── vitest.config.ts
+│   ├── vitest.setup.ts
+│   └── vulnerability-report.json
+├── generate_claude_context.py
+├── generate_priority_tests.py
+├── generate-and-run-tests.yml
+├── generated_tests
+│   ├── test_generator_1747468766.json
+│   └── test_generator_1747469013.json
+├── gha-logs
+│   ├── run-1508195.log
+│   ├── run-1508241.log
+│   ├── run-1508283.log
+│   └── run-1508311.log
+├── htmlcov
+│   ├── .gitignore
+│   ├── class_index.html
+│   ├── coverage_html_cb_6fb7b396.js
+│   ├── favicon_32_cb_58284776.png
+│   ├── function_index.html
+│   ├── index.html
+│   ├── keybd_closed_cb_ce680311.png
+│   ├── status.json
+│   ├── style_cb_8e611ae1.css
+│   ├── z_0e05664743e4eb8a___init___py.html
+│   ├── z_0e05664743e4eb8a_chat_py.html
+│   ├── z_24bed618c5524ef3_persona_py.html
+│   ├── z_36d0a3d74de2d204___init___py.html
+│   ├── z_36d0a3d74de2d204_chat_py.html
+│   ├── z_36d0a3d74de2d204_chat_service_py.html
+│   ├── z_3f91abf824f9d626_analyze_service_py.html
+│   ├── z_56b3ee7887bbf5c6_analyze_py.html
+│   ├── z_57430a8e9f1f3276_rewrite_service_py.html
+│   ├── z_5f5a17c013354698___init___py.html
+│   ├── z_5f5a17c013354698_main_py.html
+│   ├── z_629452fbff4888aa_rewrite_py.html
+│   ├── z_67e21f5f914068bf_auth_py.html
+│   ├── z_6c0e4b930745278b___init___py.html
+│   ├── z_6c0e4b930745278b_common_py.html
+│   ├── z_6c0e4b930745278b_error_py.html
+│   ├── z_7bced6e93b6b263d___init___py.html
+│   ├── z_7bced6e93b6b263d_analyze_py.html
+│   ├── z_7bced6e93b6b263d_auth_py.html
+│   ├── z_7bced6e93b6b263d_chat_py.html
+│   ├── z_7bced6e93b6b263d_data_py.html
+│   ├── z_7bced6e93b6b263d_persona_py.html
+│   ├── z_7bced6e93b6b263d_rewrite_py.html
+│   ├── z_8f7e1016f2d37417___init___py.html
+│   ├── z_8f7e1016f2d37417_auth_interface_py.html
+│   ├── z_8f7e1016f2d37417_auth_middleware_py.html
+│   ├── z_8f7e1016f2d37417_config_py.html
+│   ├── z_8f7e1016f2d37417_errors_py.html
+│   ├── z_8f7e1016f2d37417_logging_py.html
+│   ├── z_8f7e1016f2d37417_middleware_py.html
+│   ├── z_8f7e1016f2d37417_test_config_py.html
+│   ├── z_a258ef236d0ca31c_api_key_service_py.html
+│   ├── z_a258ef236d0ca31c_auth_service_py.html
+│   ├── z_c318f3fa19a49f69___init___py.html
+│   ├── z_c318f3fa19a49f69_errors_py.html
+│   ├── z_c34d934f3850ef69_persona_service_py.html
+│   └── z_cfb6adc3f81c8e3c___init___py.html
+├── jest.config.js
+├── jest.config.mjs
+├── LICENSE
+├── lint_fix.sh
+├── lint.sh
+├── logs
+│   ├── .keep
+│   ├── agent_run_1747477093.log
+│   ├── agent_run_1747477853.log
+│   ├── agent_run_1747477915.log
+│   ├── agent_run_1747494320.log
+│   ├── agent_run_1747509877.log
+│   ├── agent_run_1747581931.log
+│   ├── api_1747499451.log
+│   ├── api_1747964354.log
+│   ├── api_1747964463.log
+│   ├── api_1747964513.log
+│   ├── api_1747964699.log
+│   ├── api_1747964709.log
+│   ├── api_1747965137.log
+│   ├── api_1747965213.log
+│   ├── api_1747965809.log
+│   ├── api_1747965886.log
+│   ├── api_1748022976.log
+│   ├── api_1748023118.log
+│   ├── api_1748023204.log
+│   ├── api_1748023279.log
+│   ├── api_1748023364.log
+│   ├── api_1748023377.log
+│   ├── api_1748023565.log
+│   ├── api_1748025592.log
+│   ├── api_1748026404.log
+│   ├── api_1748026497.log
+│   ├── api_1748026789.log
+│   ├── api_1748026797.log
+│   ├── api_1748027696.log
+│   ├── api_1748028130.log
+│   ├── api_1748028356.log
+│   ├── api_1748028567.log
+│   ├── api_1748028672.log
+│   ├── api_1748028789.log
+│   ├── api_1748028935.log
+│   ├── api_1748028943.log
+│   ├── api_1748029009.log
+│   ├── api_1748029027.log
+│   ├── api_1748029167.log
+│   ├── api_1748029347.log
+│   ├── api_1748029348.log
+│   ├── api_1748029349.log
+│   ├── boundary-status.txt
+│   ├── error_logs.txt
+│   ├── error_summary.txt
+│   ├── error-status.txt
+│   ├── failed_runs.json
+│   ├── github_workflow_failure_report.txt
+│   └── loading-status.txt
+├── Makefile
+├── Makefile.coverage
+├── MindMeld Agent Pipeline: Comprehensive I.md
+├── mindmeld_test_1747509964
+│   ├── broken.py
+│   └── good.py
+├── next-env.d.ts
+├── outline_codebase.py
+├── outputs
+│   ├── .DS_Store
+│   ├── jobs
+│   │   ├── job_1748023118.json
+│   │   ├── job_1748029126.json
+│   │   └── test_task.json
+│   └── sentiment-analysis
+│       └── .last-run.json
+├── package-lock.json
+├── package.json
+├── packages
+│   ├── .DS_Store
+│   └── agents
+│       ├── __init__.py
+│       ├── .gitkeep
+│       ├── advanced_reasoning -> claude_agents
+│       ├── claude_agents
+│       │   ├── __init__.py
+│       │   ├── agents
+│       │   │   ├── __init__.py
+│       │   │   ├── base.py
+│       │   │   ├── code_debug.py
+│       │   │   ├── create_ceo.py
+│       │   │   ├── create_dependency_agent.py
+│       │   │   ├── create_executor.py
+│       │   │   ├── create_orchestrator.py
+│       │   │   ├── create_planner.py
+│       │   │   ├── create_summarizer.py
+│       │   │   ├── create_test_generator.py
+│       │   │   ├── critic.py
+│       │   │   ├── dependency_management.py
+│       │   │   ├── dependency.py
+│       │   │   ├── executor.py
+│       │   │   ├── memory
+│       │   │   ├── optimized_vector_memory.py
+│       │   │   ├── orchestrator.py
+│       │   │   ├── pipeline_coordinator.py
+│       │   │   ├── planner.py
+│       │   │   ├── test_generator.py
+│       │   │   └── vector_memory.py
+│       │   ├── api
+│       │   │   ├── __init__.py
+│       │   │   ├── client.py
+│       │   │   ├── mock_client.py
+│       │   │   └── optimized_client.py
+│       │   ├── core
+│       │   │   ├── __init__.py
+│       │   │   └── registry.py
+│       │   ├── memory
+│       │   │   ├── __init__.py
+│       │   │   ├── base.py
+│       │   │   ├── conversation.py
+│       │   │   ├── simple.py
+│       │   │   └── vector.py
+│       │   ├── monitoring
+│       │   │   ├── dashboard.py
+│       │   │   └── integrations.py
+│       │   ├── orchestration
+│       │   │   ├── __init__.py
+│       │   │   ├── pipeline.py
+│       │   │   └── task_decomposition.py
+│       │   ├── patterns
+│       │   │   ├── reasoning_patterns.py
+│       │   │   └── task_patterns.py
+│       │   ├── registry.py
+│       │   └── utils
+│       │       ├── __init__.py
+│       │       ├── token_counter.py
+│       │       └── token_optimizer.py
+│       ├── hr_llm
+│       ├── hybrid_agents
+│       └── sfa_agents
+├── packages-agents-tree.txt
+├── packages-tree.txt
+├── playwright-report
+│   ├── data
+│   │   ├── d9826f3231845093ce3b9df88398637463de6891.zip
+│   │   └── e07c0aac499cf9979629cc4d297888292a04d203.md
+│   ├── index.html
+│   └── trace
+│       ├── assets
+│       │   ├── codeMirrorModule-DwAiTpyC.js
+│       │   └── defaultSettingsView-DkkRvn5X.js
+│       ├── codeMirrorModule.C3UTv-Ge.css
+│       ├── codicon.DCmgc-ay.ttf
+│       ├── defaultSettingsView.QdHITyLI.css
+│       ├── index.CFOW-Ezb.css
+│       ├── index.DvtSwn6E.js
+│       ├── index.html
+│       ├── playwright-logo.svg
+│       ├── snapshot.html
+│       ├── sw.bundle.js
+│       ├── uiMode.BatfzHMG.css
+│       ├── uiMode.html
+│       ├── uiMode.Sdytl9wc.js
+│       └── xtermModule.Beg8tuEN.css
+├── playwright.config.ts
+├── project-board-sync.yml
+├── prompts
+│   ├── AdvancedReasoning.json
+│   ├── Claude3.7.json
+│   ├── Counterfactual.json
+│   ├── DeepResearch.json
+│   ├── GPT4.1AgentPrompts.json
+│   ├── personas
+│   │   └── cynical_humorist.yaml
+│   ├── prompt_attribution_template.yaml
+│   ├── SatireWritingStyle.json
+│   └── visual_modifier_taxonomy.json
+├── pyproject.toml
+├── README.md
+├── README.status.md
+├── REFACTORING_SUMMARY.md
+├── repo_healthcheck.py
+├── repo-outline.json
+├── requirements-dev.txt
+├── requirements.txt
+├── retry.py
+├── run_agent.py
+├── run_agent.py.backup
+├── run_agent.py.fixed
+├── run_agent.py.new
+├── run_agents_parallel.py
+├── run_all_agents.py
+├── run_all_agents.sh
+├── run_auth_tests.sh
+├── run_code_debug.py
+├── run_dependency_check.py
+├── run_test_coverage.sh
+├── run_test_generator.py
+├── run_tests_with_env.sh
+├── run_tests_with_mock.sh
+├── run_workflow.py
+├── run-e2e-tests.sh
+├── schema_validator.py
+├── schemas
+│   └── review.schema.json
+├── scripts
+│   ├── """Verify agent migration completed succ
+│   ├── analyze-tech-debt.js
+│   ├── check-schema-fresh.js
+│   ├── docstring_audit.py
+│   ├── extract_github_workflow_failures.sh
+│   ├── fix-imports.js
+│   ├── full-test.sh
+│   ├── generate_architecture_review.py
+│   ├── generate_coverage_badges.py
+│   ├── generate_docs.py
+│   ├── generate-debt-task.js
+│   ├── generate-status.js
+│   ├── load_test_rate_limit.py
+│   ├── loadPrompts.js
+│   ├── migrate-component.sh
+│   ├── migration_summary.md
+│   ├── mindmeld_review.py
+│   ├── next-action.sh
+│   ├── projectctl.js
+│   ├── projectctl.mjs
+│   ├── projectctl.test.js
+│   ├── push.sh
+│   ├── start_api.sh
+│   ├── system_health.py
+│   ├── tempCodeRunnerFile.sh
+│   ├── test_redis.py
+│   ├── test-setup
+│   │   ├── configure-test-env.sh
+│   │   ├── create_test_db.py
+│   │   ├── mock_llm_server.py
+│   │   └── validate_test_env.sh
+│   ├── update-imports.js
+│   ├── validate_ci_environment.sh
+│   ├── validate_config.py
+│   ├── verify_migration.py
+│   ├── verify-component.sh
+│   ├── verify-sprint.sh
+│   ├── wait_for_ollama.py
+│   └── weekly-status.sh
+├── shared
+│   ├── schema
+│   │   ├── agent_report_schema.json
+│   │   ├── test_schema_validator.py
+│   │   └── validate_schema_ci.py
+│   └── templates
+│       ├── __init__.py
+│       ├── advancedReasoningTemplate.ts
+│       ├── counterfactualTemplate.ts
+│       ├── deepResearch.ts
+│       ├── deepResearchTemplate.ts
+│       ├── pentagramVisualTemplate.ts
+│       └── satiricalVoiceTemplate.ts
+├── specialized-agents-tree.txt
+├── src
+│   ├── __init__.py
+│   ├── __mocks__
+│   │   ├── __init__.py
+│   │   ├── next
+│   │   │   ├── __init__.py
+│   │   │   └── router.js
+│   │   ├── services
+│   │   │   ├── __init__.py
+│   │   │   └── authService.js
+│   │   └── utils
+│   │       ├── __init__.py
+│   │       └── jwt.js
+│   ├── .DS_Store
+│   ├── agents
+│   │   ├── __init__.py
+│   │   ├── .DS_Store
+│   │   ├── api
+│   │   │   └── __init__.py
+│   │   ├── core
+│   │   │   ├── __init__.py
+│   │   │   ├── base.py
+│   │   │   ├── base.py.bak
+│   │   │   ├── interfaces.py
+│   │   │   └── registry.py
+│   │   ├── examples
+│   │   ├── factory.py
+│   │   ├── implementations
+│   │   │   ├── code_debug.py.bak
+│   │   │   ├── dependency_management.py.bak
+│   │   │   └── dependency.py.bak
+│   │   ├── knowledge
+│   │   ├── memory
+│   │   ├── monitoring
+│   │   │   └── __init__.py
+│   │   ├── orchestration
+│   │   │   └── __init__.py
+│   │   └── workflows
+│   │       ├── __init__.py
+│   │       └── code_quality.py
+│   ├── ai
+│   │   ├── __init__.py
+│   │   └── client.py.bak
+│   ├── api
+│   │   ├── __init__.py
+│   │   ├── auth
+│   │   │   └── __init__.py
+│   │   └── services
+│   │       └── __init__.py
+│   ├── app
+│   │   ├── __init__.py
+│   │   ├── analyze
+│   │   │   ├── __init__.py
+│   │   │   ├── ClientAnalyzer.tsx
+│   │   │   ├── error.tsx
+│   │   │   └── page.tsx
+│   │   ├── code-analyzer
+│   │   │   ├── __init__.py
+│   │   │   └── page.tsx
+│   │   └── page.tsx
+│   ├── commands
+│   │   ├── __init__.py
+│   │   ├── next-action.js
+│   │   ├── report-failures.js
+│   │   ├── status.js
+│   │   ├── update-status.js
+│   │   └── verify-sprint.js
+│   ├── config
+│   │   ├── __init__.py
+│   │   └── promptTemplates.ts
+│   ├── example
+│   │   ├── analyze_codebase.py
+│   │   ├── planner_example.py
+│   │   ├── quick_analyze_codebase.py
+│   │   └── README.md
+│   ├── example.ts
+│   ├── frontend
+│   │   └── __init__.py
+│   ├── index.js
+│   ├── index.ts
+│   ├── sdk
+│   ├── services
+│   │   ├── __init__.py
+│   │   ├── codeService.ts
+│   │   ├── promptApi.ts
+│   │   ├── PromptService.advanced.test.ts
+│   │   ├── PromptService.examples.ts
+│   │   ├── PromptService.test.ts
+│   │   ├── PromptService.ts
+│   │   ├── sentimentAnalysisService.ts
+│   │   └── templateMigration.ts
+│   ├── tests
+│   │   ├── __init__.py
+│   │   └── test_error_handling.py
+│   ├── utils
+│   │   ├── __init__.py
+│   │   ├── error_handling.py
+│   │   ├── error_handling.py.bak
+│   │   ├── file_operations.py
+│   │   ├── file_operations.py.bak
+│   │   ├── llm_provider.py
+│   │   ├── llm_provider.py.bak
+│   │   ├── logger.ts
+│   │   ├── model_manager.py
+│   │   ├── model_manager.py.bak
+│   │   ├── promptFormatter.ts
+│   │   ├── promptLoader.ts
+│   │   ├── schema_validator.py
+│   │   ├── schema_validator.py.bak
+│   │   ├── task_manager.py
+│   │   ├── task_manager.py.bak
+│   │   ├── templateConverter.ts
+│   │   ├── testing_utils.py
+│   │   └── testing_utils.py.bak
+│   └── workflows
+├── storage
+│   └── audio
+├── stories
+│   ├── assets
+│   │   ├── accessibility.png
+│   │   ├── accessibility.svg
+│   │   ├── addon-library.png
+│   │   ├── assets.png
+│   │   ├── avif-test-image.avif
+│   │   ├── context.png
+│   │   ├── discord.svg
+│   │   ├── docs.png
+│   │   ├── figma-plugin.png
+│   │   ├── github.svg
+│   │   ├── share.png
+│   │   ├── styling.png
+│   │   ├── testing.png
+│   │   ├── theming.png
+│   │   ├── tutorials.svg
+│   │   └── youtube.svg
+│   ├── button.css
+│   ├── Button.jsx
+│   ├── Configure.mdx
+│   ├── header.css
+│   ├── Header.jsx
+│   ├── page.css
+│   └── Page.jsx
+├── STRATEGY_IMPLEMENTATION_TRACKER.md
+├── temp
+│   └── select-comparison
+│       ├── Select.stories.tsx
+│       └── Select.tsx
+├── test_agent_pipeline.py
+├── test_agents.py
+├── TEST_COVERAGE.md
+├── test_data
+│   ├── .env.test
+│   ├── analysis_output
+│   ├── fixtures
+│   │   ├── sample_code.py
+│   │   └── sample_component.jsx
+│   ├── mock_api
+│   │   ├── auth_response.json
+│   │   └── llm_response.json
+│   ├── mock_responses
+│   │   └── sample_analysis.json
+│   ├── temp
+│   ├── test.db
+│   └── vector_storage
+├── test_enhanced_generator.py
+├── test_fix_checklist.md
+├── TEST_GENERATOR_USAGE.md
+├── test_schema_validation.py
+├── test-results
+│   ├── .last-run.json
+│   ├── .playwright-artifacts-13
+│   │   └── traces
+│   │       ├── 0ee8e6a2e601b506f494-b4c923ea3b2453c1c0ea-retry1-pwnetcopy-1.network
+│   │       ├── 0ee8e6a2e601b506f494-b4c923ea3b2453c1c0ea-retry1.network
+│   │       ├── 0ee8e6a2e601b506f494-b4c923ea3b2453c1c0ea-retry1.trace
+│   │       └── resources
+│   │           ├── 03e148680323083e6fc79ebcab5bd941426b7e66.html
+│   │           ├── 3820bcdc2e187ff5332ab0d5dc8529f8e10fd574.woff2
+│   │           ├── 46fe54499fd699feaabbf0aa614219a02068dc73.json
+│   │           ├── 91a94ca97758598791b821cdfbfd2ccb0731a992.json
+│   │           ├── 97d170e1550eee4afc0af065b78cda302a97674c.json
+│   │           ├── bd49c3659a2d324c6ac655942bce93245c3a6d38.txt
+│   │           ├── cfc70f823b7c67bb54a210879c3071637f4b8f04.woff2
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289666509.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289666716.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289666953.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289666954.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289666983.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289668074.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289668075.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289668120.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289668137.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289668139.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289668184.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289668217.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289668250.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289668284.jpeg
+│   │           ├── page@93197ab0810a1e728316e175493e65b4-1747289668334.jpeg
+│   │           └── page@93197ab0810a1e728316e175493e65b4-1747289670469.jpeg
+│   ├── tests-auth-login-should-lo-70ef7-ully-with-valid-credentials
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-e2e-Mind-01c1e-kflow-for-advancedReasoning
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-e2e-Mind-01c1e-kflow-for-advancedReasoning-retry1
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-e2e-Mind-9fb57-e-workflow-for-deepResearch
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-e2e-Mind-9fb57-e-workflow-for-deepResearch-retry1
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-e2e-Mind-aeb95-orkflow-for-pentagramVisual
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-e2e-Mind-aeb95-orkflow-for-pentagramVisual-retry1
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-e2e-Mind-b7f3c-workflow-for-satiricalVoice
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-e2e-Mind-b7f3c-workflow-for-satiricalVoice-retry1
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-e2e-Mind-beb27-workflow-for-counterfactual
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-e2e-Mind-beb27-workflow-for-counterfactual-retry1
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-visual-d-d2cde-meter-form-for-deepResearch
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-visual-d-d2cde-meter-form-for-deepResearch-retry1
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   ├── tests-ui-template-visual-d-db8c4--selection-for-deepResearch
+│   │   ├── error-context.md
+│   │   └── trace.zip
+│   └── tests-ui-template-visual-d-db8c4--selection-for-deepResearch-retry1
+│       ├── error-context.md
+│       └── trace.zip
+├── TESTING_PROGRESS.md
+├── tests
+│   ├── __init___src.py
+│   ├── __init__.py
+│   ├── .DS_Store
+│   ├── agent_test_verification.md
+│   ├── agents
+│   │   ├── __init__.py
+│   │   ├── _template.py
+│   │   ├── implementations
+│   │   │   ├── __init__.py
+│   │   │   └── test_code_debug.py.bak
+│   │   ├── knowledge
+│   │   ├── memory
+│   │   ├── test_agent_class.py
+│   │   ├── test_agent_implementations.py
+│   │   ├── test_agent_integration.py
+│   │   ├── test_code_debug.py
+│   │   ├── test_core
+│   │   ├── test_critic.py
+│   │   ├── test_data
+│   │   ├── test_dependency_management.py
+│   │   ├── test_executor.py
+│   │   ├── test_optimized_vector_memory.py
+│   │   ├── test_orchestrator.py
+│   │   ├── test_planner.py
+│   │   ├── test_test_generator.py
+│   │   └── test_vector_memory.py
+│   ├── ai
+│   ├── api
+│   ├── api_frontend
+│   │   ├── loginAttempt.test.ts
+│   │   ├── resetPassword.test.ts
+│   │   └── token.test.ts
+│   ├── authService_frontend.spec.ts
+│   ├── codeAnalysisHook_frontend.spec.ts
+│   ├── components_frontend
+│   │   ├── FeatureErrorBoundary.test.jsx
+│   │   ├── forgot-password.test.tsx
+│   │   └── reset-password.test.tsx
+│   ├── conftest.py
+│   ├── data
+│   │   └── test_outputs
+│   ├── enhanced_generated
+│   ├── frontend
+│   │   └── __init__.py
+│   ├── generated
+│   ├── integration_src.test.ts
+│   ├── promptFormatter_src.test.ts
+│   ├── promptService_src.test.ts
+│   ├── promptService.test.js
+│   ├── promptTypes_src.test.ts
+│   ├── schemaValidation_frontend.spec.ts
+│   ├── sdk
+│   ├── templateConverter_src.test.ts
+│   ├── templateExamples_src.test.ts
+│   ├── test_add.py
+│   ├── test_agent
+│   │   └── test_ollama_connection.py.bak
+│   ├── test_agent_integration.py
+│   ├── test_api
+│   │   ├── __init__.py
+│   │   ├── test_analyze.py
+│   │   ├── test_api.py
+│   │   ├── test_auth_scope.py
+│   │   ├── test_auth_scope.py.bak
+│   │   ├── test_auth.py
+│   │   ├── test_chat.py
+│   │   ├── test_persona_api.py
+│   │   └── test_rewrite_api.py
+│   ├── test_container
+│   │   └── test_docker_integration.py
+│   ├── test_core
+│   │   ├── test_errors.py
+│   │   ├── test_middleware.py
+│   │   └── test_middleware.py.bak
+│   ├── test_critic_behavior.py
+│   ├── test_debug_behavior.py
+│   ├── test_dependency_behavior.py
+│   ├── test_executor_behavior.py
+│   ├── test_llm_provider.py.bak
+│   ├── test_pipeline_flow.py
+│   ├── test_planner_behavior.py
+│   ├── test_services
+│   │   ├── test_analyze_service.py
+│   │   ├── test_auth_service.py
+│   │   ├── test_chat_service.py
+│   │   ├── test_chat_service.py.bak
+│   │   ├── test_persona_service.py
+│   │   ├── test_persona_service.py.bak
+│   │   └── test_rewrite_service.py
+│   ├── test_test_generator_agent.py.bak
+│   ├── test_testgen_behavior.py
+│   ├── test-templates.ts
+│   ├── utils_generated
+│   ├── verify-sprint.js
+│   └── workflows
+├── tree.md
+├── tsconfig.tsbuildinfo
+├── types
+│   └── promptTypes.ts
+├── ui.css
+├── utils
+│   ├── error_handling.py
+│   ├── file_operations.py
+│   ├── integration_example.py
+│   ├── llm_client.py
+│   ├── model_manager.py
+│   ├── schema_validator.py
+│   └── testing_utils.py
+├── validate_reports.py
+├── vector_memory_meta.json
+├── vector_memory.index
+├── vitest.config.js
+└── workflow_results
+    ├── code_quality_results.json
+    ├── dependency_analysis_results.json
+    └── test_coverage_results.json
+
+467 directories, 1520 files

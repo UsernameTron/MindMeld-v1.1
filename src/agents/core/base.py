@@ -52,7 +52,6 @@ class Agent(ABC):
     @abstractmethod
     def process(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
         """Abstract processing interface for concrete agents."""
-        pass
 
     def update_state(self, state_updates: Dict[str, Any]) -> None:
         self.state.update(state_updates)

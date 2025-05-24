@@ -4,7 +4,6 @@ import os
 import sys
 import tempfile
 import unittest
-from unittest.mock import MagicMock, patch
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -16,7 +15,6 @@ class TestAgentValidation(unittest.TestCase):
 
     def test_validation_file_not_found(self):
         """Test validation with non-existent file."""
-        from pathlib import Path
 
         from run_agent import validate_input
 
@@ -28,7 +26,6 @@ class TestAgentValidation(unittest.TestCase):
 
     def test_validation_directory_for_file_agent(self):
         """Test validation with directory for file-only agent."""
-        from pathlib import Path
 
         from run_agent import validate_input
 
@@ -42,7 +39,6 @@ class TestAgentValidation(unittest.TestCase):
 
     def test_validation_non_integer_for_summarizer(self):
         """Test validation with non-integer for summarizer agent."""
-        from pathlib import Path
 
         from run_agent import validate_input
 

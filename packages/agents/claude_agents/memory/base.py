@@ -31,7 +31,6 @@ class Memory(ABC):
         Returns:
             ID of the stored item
         """
-        pass
 
     @abstractmethod
     def get(self, item_id: str) -> Tuple[Optional[Any], Optional[Dict[str, Any]]]:
@@ -44,7 +43,6 @@ class Memory(ABC):
         Returns:
             Tuple of (item, metadata) or (None, None) if not found
         """
-        pass
 
     @abstractmethod
     def search(
@@ -60,7 +58,6 @@ class Memory(ABC):
         Returns:
             List of tuples (item_id, item, metadata, relevance_score)
         """
-        pass
 
     @abstractmethod
     def update(
@@ -77,7 +74,6 @@ class Memory(ABC):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
     @abstractmethod
     def remove(self, item_id: str) -> bool:
@@ -90,12 +86,10 @@ class Memory(ABC):
         Returns:
             True if successful, False otherwise
         """
-        pass
 
     @abstractmethod
     def clear(self) -> None:
         """Clear all items from memory."""
-        pass
 
     @abstractmethod
     def get_stats(self) -> Dict[str, Any]:
@@ -105,4 +99,3 @@ class Memory(ABC):
         Returns:
             Dictionary of statistics
         """
-        pass

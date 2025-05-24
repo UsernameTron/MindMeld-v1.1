@@ -31,7 +31,7 @@ def run_tests():
     """Run a series of tests to validate our fixes."""
     import subprocess
 
-    from schema_validator import load_schema, validate_agent_output
+    from schema_validator import validate_agent_output
 
     print("\n🔍 Running validation tests for agent pipeline...\n")
 
